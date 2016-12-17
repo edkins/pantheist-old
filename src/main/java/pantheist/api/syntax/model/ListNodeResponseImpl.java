@@ -2,6 +2,7 @@ package pantheist.api.syntax.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -15,7 +16,7 @@ final class ListNodeResponseImpl implements ListNodeResponse
 	private final List<SyntaxNode> nodes;
 
 	@Inject
-	ListNodeResponseImpl(@Assisted @JsonProperty("nodes") final List<SyntaxNode> nodes)
+	ListNodeResponseImpl(@Assisted @JsonProperty("nodes") final Collection<SyntaxNode> nodes)
 	{
 		checkNotNull(nodes);
 		this.nodes = ImmutableList.copyOf(nodes);

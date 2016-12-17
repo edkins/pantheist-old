@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pantheist.api.syntax.backend.SyntaxBackend;
+import pantheist.api.syntax.model.PutNodeRequest;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 import pantheist.common.http.HttpHelper;
@@ -60,13 +61,13 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	@PUT
 	@Path("/{syn}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response putSyntax(@PathParam("syn") final String syn, final String requestJson)
+	public Response putSyntax(@PathParam("syn") final String syntaxId, final String requestJson)
 	{
 		try
 		{
-			LOGGER.info("PUT /syntax/{} {}", syn, requestJson);
+			LOGGER.info("PUT /syntax/{} {}", syntaxId, requestJson);
 			httpHelper.parseRequest(requestJson, EmptyObject.class);
-			backend.createSyntax(syn);
+			backend.createSyntax(syntaxId);
 			return Response.noContent().build();
 		}
 		catch (final AlreadyPresentException e)
@@ -82,12 +83,12 @@ public final class SyntaxResourceImpl implements SyntaxResource
 
 	@DELETE
 	@Path("/{syn}")
-	public Response deleteSyntax(@PathParam("syn") final String syn)
+	public Response deleteSyntax(@PathParam("syn") final String syntaxId)
 	{
-		LOGGER.info("DELETE /syntax/{}", syn);
+		LOGGER.info("DELETE /syntax/{}", syntaxId);
 		try
 		{
-			backend.deleteSyntax(syn);
+			backend.deleteSyntax(syntaxId);
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
@@ -109,11 +110,79 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	@GET
 	@Path("{syn}/node")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response listToken(@PathParam("syn") final String syn)
+	public Response listNodes(@PathParam("syn") final String syntaxId)
 	{
 		try
 		{
-			return httpHelper.jsonResponse(this.backend.listNodes(syn));
+			return httpHelper.jsonResponse(this.backend.listNodes(syntaxId));
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	@GET
+	@Path("{syn}/node/{n}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getNode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId)
+	{
+		try
+		{
+			return httpHelper.jsonResponse(this.backend.getNode(syntaxId, nodeId));
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	@PUT
+	@Path("{syn}/node/{n}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response putNode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId,
+			final String requestJson)
+	{
+		try
+		{
+			final PutNodeRequest request = httpHelper.parseRequest(requestJson, PutNodeRequest.class);
+			this.backend.putNode(syntaxId, nodeId, request);
+			return Response.noContent().build();
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final AlreadyPresentException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	@DELETE
+	@Path("{syn}/node/{n}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId)
+	{
+		try
+		{
+			this.backend.deleteNode(syntaxId, nodeId);
+			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
 		{

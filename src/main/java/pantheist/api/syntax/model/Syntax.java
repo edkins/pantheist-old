@@ -1,6 +1,6 @@
 package pantheist.api.syntax.model;
 
-import java.util.List;
+import java.util.SortedMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -27,8 +27,25 @@ public interface Syntax
 	String name();
 
 	/**
-	 * @return a list of nodes associated with this syntax resource
+	 * @return a map of nodes associated with this syntax resource, indexed by
+	 *         nodeId.
 	 */
 	@JsonProperty("nodes")
-	List<SyntaxNode> nodes();
+	SortedMap<String, SyntaxNode> nodes();
+
+	/**
+	 * @param node
+	 *            replacement node
+	 * @return a new syntax object with this node added (or replaced if there's
+	 *         already one with that id)
+	 */
+	Syntax withNode(SyntaxNode node);
+
+	/**
+	 * @param nodeId
+	 *            node id to remove
+	 * @return a new syntax object without the node that has this id. (Returns
+	 *         an identical syntax object if the id was not present)
+	 */
+	Syntax withoutNode(String nodeId);
 }
