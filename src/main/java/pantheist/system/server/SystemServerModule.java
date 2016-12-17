@@ -2,10 +2,11 @@ package pantheist.system.server;
 
 import java.io.IOException;
 
+import org.eclipse.jetty.server.Server;
+
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
-import com.sun.net.httpserver.HttpServer;
 
 public class SystemServerModule extends PrivateModule
 {
@@ -14,13 +15,12 @@ public class SystemServerModule extends PrivateModule
 	protected void configure()
 	{
 		expose(PantheistServer.class);
-		bind(PantheistHandler.class).to(PantheistHandlerImpl.class).in(Scopes.SINGLETON);
 		bind(PantheistServer.class).to(PantheistServerImpl.class).in(Scopes.SINGLETON);
 	}
 
 	@Provides
-	HttpServer provideHttpServer() throws IOException
+	Server provideJettyServer() throws IOException
 	{
-		return HttpServer.create();
+		return new Server();
 	}
 }

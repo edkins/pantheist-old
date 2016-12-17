@@ -1,86 +1,35 @@
 package pantheist.common.http;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 
-import com.sun.net.httpserver.HttpExchange;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pantheist.common.except.ExceptionWritingException;
-
-class HttpHelperImpl implements HttpHelper
+final class HttpHelperImpl implements HttpHelper
 {
-	private static final Logger LOGGER = LogManager.getLogger(HttpHelperImpl.class);
+	private final ObjectMapper objectMapper;
 
-	@Override
-	public void notFound(final HttpExchange exchange)
+	@Inject
+	HttpHelperImpl(final ObjectMapper objectMapper)
 	{
-		try
-		{
-			LOGGER.debug("Serving 404 response");
-			exchange.sendResponseHeaders(404, 0);
-			exchange.getResponseBody().write("Not found".getBytes());
-		}
-		catch (final IOException ex)
-		{
-			LOGGER.warn("Exception when serving 404 response, will not get handled");
-			throw new ExceptionWritingException(ex);
-		}
-		finally
-		{
-			exchange.close();
-		}
+		this.objectMapper = checkNotNull(objectMapper);
 	}
 
 	@Override
-	public void methodNotAllowed(final HttpExchange exchange)
+	public Response jsonResponse(final Object payload)
 	{
 		try
 		{
-			LOGGER.debug("Serving 405 response");
-			exchange.sendResponseHeaders(405, 0);
-			exchange.getResponseBody().write("Method not allowed".getBytes());
+			final String json = objectMapper.writeValueAsString(payload);
+			return Response.ok(json).build();
 		}
-		catch (final IOException ex)
+		catch (final JsonProcessingException e)
 		{
-			LOGGER.warn("Exception when serving 405 response, will not get handled");
-			throw new ExceptionWritingException(ex);
+			throw new HttpHelperException(e);
 		}
-		finally
-		{
-			exchange.close();
-		}
-	}
-
-	@Override
-	public void internalError(final HttpExchange exchange)
-	{
-		try
-		{
-			LOGGER.debug("Serving 500 response");
-			exchange.sendResponseHeaders(500, 0);
-			exchange.getResponseBody().write("Internal server error".getBytes());
-		}
-		catch (final IOException ex)
-		{
-			LOGGER.warn("Exception when serving 500 response, will not get handled");
-			throw new ExceptionWritingException(ex);
-		}
-		finally
-		{
-			exchange.close();
-		}
-	}
-
-	@Override
-	public OutputStream beginOk(final HttpExchange exchange, final String contentType) throws IOException
-	{
-		exchange.getResponseHeaders().add("Content-Type", contentType);
-		exchange.getResponseHeaders().add("Cache-Control", "no-cache");
-		exchange.sendResponseHeaders(200, 0);
-		return exchange.getResponseBody();
 	}
 
 }

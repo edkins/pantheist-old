@@ -1,6 +1,7 @@
 package pantheist.system.statics.backend;
 
-import pantheist.common.except.NotFoundException;
+import java.io.InputStream;
+import java.util.Optional;
 
 /**
  * Serves static files
@@ -14,10 +15,8 @@ public interface StaticsBackend
 	 *
 	 * @param path
 	 *            Path of the form /static/file.html
-	 * @return InputStream and content type representing the resource.
-	 * @throws NotFoundException
-	 *             if the path is invalid or no resource is found with that
-	 *             name.
+	 * @return InputStream and content type representing the resource, or
+	 *         Optional.empty() if not found.
 	 */
-	InputStreamWithType serveStaticFile(String path) throws NotFoundException;
+	Optional<InputStream> serveStaticFile(String path);
 }

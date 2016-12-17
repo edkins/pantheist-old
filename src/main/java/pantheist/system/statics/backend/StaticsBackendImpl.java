@@ -1,51 +1,34 @@
 package pantheist.system.statics.backend;
 
 import java.io.InputStream;
+import java.util.Optional;
 
-import pantheist.common.except.NotFoundException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 final class StaticsBackendImpl implements StaticsBackend
 {
+	private static final Logger LOGGER = LogManager.getLogger(StaticsBackendImpl.class);
 
 	@Override
-	public InputStreamWithType serveStaticFile(final String path) throws NotFoundException
+	public Optional<InputStream> serveStaticFile(final String path)
 	{
+		LOGGER.info(path);
 		if (!path.startsWith("/static/"))
 		{
-			throw new NotFoundException("path must start /static/");
+			return Optional.empty();
 		}
 		if (path.contains(".."))
 		{
-			throw new NotFoundException(".. not allowed in path");
+			return Optional.empty();
 		}
 
 		final InputStream result = StaticsBackendImpl.class.getResourceAsStream(path);
 		if (result == null)
 		{
-			throw new NotFoundException("no such resource");
+			return Optional.empty();
 		}
-		final String contentType = guessContentType(path);
-		return new InputStreamWithTypeImpl(result, contentType);
+		return Optional.of(result);
 	}
 
-	private String guessContentType(final String path) throws NotFoundException
-	{
-		final int dotIndex = path.lastIndexOf('.');
-		final int slashIndex = path.lastIndexOf('/');
-		if (dotIndex == -1 || dotIndex <= slashIndex + 1)
-		{
-			throw new NotFoundException("No extension in filename");
-		}
-		final String ext = path.substring(dotIndex + 1);
-		switch (ext) {
-		case "css":
-			return "text/css";
-		case "html":
-			return "text/html";
-		case "js":
-			return "text/javascript";
-		default:
-			throw new NotFoundException("Unknown file extension");
-		}
-	}
 }

@@ -2,37 +2,32 @@ package pantheist.system.server;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
 
-import com.sun.net.httpserver.HttpServer;
-
-import pantheist.api.syntax.handler.SyntaxHandler;
+import pantheist.api.syntax.resource.SyntaxResource;
 import pantheist.system.config.PantheistConfig;
-import pantheist.system.statics.handler.RootHandler;
-import pantheist.system.statics.handler.StaticsHandler;
+import pantheist.system.statics.resource.StaticsResource;
 
 final class PantheistServerImpl implements PantheistServer
 {
 	private static final Logger LOGGER = LogManager.getLogger(PantheistServerImpl.class);
-	private final HttpServer httpServer;
 	private final PantheistConfig config;
-	private final StaticsHandler staticsHandler;
-	private final SyntaxHandler syntaxHandler;
-	private final RootHandler rootHandler;
+	private final StaticsResource staticsHandler;
+	private final SyntaxResource syntaxHandler;
 
 	@Inject
-	PantheistServerImpl(final HttpServer httpServer, final PantheistConfig config, final RootHandler rootHandler,
-			final StaticsHandler staticsHandler, final SyntaxHandler syntaxHandler)
+	PantheistServerImpl(final PantheistConfig config, final StaticsResource staticsHandler,
+			final SyntaxResource syntaxHandler)
 	{
-		this.httpServer = checkNotNull(httpServer);
 		this.config = checkNotNull(config);
-		this.rootHandler = checkNotNull(rootHandler);
 		this.staticsHandler = checkNotNull(staticsHandler);
 		this.syntaxHandler = checkNotNull(syntaxHandler);
 	}
@@ -43,14 +38,23 @@ final class PantheistServerImpl implements PantheistServer
 		try
 		{
 			final int port = config.httpPort();
-			httpServer.bind(new InetSocketAddress("localhost", port), config.httpBacklog());
-			httpServer.createContext("/static/", staticsHandler);
-			httpServer.createContext("/syntax/", syntaxHandler);
-			httpServer.createContext("/", rootHandler);
-			httpServer.start();
+
+			final ServletContextHandler context = new ServletContextHandler();
+			context.setContextPath("/");
+
+			final Server server = new Server(port);
+			server.setHandler(context);
+
+			final ResourceConfig resourceConfig = new ResourceConfig();
+			resourceConfig.register(staticsHandler).register(syntaxHandler);
+
+			context.addServlet(new ServletHolder(new ServletContainer(resourceConfig)), "/*");
+
+			server.start();
+
 			LOGGER.info("Running http server on localhost:{}", port);
 		}
-		catch (final IOException e)
+		catch (final Exception e)
 		{
 			throw new StartupException(e);
 		}
