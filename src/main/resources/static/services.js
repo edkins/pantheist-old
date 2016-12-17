@@ -37,8 +37,7 @@ services = {
 					{
 						method:'PUT',
 						contentType:'application/json',
-						data:'{}',
-						dataType:'text'
+						data:'{}'
 					}));
 	},
 	
@@ -46,8 +45,7 @@ services = {
 	{
 		return Promise.resolve($.ajax( path,
 			{
-				method:'DELETE',
-				dataType:'text'
+				method:'DELETE'
 			}));
 	}
 };

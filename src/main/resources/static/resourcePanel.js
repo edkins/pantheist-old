@@ -13,7 +13,7 @@ resourcePanel = {
 	{
 		var path = $('#resourcePanel #path').val();
 		actions.delete(path)
-			.then( resourcePanel.hideFailureMessage )
+			.then( actions.visitRoot )
 			.catch( resourcePanel.showFailureMessage );
 	},
 	

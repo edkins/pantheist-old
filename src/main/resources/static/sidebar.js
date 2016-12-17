@@ -1,25 +1,11 @@
 var sidebar = {
 
-	visit: function(type, level, path, name)
-	{
-		$('.main-panel').css('display','none');
-		switch(level)
-		{
-		case 1:
-			resourceTypePanel.show(type,name);
-			break;
-		case 2:
-			resourcePanel.show(type,path,name);
-			break;
-		}
-	},
-	
 	resourceClick: function(event)
 	{
 		var el = $(event.target);
 		$('#resources a').attr('class','');
 		el.attr('class','active');
-		sidebar.visit(el.data('type'), el.data('level'), el.data('path'), el.data('name') );
+		actions.visit(el.data('type'), el.data('level'), el.data('path'), el.data('name') );
 	},
 	
 	makeA: function(obj)
