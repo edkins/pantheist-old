@@ -8,15 +8,36 @@
 	</script>
 	<link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body onload="listResources()">
 <div class="header">
 <a href="/" class="quietly-active">Pantheist v0.0</a> -
 <a href="/static/doc/api.html">Documentation</a>
 </div>
 <div class="sidebar">
-text
-</div><div class="main-panel">
-lots more text
+<ul id="resources">
+</ul>
+</div>
+<div class="main-panel" id="resourceTypePanel" style="display:none">
+	<h1>Create new <span id="typeName"></span></h1>
+	<p>
+		Name: <input type="text" id="name">
+	</p>
+	<input type="hidden" id="type" value="">
+	<p>
+		<input type="button" value="Create" onclick="createResourceClick(event)">
+	</p>
+	<p id="failureMessage">
+	</p>
+</div>
+
+<div class="main-panel" id="resourcePanel" style="display:none">
+	<h1><span id="typeName"></span> <span id="name"></span></h1>
+	<input type="hidden" id="path" value="">
+	<p>
+		<input type="button" value="Delete" onclick="deleteResourceClick(event)">
+	</p>
+	<p id="failureMessage">
+	</p>
 </div>
 
 </body>

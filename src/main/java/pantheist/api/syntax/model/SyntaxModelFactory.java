@@ -8,5 +8,5 @@ public interface SyntaxModelFactory
 {
 	ListSyntaxResponse listSyntaxResponse(List<SyntaxMetadata> resources);
 
-	SyntaxMetadata syntaxMetadata(@Assisted("path") String path);
+	SyntaxMetadata syntaxMetadata(@Assisted("path") String path, @Assisted("name") String name);
 }

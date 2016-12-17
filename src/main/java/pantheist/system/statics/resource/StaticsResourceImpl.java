@@ -10,7 +10,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +30,7 @@ public final class StaticsResourceImpl implements StaticsResource
 	}
 
 	@GET
-	@Produces(MediaType.TEXT_HTML)
+	@Produces("text/html;charset=utf-8")
 	public Response getRoot()
 	{
 		return serve("index", "html");
@@ -39,7 +38,7 @@ public final class StaticsResourceImpl implements StaticsResource
 
 	@GET
 	@Path("/static/{path:.*}.html")
-	@Produces(MediaType.TEXT_HTML)
+	@Produces("text/html;charset=utf-8")
 	public Response getHtml(@PathParam("path") final String path)
 	{
 		return serve(path, "html");

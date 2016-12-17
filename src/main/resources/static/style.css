@@ -26,6 +26,10 @@ body {
 .sidebar a {
 	color: #88f;
 }
+.sidebar a.active {
+	color: black;
+	background: #fe6;
+}
 
 .sidebar {
 	width: 20%;
@@ -36,6 +40,7 @@ body {
 	resize: horizontal;
 	overflow: auto;
 	margin-right: 4pt;
+	height: 500pt;
 }
 
 .main-panel {
