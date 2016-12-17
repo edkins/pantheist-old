@@ -38,8 +38,12 @@ final class StaticsBackendImpl implements StaticsBackend
 		}
 		final String ext = path.substring(dotIndex + 1);
 		switch (ext) {
+		case "css":
+			return "text/css";
 		case "html":
 			return "text/html";
+		case "js":
+			return "text/javascript";
 		default:
 			throw new NotFoundException("Unknown file extension");
 		}

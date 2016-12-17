@@ -78,6 +78,7 @@ class HttpHelperImpl implements HttpHelper
 	public OutputStream beginOk(final HttpExchange exchange, final String contentType) throws IOException
 	{
 		exchange.getResponseHeaders().add("Content-Type", contentType);
+		exchange.getResponseHeaders().add("Cache-Control", "no-cache");
 		exchange.sendResponseHeaders(200, 0);
 		return exchange.getResponseBody();
 	}

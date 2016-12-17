@@ -1,0 +1,59 @@
+body {
+	font-family: sans-serif;
+	margin: 0;
+}
+
+.header {
+	display: block;
+	width: 100%;
+	background: #006;
+	color: white;
+	padding: 4pt;
+}
+
+.header a {
+	color: #88f;
+}
+.header a.active {
+	color: black;
+	background: #fe6;
+}
+.header a.quietly-active {
+	color: white;
+	text-decoration: none;
+}
+
+.sidebar a {
+	color: #88f;
+}
+
+.sidebar {
+	width: 20%;
+	float: left;
+	background: #006;
+	color: white;
+	padding: 4pt;
+	resize: horizontal;
+	overflow: auto;
+	margin-right: 4pt;
+}
+
+.main-panel {
+	width: 80%;
+	background: white;
+	color: black;
+	padding: 4pt;
+}
+
+
+.documentation {
+	background: white;
+}
+.documentation .define-path {
+	font-family: monospace;
+	background: #cfc;
+}
+.documentation .path {
+	font-family: monospace;
+	background: #ccc;
+}
