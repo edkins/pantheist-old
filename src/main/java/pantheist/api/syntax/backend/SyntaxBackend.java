@@ -1,5 +1,6 @@
 package pantheist.api.syntax.backend;
 
+import pantheist.api.syntax.model.ListNodeResponse;
 import pantheist.api.syntax.model.ListSyntaxResponse;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
@@ -29,4 +30,15 @@ public interface SyntaxBackend
 	 *             identifier.
 	 */
 	void deleteSyntax(String id) throws NotFoundException;
+
+	/**
+	 * List the nodes associated with a syntax resource.
+	 *
+	 * @param syn
+	 *            Identifies the syntax resource
+	 * @return list of nodes
+	 * @throws NotFoundException
+	 *             if there is no syntax resource with that id
+	 */
+	ListNodeResponse listNodes(String syn) throws NotFoundException;
 }

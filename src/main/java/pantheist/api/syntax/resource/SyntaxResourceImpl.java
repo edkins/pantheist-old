@@ -36,6 +36,12 @@ public final class SyntaxResourceImpl implements SyntaxResource
 		this.httpHelper = checkNotNull(httpHelper);
 	}
 
+	///////////////
+	//
+	// syntax
+	//
+	///////////////
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response listSyntax()
@@ -52,16 +58,16 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	}
 
 	@PUT
-	@Path("/{id}")
+	@Path("/{syn}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response putSyntax(@PathParam("id") final String id, final String requestJson)
+	public Response putSyntax(@PathParam("syn") final String syn, final String requestJson)
 	{
 		try
 		{
-			LOGGER.info("PUT /syntax/{} {}", id, requestJson);
+			LOGGER.info("PUT /syntax/{} {}", syn, requestJson);
 			httpHelper.parseRequest(requestJson, EmptyObject.class);
-			backend.createSyntax(id);
-			return Response.status(201).build();
+			backend.createSyntax(syn);
+			return Response.noContent().build();
 		}
 		catch (final AlreadyPresentException e)
 		{
@@ -75,13 +81,13 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	}
 
 	@DELETE
-	@Path("/{id}")
-	public Response deleteSyntax(@PathParam("id") final String id)
+	@Path("/{syn}")
+	public Response deleteSyntax(@PathParam("syn") final String syn)
 	{
-		LOGGER.info("DELETE /syntax/{}", id);
+		LOGGER.info("DELETE /syntax/{}", syn);
 		try
 		{
-			backend.deleteSyntax(id);
+			backend.deleteSyntax(syn);
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
@@ -94,4 +100,30 @@ public final class SyntaxResourceImpl implements SyntaxResource
 			throw e;
 		}
 	}
+
+	///////////////
+	//
+	// node
+	//
+	///////////////
+	@GET
+	@Path("{syn}/node")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listToken(@PathParam("syn") final String syn)
+	{
+		try
+		{
+			return httpHelper.jsonResponse(this.backend.listNodes(syn));
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
 }

@@ -13,7 +13,7 @@ final class StaticsBackendImpl implements StaticsBackend
 	@Override
 	public Optional<InputStream> serveStaticFile(final String path)
 	{
-		LOGGER.info(path);
+		LOGGER.debug(path);
 		if (!path.startsWith("/static/"))
 		{
 			return Optional.empty();

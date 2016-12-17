@@ -4,11 +4,14 @@
 			src="https://code.jquery.com/jquery-2.2.4.min.js"
 			integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
 			crossorigin="anonymous"></script>
-	<script src="/static/ui.js">
-	</script>
+	<script src="/static/services.js"></script>
+	<script src="/static/sidebar.js"></script>
+	<script src="/static/resourcePanel.js"></script>
+	<script src="/static/resourceTypePanel.js"></script>
+	<script src="/static/actions.js"></script>
 	<link rel="stylesheet" href="/static/style.css">
 </head>
-<body onload="listResources()">
+<body onload="actions.refreshResources()">
 <div class="header">
 <a href="/" class="quietly-active">Pantheist v0.0</a> -
 <a href="/static/doc/api.html">Documentation</a>
@@ -24,7 +27,7 @@
 	</p>
 	<input type="hidden" id="type" value="">
 	<p>
-		<input type="button" value="Create" onclick="createResourceClick(event)">
+		<input type="button" value="Create" onclick="resourceTypePanel.createResourceClick(event)">
 	</p>
 	<p id="failureMessage">
 	</p>
@@ -34,10 +37,12 @@
 	<h1><span id="typeName"></span> <span id="name"></span></h1>
 	<input type="hidden" id="path" value="">
 	<p>
-		<input type="button" value="Delete" onclick="deleteResourceClick(event)">
+		<input type="button" value="Delete" onclick="resourcePanel.deleteResourceClick(event)">
 	</p>
 	<p id="failureMessage">
 	</p>
+	<div id="components">
+	</div>
 </div>
 
 </body>
