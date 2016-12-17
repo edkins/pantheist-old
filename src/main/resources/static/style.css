@@ -51,9 +51,24 @@ body {
 }
 .documentation .define-path {
 	font-family: monospace;
+	font-weight: bold;
 	background: #cfc;
+	padding: 0pt 4pt;
+}
+.documentation .define-path .param {
+	color: #00f;
+}
+.documentation .verb {
+	font-family: monospace;
+	background: #fce;
+	padding: 0pt 4pt;
 }
 .documentation .path {
 	font-family: monospace;
 	background: #ccc;
 }
+.documentation pre {
+	background: #eef;
+	padding: 4pt;
+}
+

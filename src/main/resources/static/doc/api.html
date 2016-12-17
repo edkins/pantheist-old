@@ -8,20 +8,33 @@
 <a href="/static/doc/api.html" class="active">Documentation</a>
 </div>
 
-<h1>Pantheist API</h1>
+<h1>Pantheist server</h1>
 
-<ul>
-	<li>
-		<span class="define-path">/</span>
-		Root page, alias for <span class="path">/static/index.html</span>
-	</li>
-	<li>
-		<span class="define-path">/static</span>
-		Static assets. These are not generated dynamically and requesting them should have no side-effects.
-	</li>
-	<li>
-		<span class="define-path">/static/doc</span>
-		System documentation.
-	</li>
-</ul>
+<h2>Static resources</h2>
+<h3><span class="define-path">/</span></h3>
+Root page, alias for <span class="path">/static/index.html</span>
+
+<h3><span class="define-path">/static/</span></h3>
+Static assets. These are not generated dynamically and requesting them should have no side-effects.
+
+<h3><span class="define-path">/static/doc/</span></h3>
+System documentation.
+
+<h2>API</h2>
+<h3><span class="define-path">/syntax/</span> <span class="verb">GET</span></h3>
+Lists syntax structures
+
+<pre class="json">
+{
+    "resources":[
+        {
+            "path":"/syntax/mysyntax/"
+        }
+    ]
+}
+</pre>
+
+<h3><span class="define-path">/syntax/<span class="param">name</span>/</span> <span class="verb">GET</span> <span class="verb">PUT</span> <span class="verb">DELETE</span></h3>
+Accesses a particular syntax structure
+
 </html>

@@ -2,7 +2,9 @@ package pantheist.main;
 
 import com.google.inject.PrivateModule;
 
+import pantheist.api.syntax.backend.ApiSyntaxBackendModule;
 import pantheist.api.syntax.handler.ApiSyntaxHandlerModule;
+import pantheist.api.syntax.model.ApiSyntaxModelModule;
 import pantheist.common.http.CommonHttpModule;
 import pantheist.system.config.SystemConfigModule;
 import pantheist.system.server.PantheistServer;
@@ -17,6 +19,8 @@ public class AllPantheistModule extends PrivateModule
 	protected void configure()
 	{
 		expose(PantheistServer.class);
+		install(new ApiSyntaxBackendModule());
+		install(new ApiSyntaxModelModule());
 		install(new ApiSyntaxHandlerModule());
 		install(new CommonHttpModule());
 		install(new SystemConfigModule());
