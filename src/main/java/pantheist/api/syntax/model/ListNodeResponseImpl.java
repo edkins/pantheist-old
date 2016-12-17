@@ -13,19 +13,19 @@ import com.google.inject.assistedinject.Assisted;
 
 final class ListNodeResponseImpl implements ListNodeResponse
 {
-	private final List<SyntaxNode> nodes;
+	private final List<SyntaxNode> components;
 
 	@Inject
-	ListNodeResponseImpl(@Assisted @JsonProperty("nodes") final Collection<SyntaxNode> nodes)
+	ListNodeResponseImpl(@Assisted @JsonProperty("components") final Collection<SyntaxNode> components)
 	{
-		checkNotNull(nodes);
-		this.nodes = ImmutableList.copyOf(nodes);
+		checkNotNull(components);
+		this.components = ImmutableList.copyOf(components);
 	}
 
 	@Override
-	public List<SyntaxNode> nodes()
+	public List<SyntaxNode> components()
 	{
-		return nodes;
+		return components;
 	}
 
 }

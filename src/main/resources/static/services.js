@@ -1,7 +1,7 @@
 services = {
 	get: function(path)
 	{
-		return Promise.resolve($.ajax('/syntax'));
+		return Promise.resolve($.ajax(path));
 	},
 
 	getResources: function()
@@ -13,21 +13,32 @@ services = {
 					path:"/syntax",
 					level:1,
 					type:"syntax",
-					resources: response.resources.map( m => services.level2resource('syntax',m) )
+					resources: response.resources
 				}
 			];
 		} );
 	},
-
-	level2resource: function(type,metadata)
+	
+	componentTypes: function(type)
 	{
-		return {
-			name: metadata.name,
-			path: metadata.path,
-			level:2,
-			type:type,
-			resources:[]
+		switch(type)
+		{
+		case 'syntax': return ['node'];
+		default:
+			console.log('bad type ' + type);
 		}
+	},
+
+	getComponents: function(resourceType,resourceId)
+	{
+		return Promise.all(services.componentTypes(resourceType).map( componentType => {
+			return services.get('/'+resourceType+'/'+resourceId+'/'+componentType).then( response => {
+				return {
+					componentType: componentType,
+					components: response.components
+				};
+			});
+		} ));
 	},
 	
 	putEmpty: function(type,id)

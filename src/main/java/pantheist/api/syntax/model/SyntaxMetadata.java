@@ -13,6 +13,12 @@ public interface SyntaxMetadata
 	String path();
 
 	/**
+	 * @return the id of this resource, which will be the last part of the path.
+	 */
+	@JsonProperty("id")
+	String id();
+
+	/**
 	 * @return a unique name for this resource that may contain capital letters
 	 *         and spaces, e.g. "My Syntax"
 	 */

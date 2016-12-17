@@ -10,7 +10,9 @@ public interface SyntaxModelFactory
 {
 	ListSyntaxResponse listSyntaxResponse(List<SyntaxMetadata> resources);
 
-	SyntaxMetadata syntaxMetadata(@Assisted("path") String path, @Assisted("name") String name);
+	SyntaxMetadata syntaxMetadata(@Assisted("path") String path,
+			@Assisted("id") String id,
+			@Assisted("name") String name);
 
 	ListNodeResponse listNodeResponse(Collection<SyntaxNode> nodes);
 

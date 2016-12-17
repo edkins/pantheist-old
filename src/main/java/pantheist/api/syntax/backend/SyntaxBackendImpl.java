@@ -48,7 +48,7 @@ final class SyntaxBackendImpl implements SyntaxBackend
 
 	private SyntaxMetadata getMetadata(final Syntax syn)
 	{
-		return modelFactory.syntaxMetadata(syn.path(), syn.name());
+		return modelFactory.syntaxMetadata(syn.path(), syn.id(), syn.name());
 	}
 
 	@Override

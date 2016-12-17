@@ -17,12 +17,29 @@ resourcePanel = {
 			.catch( resourcePanel.showFailureMessage );
 	},
 	
-	show: function(type,path,name)
+	show: function(resourceType,resourceId,name)
 	{
 		$('#resourcePanel').css('display','block');
-		$('#resourcePanel #typeName').text(type);
+		$('#resourcePanel #resourceType').val(resourceType);
+		$('#resourcePanel #resourceId').val(resourceId);
+		$('#resourcePanel #typeName').text(resourceType);
 		$('#resourcePanel #name').text(name);
-		$('#resourcePanel #path').val(path);
 		resourcePanel.hideFailureMessage();
+		actions.refreshComponents();
+	},
+	
+	resourceType: function()
+	{
+		return $('#resourcePanel #resourceType').val();
+	},
+	
+	resourceId: function()
+	{
+		return $('#resourcePanel #resourceId').val();
+	},
+	
+	showComponents: function(response)
+	{
+		$('#resourcePanel #components').text(JSON.stringify(response));
 	}
 };

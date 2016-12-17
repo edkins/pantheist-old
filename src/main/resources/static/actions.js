@@ -9,8 +9,16 @@ actions = {
 		return services.getResources().then( sidebar.showResources );
 	},
 	
-	delete: function(path)
+	refreshComponents: function()
 	{
+		return services
+			.getComponents( resourcePanel.resourceType(), resourcePanel.resourceId() )
+			.then( resourcePanel.showComponents );
+	},
+	
+	deleteResource: function(resourceType,resourceId)
+	{
+		var path = resourceType + '/' + resourceId;
 		return services.delete(path).then( actions.refreshResources );
 	},
 
@@ -19,17 +27,15 @@ actions = {
 		$('.main-panel').css('display','none');
 	},
 
-	visit: function(type, level, path, name)
+	visitResourceType: function(resourceType, name)
 	{
 		$('.main-panel').css('display','none');
-		switch(level)
-		{
-		case 1:
-			resourceTypePanel.show(type,name);
-			break;
-		case 2:
-			resourcePanel.show(type,path,name);
-			break;
-		}
+		resourceTypePanel.show(resourceType,name);
+	},
+
+	visitResource: function(resourceType, resourceId, name)
+	{
+		$('.main-panel').css('display','none');
+		resourcePanel.show(resourceType, resourceId, name);
 	}
 };
