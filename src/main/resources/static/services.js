@@ -28,11 +28,26 @@ services = {
 			console.log('bad type ' + type);
 		}
 	},
+	
+	resourcePath: function(resourceType,resourceId)
+	{
+		return '/' + encodeURIComponent(resourceType) + '/' + encodeURIComponent(resourceId);
+	},
+	
+	componentTypePath: function(resourceType,resourceId,componentType)
+	{
+		return services.resourcePath(resourceType,resourceId) + '/' + encodeURIComponent(componentType);
+	},
+
+	componentPath: function(resourceType,resourceId,componentType,componentId)
+	{
+		return services.componentTypePath(resourceType,resourceId,componentType) + '/' + encodeURIComponent(componentId);
+	},
 
 	getComponents: function(resourceType,resourceId)
 	{
 		return Promise.all(services.componentTypes(resourceType).map( componentType => {
-			return services.get('/'+resourceType+'/'+resourceId+'/'+componentType).then( response => {
+			return services.get(services.componentTypePath(resourceType,resourceId,componentType)).then( response => {
 				return {
 					componentType: componentType,
 					components: response.components
@@ -41,9 +56,9 @@ services = {
 		} ));
 	},
 	
-	putEmpty: function(type,id)
+	putEmpty: function(resourceType,resourceId)
 	{
-		var path = '/' + type + '/' + id;
+		var path = services.resourcePath(resourceType,resourceId);
 		return Promise.resolve($.ajax( path,
 					{
 						method:'PUT',
@@ -52,8 +67,9 @@ services = {
 					}));
 	},
 	
-	delete: function(path)
+	deleteResource: function(resourceType,resourceId)
 	{
+		var path = services.resourcePath(resourceType,resourceId);
 		return Promise.resolve($.ajax( path,
 			{
 				method:'DELETE'
@@ -62,13 +78,16 @@ services = {
 	
 	deleteComponent: function(resourceType,resourceId,componentType,componentId)
 	{
-		var path = '/' + resourceType + '/' + resourceId + '/' + componentType + '/' + componentId;
-		return services.delete(path);
+		var path = services.componentPath(resourceType,resourceId,componentType,componentId);
+		return Promise.resolve($.ajax( path,
+			{
+				method:'DELETE'
+			}));
 	},
 	
 	putComponent: function(resourceType,resourceId,componentType,componentId,request)
 	{
-		var path = '/' + resourceType + '/' + resourceId + '/' + componentType + '/' + componentId;
+		var path = services.componentPath(resourceType,resourceId,componentType,componentId);
 		return Promise.resolve($.ajax( path,
 			{
 				method: 'PUT',

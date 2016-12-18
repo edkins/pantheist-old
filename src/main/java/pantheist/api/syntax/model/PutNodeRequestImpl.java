@@ -23,12 +23,12 @@ final class PutNodeRequestImpl implements PutNodeRequest
 		this.type = checkNotNull(type);
 		this.children = checkChildren(type, children);
 		this.updateExisting = updateExisting;
+
+		this.children.forEach(OtherPreconditions::checkNotNullOrEmpty);
 	}
 
 	private static List<String> checkChildren(final SyntaxNodeType type, final List<String> children)
 	{
-		children.forEach(OtherPreconditions::checkNotNullOrEmpty);
-
 		switch (type) {
 		case literal:
 			return OtherPreconditions.nullOrEmptyList(children);

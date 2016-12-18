@@ -2,6 +2,8 @@ package pantheist.api.syntax.backend;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +12,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+
+import com.google.common.base.Throwables;
 
 import pantheist.api.syntax.model.ListNodeResponse;
 import pantheist.api.syntax.model.ListSyntaxResponse;
@@ -66,9 +70,21 @@ final class SyntaxBackendImpl implements SyntaxBackend
 		return modelFactory.syntax(syntaxPath(id), id, id, new TreeMap<>());
 	}
 
+	private static String urlEncode(final String thing)
+	{
+		try
+		{
+			return URLEncoder.encode(thing, "utf-8");
+		}
+		catch (final UnsupportedEncodingException e)
+		{
+			throw Throwables.propagate(e);
+		}
+	}
+
 	private String syntaxPath(final String id)
 	{
-		return "/syntax/" + id;
+		return "/syntax/" + urlEncode(id);
 	}
 
 	@Override
@@ -151,7 +167,7 @@ final class SyntaxBackendImpl implements SyntaxBackend
 
 	private String nodePath(final String syntaxId, final String nodeId)
 	{
-		return syntaxPath(syntaxId) + "/" + nodeId;
+		return syntaxPath(syntaxId) + "/" + urlEncode(nodeId);
 	}
 
 	@Override

@@ -18,8 +18,7 @@ actions = {
 	
 	deleteResource: function(resourceType,resourceId)
 	{
-		var path = resourceType + '/' + resourceId;
-		return services.delete(path).then( actions.refreshResources );
+		return services.deleteResource(resourceType,resourceId).then( actions.refreshResources );
 	},
 
 	visitRoot: function()
