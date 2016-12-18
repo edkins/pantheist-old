@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -18,7 +19,9 @@ import org.apache.logging.log4j.Logger;
 
 import pantheist.api.generic.backend.GenericBackend;
 import pantheist.api.generic.schema.TypeKnower;
+import pantheist.api.syntax.backend.SyntaxBackend;
 import pantheist.api.syntax.model.PutComponentRequest;
+import pantheist.api.syntax.model.TryOutTextReport;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 import pantheist.common.http.HttpHelper;
@@ -31,13 +34,16 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	private final GenericBackend backend;
 	private final HttpHelper httpHelper;
 	private final TypeKnower typeKnower;
+	private final SyntaxBackend syntaxBackend;
 
 	@Inject
-	SyntaxResourceImpl(final GenericBackend backend, final HttpHelper httpHelper, final TypeKnower typeKnower)
+	SyntaxResourceImpl(final GenericBackend backend, final HttpHelper httpHelper, final TypeKnower typeKnower,
+			final SyntaxBackend syntaxBackend)
 	{
 		this.backend = checkNotNull(backend);
 		this.httpHelper = checkNotNull(httpHelper);
 		this.typeKnower = checkNotNull(typeKnower);
+		this.syntaxBackend = checkNotNull(syntaxBackend);
 	}
 
 	///////////////
@@ -196,6 +202,28 @@ public final class SyntaxResourceImpl implements SyntaxResource
 		{
 			backend.deleteComponent("syntax", syntaxId, t, componentId);
 			return Response.noContent().build();
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	@POST
+	@Path("{syn}/try")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response tryOutText(@PathParam("syn") final String syntaxId, final String text)
+	{
+		try
+		{
+			final TryOutTextReport report = syntaxBackend.tryOutText(syntaxId, text);
+			return httpHelper.jsonResponse(report);
 		}
 		catch (final NotFoundException e)
 		{

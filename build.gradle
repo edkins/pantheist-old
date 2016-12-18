@@ -19,4 +19,5 @@ dependencies {
 	compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.5'
 	compile group: 'commons-io', name: 'commons-io', version: '2.5'
 	compile group: 'org.slf4j', name: 'slf4j-nop', version: '1.7.22'
+	compile group: 'jparsec', name: 'jparsec', version: '2.0.1'
 }

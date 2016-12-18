@@ -13,4 +13,6 @@ public interface SyntaxModelFactory
 
 	SyntaxToken token(@Assisted("path") String path, @Assisted("id") String id, SyntaxTokenType type,
 			@Nullable @Assisted("value") String value);
+
+	TryOutTextReport tryOutTextReport(@Assisted("whatHappened") String whatHappened);
 }

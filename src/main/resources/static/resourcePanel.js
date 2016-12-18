@@ -32,6 +32,7 @@ resourcePanel = {
 		resourcePanel.refreshComponentCreator();
 		resourcePanel.hideFailureMessage();
 		actions.refreshComponents();
+		$('#syntaxResourceDiv #whatHappened').text('');
 	},
 	
 	refreshComponentCreator: function()
@@ -214,5 +215,13 @@ resourcePanel = {
 			}
 			$('#resourcePanel #components').append(table);
 		}
+	},
+	
+	clickTrySyntax: function(event)
+	{
+		var text = $('#syntaxResourceDiv #text-to-try').text();
+		services.trySyntax(resourcePanel.resourceId(),text)
+			.then( report => $('#syntaxResourceDiv #whatHappened').text( report.whatHappened ) )
+			.catch( () => $('#syntaxResourceDiv #whatHappened').text('Failed.') );
 	}
 };

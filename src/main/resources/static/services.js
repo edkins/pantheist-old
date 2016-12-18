@@ -94,5 +94,16 @@ services = {
 				contentType: 'application/json',
 				data: JSON.stringify({data:request})
 			}));
+	},
+
+	trySyntax: function(syntaxId,text)
+	{
+		var path = services.resourcePath('syntax',syntaxId) + '/try';
+		return Promise.resolve($.ajax(path,
+			{
+				method: 'POST',
+				contentType: 'text/plain',
+				data: text
+			}));
 	}
 };
