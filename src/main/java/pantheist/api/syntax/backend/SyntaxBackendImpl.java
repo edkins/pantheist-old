@@ -17,11 +17,14 @@ import com.google.common.base.Throwables;
 
 import pantheist.api.syntax.model.ListNodeResponse;
 import pantheist.api.syntax.model.ListSyntaxResponse;
+import pantheist.api.syntax.model.ListTokenResponse;
 import pantheist.api.syntax.model.PutNodeRequest;
+import pantheist.api.syntax.model.PutTokenRequest;
 import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxMetadata;
 import pantheist.api.syntax.model.SyntaxModelFactory;
 import pantheist.api.syntax.model.SyntaxNode;
+import pantheist.api.syntax.model.SyntaxToken;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 
@@ -67,7 +70,7 @@ final class SyntaxBackendImpl implements SyntaxBackend
 
 	private Syntax emptySyntax(final String id)
 	{
-		return modelFactory.syntax(syntaxPath(id), id, id, new TreeMap<>());
+		return modelFactory.syntax(syntaxPath(id), id, id, new TreeMap<>(), new TreeMap<>());
 	}
 
 	private static String urlEncode(final String thing)
@@ -167,7 +170,7 @@ final class SyntaxBackendImpl implements SyntaxBackend
 
 	private String nodePath(final String syntaxId, final String nodeId)
 	{
-		return syntaxPath(syntaxId) + "/" + urlEncode(nodeId);
+		return syntaxPath(syntaxId) + "/node/" + urlEncode(nodeId);
 	}
 
 	@Override
@@ -179,6 +182,72 @@ final class SyntaxBackendImpl implements SyntaxBackend
 		}
 
 		final Syntax newSyntax = syntax.get(syntaxId).withoutNode(nodeId);
+		syntax.put(syntaxId, newSyntax);
+	}
+
+	@Override
+	public ListTokenResponse listTokens(final String syntaxId) throws NotFoundException
+	{
+		if (!syntax.containsKey(syntaxId))
+		{
+			throw new NotFoundException(syntaxId);
+		}
+
+		final Collection<SyntaxToken> tokens = syntax.get(syntaxId).tokens().values();
+		return modelFactory.listTokenResponse(tokens);
+	}
+
+	private Optional<SyntaxToken> findToken(final String syntaxId, final String tokenId) throws NotFoundException
+	{
+		if (!syntax.containsKey(syntaxId))
+		{
+			throw new NotFoundException(syntaxId);
+		}
+		return Optional.ofNullable(syntax.get(syntaxId).tokens().get(tokenId));
+	}
+
+	@Override
+	public SyntaxToken getToken(final String syntaxId, final String tokenId) throws NotFoundException
+	{
+		final Optional<SyntaxToken> result = findToken(syntaxId, tokenId);
+		if (!result.isPresent())
+		{
+			throw new NotFoundException(tokenId);
+		}
+		return result.get();
+	}
+
+	private SyntaxToken tokenFromRequest(final String syntaxId, final String tokenId, final PutTokenRequest request)
+	{
+		return modelFactory.token(tokenPath(syntaxId, tokenId), tokenId, request.type(), request.value());
+	}
+
+	private String tokenPath(final String syntaxId, final String tokenId)
+	{
+		return syntaxPath(syntaxId) + "/token/" + urlEncode(tokenId);
+	}
+
+	@Override
+	public void putToken(final String syntaxId, final String tokenId, final PutTokenRequest request)
+			throws NotFoundException, AlreadyPresentException
+	{
+		final SyntaxToken newToken = tokenFromRequest(syntaxId, tokenId, request);
+
+		checkPresence(findToken(syntaxId, tokenId), request.updateExisting(), tokenId);
+
+		final Syntax newSyntax = syntax.get(syntaxId).withToken(newToken);
+		syntax.put(syntaxId, newSyntax);
+	}
+
+	@Override
+	public void deleteToken(final String syntaxId, final String tokenId) throws NotFoundException
+	{
+		if (!findToken(syntaxId, tokenId).isPresent())
+		{
+			throw new NotFoundException(tokenId);
+		}
+
+		final Syntax newSyntax = syntax.get(syntaxId).withoutToken(tokenId);
 		syntax.put(syntaxId, newSyntax);
 	}
 

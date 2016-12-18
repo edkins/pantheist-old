@@ -56,6 +56,10 @@
 			<option value="syntax-node-sequence">Sequence of tokens</option>
 			<option value="syntax-node-choice">Choice between tokens</option>
 		</optgroup>
+		<optgroup id="syntax/token" label="Token">
+			<option value="syntax-token-literal">Literal token</option>
+			<option value="syntax-token-regex">Regex token</option>
+		</optgroup>
 	</select>
 	</p>
 	
@@ -77,6 +81,12 @@
 	</p>
 	<p class="component-creator" id="syntax-node-choice">
 	Enter a space-separated sequence of nodes to choose from: <input type="text" autocomplete="off">
+	</p>
+	<p class="component-creator" id="syntax-token-literal">
+	In the case of literal tokens, the name is also the sequence of characters to match.
+	</p>
+	<p class="component-creator" id="syntax-token-regex">
+	Regex: <input type="text" autocomplete="off">
 	</p>
 	
 	<p>

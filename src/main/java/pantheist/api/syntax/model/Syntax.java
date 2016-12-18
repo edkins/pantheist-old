@@ -34,6 +34,13 @@ public interface Syntax
 	SortedMap<String, SyntaxNode> nodes();
 
 	/**
+	 * @return a map of tokens associated with this syntax resource, indexed by
+	 *         tokenId.
+	 */
+	@JsonProperty("nodes")
+	SortedMap<String, SyntaxToken> tokens();
+
+	/**
 	 * @param node
 	 *            replacement node
 	 * @return a new syntax object with this node added (or replaced if there's
@@ -48,4 +55,20 @@ public interface Syntax
 	 *         an identical syntax object if the id was not present)
 	 */
 	Syntax withoutNode(String nodeId);
+
+	/**
+	 * @param token
+	 *            replacement token
+	 * @return a new syntax object with this token added (or replaced if there's
+	 *         already one with that id)
+	 */
+	Syntax withToken(SyntaxToken token);
+
+	/**
+	 * @param tokenId
+	 *            token id to remove
+	 * @return a new syntax object without the token that has this id. (Returns
+	 *         an identical syntax object if the id was not present)
+	 */
+	Syntax withoutToken(String tokenId);
 }

@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import pantheist.api.syntax.backend.SyntaxBackend;
 import pantheist.api.syntax.model.PutNodeRequest;
+import pantheist.api.syntax.model.PutTokenRequest;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 import pantheist.common.http.HttpHelper;
@@ -177,11 +178,104 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	@DELETE
 	@Path("{syn}/node/{n}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId)
+	public Response deleteNode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId)
 	{
 		try
 		{
 			this.backend.deleteNode(syntaxId, nodeId);
+			return Response.noContent().build();
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	///////////////
+	//
+	// token
+	//
+	///////////////
+	@GET
+	@Path("{syn}/token")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listTokens(@PathParam("syn") final String syntaxId)
+	{
+		try
+		{
+			return httpHelper.jsonResponse(this.backend.listTokens(syntaxId));
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	@GET
+	@Path("{syn}/token/{n}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getToken(@PathParam("syn") final String syntaxId, @PathParam("n") final String tokenId)
+	{
+		try
+		{
+			return httpHelper.jsonResponse(this.backend.getToken(syntaxId, tokenId));
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	@PUT
+	@Path("{syn}/token/{n}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response putToken(@PathParam("syn") final String syntaxId, @PathParam("n") final String tokenId,
+			final String requestJson)
+	{
+		try
+		{
+			final PutTokenRequest request = httpHelper.parseRequest(requestJson, PutTokenRequest.class);
+			this.backend.putToken(syntaxId, tokenId, request);
+			return Response.noContent().build();
+		}
+		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final AlreadyPresentException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final RuntimeException e)
+		{
+			LOGGER.catching(e);
+			throw e;
+		}
+	}
+
+	@DELETE
+	@Path("{syn}/token/{n}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response deleteToken(@PathParam("syn") final String syntaxId, @PathParam("n") final String tokenId)
+	{
+		try
+		{
+			this.backend.deleteToken(syntaxId, tokenId);
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)

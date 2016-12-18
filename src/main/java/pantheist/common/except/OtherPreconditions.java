@@ -1,5 +1,6 @@
 package pantheist.common.except;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -26,7 +27,7 @@ public class OtherPreconditions
 		return arg;
 	}
 
-	public static <T> List<T> copyOfNotNull(final List<T> list)
+	public static <T> List<T> copyOfNotNull(final Collection<T> list)
 	{
 		if (list == null)
 		{

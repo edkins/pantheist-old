@@ -93,6 +93,21 @@ resourcePanel = {
 					children: $('input',p).val().split(' ')
 				}
 			};
+		case 'syntax-token-literal':
+			return {
+				componentType: 'token',
+				request: {
+					type: 'literal'
+				}
+			};
+		case 'syntax-token-regex':
+			return {
+				componentType: 'token',
+				request: {
+					type: 'regex',
+					value: $('input',p).val()
+				}
+			};
 		default:
 			console.log("Don't know what to do with " + creatorId);
 		}
@@ -126,6 +141,7 @@ resourcePanel = {
 		switch(componentType)
 		{
 		case 'node': return ['id','type','children'];
+		case 'token': return ['id','type','value'];
 		default:
 			console.log('bad componentType ' + componentType);
 		}

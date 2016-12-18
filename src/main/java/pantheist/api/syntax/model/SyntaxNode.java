@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public interface SyntaxNode
 {
 	/**
-	 * @return the path to this resource, e.g. /syntax/mysyntax/node/%7B
+	 * @return the path to this component, e.g. /syntax/mysyntax/node/%7B
 	 */
 	@JsonProperty("path")
 	String path();
