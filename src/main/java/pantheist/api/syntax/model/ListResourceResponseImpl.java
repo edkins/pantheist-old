@@ -10,19 +10,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 
-final class ListSyntaxResponseImpl implements ListSyntaxResponse
+final class ListResourceResponseImpl implements ListResourceResponse
 {
-	private final List<SyntaxMetadata> resources;
+	private final List<ResourceMetadata> resources;
 
 	@Inject
-	ListSyntaxResponseImpl(@Assisted @JsonProperty("resources") final List<SyntaxMetadata> resources)
+	ListResourceResponseImpl(@Assisted @JsonProperty("resources") final List<ResourceMetadata> resources)
 	{
 		checkNotNull(resources);
 		this.resources = ImmutableList.copyOf(resources);
 	}
 
 	@Override
-	public List<SyntaxMetadata> resources()
+	public List<ResourceMetadata> resources()
 	{
 		return this.resources;
 	}

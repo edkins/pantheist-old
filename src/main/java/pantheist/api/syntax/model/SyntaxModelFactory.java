@@ -13,9 +13,9 @@ import pantheist.api.syntax.backend.ComponentType;
 
 public interface SyntaxModelFactory
 {
-	ListSyntaxResponse listSyntaxResponse(List<SyntaxMetadata> resources);
+	ListResourceResponse listResourceResponse(List<ResourceMetadata> resources);
 
-	SyntaxMetadata syntaxMetadata(@Assisted("path") String path,
+	ResourceMetadata resourceMetadata(@Assisted("path") String path,
 			@Assisted("id") String id,
 			@Assisted("name") String name);
 

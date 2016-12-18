@@ -7,14 +7,14 @@ import javax.inject.Inject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.assistedinject.Assisted;
 
-final class SyntaxMetadataImpl implements SyntaxMetadata
+final class ResourceMetadataImpl implements ResourceMetadata
 {
 	private final String path;
 	private final String id;
 	private final String name;
 
 	@Inject
-	SyntaxMetadataImpl(@Assisted("path") @JsonProperty("path") final String path,
+	ResourceMetadataImpl(@Assisted("path") @JsonProperty("path") final String path,
 			@Assisted("id") @JsonProperty("id") final String id,
 			@Assisted("name") @JsonProperty("name") final String name)
 	{

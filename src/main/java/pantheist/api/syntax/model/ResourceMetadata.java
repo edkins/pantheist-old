@@ -3,8 +3,8 @@ package pantheist.api.syntax.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(as = SyntaxMetadata.class)
-public interface SyntaxMetadata
+@JsonDeserialize(as = ResourceMetadataImpl.class)
+public interface ResourceMetadata
 {
 	/**
 	 * @return the path to this resource, e.g. /syntax/mysyntax

@@ -1,13 +1,13 @@
 package pantheist.api.syntax.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static pantheist.common.except.OtherPreconditions.copyOfNotNull;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 
 final class SyntaxNodeImpl implements SyntaxNode
@@ -20,7 +20,14 @@ final class SyntaxNodeImpl implements SyntaxNode
 			@Assisted @JsonProperty("children") final List<String> children)
 	{
 		this.type = checkNotNull(type);
-		this.children = copyOfNotNull(children);
+		if (children == null)
+		{
+			this.children = ImmutableList.of();
+		}
+		else
+		{
+			this.children = ImmutableList.copyOf(children);
+		}
 	}
 
 	@Override

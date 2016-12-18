@@ -5,9 +5,9 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(as = ListSyntaxResponseImpl.class)
-public interface ListSyntaxResponse
+@JsonDeserialize(as = ListResourceResponseImpl.class)
+public interface ListResourceResponse
 {
 	@JsonProperty("resources")
-	List<SyntaxMetadata> resources();
+	List<ResourceMetadata> resources();
 }

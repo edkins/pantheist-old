@@ -16,7 +16,10 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.base.Throwables;
+
 import pantheist.api.syntax.backend.ComponentType;
+import pantheist.api.syntax.backend.ResourceTypeRef;
 import pantheist.api.syntax.backend.SyntaxBackend;
 import pantheist.api.syntax.model.PutComponentRequest;
 import pantheist.common.except.AlreadyPresentException;
@@ -50,12 +53,25 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	{
 		try
 		{
-			return httpHelper.jsonResponse(this.backend.listSyntax());
+			return httpHelper.jsonResponse(syntax().listResources());
 		}
 		catch (final RuntimeException e)
 		{
 			LOGGER.catching(e);
 			throw e;
+		}
+	}
+
+	private ResourceTypeRef syntax()
+	{
+		try
+		{
+			return backend.resourceType("syntax");
+		}
+		catch (final NotFoundException e)
+		{
+			// This one shouldn't happen.
+			throw Throwables.propagate(e);
 		}
 	}
 
@@ -68,7 +84,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 		{
 			LOGGER.info("PUT /syntax/{} {}", syntaxId, requestJson);
 			httpHelper.parseRequest(requestJson, EmptyObject.class);
-			backend.createSyntax(syntaxId);
+			syntax().resource(syntaxId).create();
 			return Response.noContent().build();
 		}
 		catch (final AlreadyPresentException e)
@@ -89,7 +105,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 		LOGGER.info("DELETE /syntax/{}", syntaxId);
 		try
 		{
-			backend.deleteSyntax(syntaxId);
+			syntax().resource(syntaxId).delete();
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
@@ -128,7 +144,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	{
 		try
 		{
-			return httpHelper.jsonResponse(this.backend.listComponents(syntaxId, ct(t)));
+			return httpHelper.jsonResponse(syntax().resource(syntaxId).componentType(t).listComponents());
 		}
 		catch (final NotFoundException e)
 		{
@@ -146,11 +162,12 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getComponent(@PathParam("syn") final String syntaxId,
 			@PathParam("t") final String t,
-			@PathParam("n") final String nodeId)
+			@PathParam("n") final String componentId)
 	{
 		try
 		{
-			return httpHelper.jsonResponse(this.backend.getComponent(syntaxId, ct(t), nodeId));
+			return httpHelper
+					.jsonResponse(syntax().resource(syntaxId).componentType(t).component(componentId).getData());
 		}
 		catch (final NotFoundException e)
 		{
@@ -177,7 +194,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 			final PutComponentRequest<?> request = httpHelper.parseRequest(
 					requestJson,
 					componentType.putRequestTypeRef());
-			this.backend.putComponent(syntaxId, componentType, componentId, request);
+			syntax().resource(syntaxId).componentType(t).component(componentId).create(request.data());
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
@@ -204,7 +221,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	{
 		try
 		{
-			this.backend.deleteComponent(syntaxId, ct(t), componentId);
+			syntax().resource(syntaxId).componentType(t).component(componentId).delete();
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
