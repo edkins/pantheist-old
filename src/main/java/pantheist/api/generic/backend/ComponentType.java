@@ -1,4 +1,4 @@
-package pantheist.api.syntax.backend;
+package pantheist.api.generic.backend;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

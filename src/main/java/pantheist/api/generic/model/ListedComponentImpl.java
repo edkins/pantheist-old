@@ -1,4 +1,4 @@
-package pantheist.api.syntax.model;
+package pantheist.api.generic.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;

@@ -1,4 +1,4 @@
-package pantheist.api.syntax.model;
+package pantheist.api.generic.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

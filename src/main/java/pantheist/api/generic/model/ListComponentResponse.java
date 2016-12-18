@@ -1,4 +1,4 @@
-package pantheist.api.syntax.model;
+package pantheist.api.generic.model;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package pantheist.api.syntax.model;
+package pantheist.api.generic.model;
 
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 

@@ -1,5 +1,7 @@
 package pantheist.system.config;
 
+import java.io.File;
+
 public interface PantheistConfig
 {
 	/**
@@ -11,4 +13,9 @@ public interface PantheistConfig
 	 * @return the maximum permitted number of connections in the backlog
 	 */
 	int httpBacklog();
+
+	/**
+	 * @return the path where all the data is stored.
+	 */
+	File dataPath();
 }
