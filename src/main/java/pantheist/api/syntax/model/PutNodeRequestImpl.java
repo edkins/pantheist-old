@@ -27,6 +27,8 @@ final class PutNodeRequestImpl implements PutNodeRequest
 
 	private static List<String> checkChildren(final SyntaxNodeType type, final List<String> children)
 	{
+		children.forEach(OtherPreconditions::checkNotNullOrEmpty);
+
 		switch (type) {
 		case literal:
 			return OtherPreconditions.nullOrEmptyList(children);

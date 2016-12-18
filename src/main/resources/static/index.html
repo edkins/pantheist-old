@@ -43,6 +43,48 @@
 	</p>
 	<p id="failureMessage">
 	</p>
+	
+	<hr>
+	
+	<p>
+	Create:<br>
+	<select id="componentCreatorType" onchange="resourcePanel.refreshComponentCreator()">
+		<optgroup id="syntax/node" label="Node">
+			<option value="syntax-node-literal">Literal token</option>
+			<option value="syntax-node-zero_or_more">Zero or more tokens</option>
+			<option value="syntax-node-one_or_more">One or more tokens</option>
+			<option value="syntax-node-sequence">Sequence of tokens</option>
+			<option value="syntax-node-choice">Choice between tokens</option>
+		</optgroup>
+	</select>
+	</p>
+	
+	<p>
+	Name: <input type="text" id="createComponentId">
+	</p>
+	
+	<p class="component-creator" id="syntax-node-literal">
+	In the case of literal tokens, the name is also the sequence of characters to match.
+	</p>
+	<p class="component-creator" id="syntax-node-zero_or_more">
+	Occurrences of this node consist of zero or more occurrences of: <input type="text" autocomplete="off">
+	</p>
+	<p class="component-creator" id="syntax-node-one_or_more">
+	Occurrences of this node consist of one or more occurrences of: <input type="text" autocomplete="off">
+	</p>
+	<p class="component-creator" id="syntax-node-sequence">
+	Enter a space-separated sequence of nodes: <input type="text" autocomplete="off">
+	</p>
+	<p class="component-creator" id="syntax-node-choice">
+	Enter a space-separated sequence of nodes to choose from: <input type="text" autocomplete="off">
+	</p>
+	
+	<p>
+	<input type="button" value="Create" onclick="resourcePanel.clickCreateComponent(event)">
+	<span id="createFailureMessage"></span>
+	</p>
+	
+	<hr>
 	<div id="components">
 	</div>
 </div>

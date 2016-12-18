@@ -58,5 +58,22 @@ services = {
 			{
 				method:'DELETE'
 			}));
+	},
+	
+	deleteComponent: function(resourceType,resourceId,componentType,componentId)
+	{
+		var path = '/' + resourceType + '/' + resourceId + '/' + componentType + '/' + componentId;
+		return services.delete(path);
+	},
+	
+	putComponent: function(resourceType,resourceId,componentType,componentId,request)
+	{
+		var path = '/' + resourceType + '/' + resourceId + '/' + componentType + '/' + componentId;
+		return Promise.resolve($.ajax( path,
+			{
+				method: 'PUT',
+				contentType: 'application/json',
+				data: JSON.stringify(request)
+			}));
 	}
 };

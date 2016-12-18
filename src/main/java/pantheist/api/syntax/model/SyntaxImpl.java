@@ -60,7 +60,7 @@ final class SyntaxImpl implements Syntax
 	{
 		final SortedMap<String, SyntaxNode> newNodes = new TreeMap<>(nodes);
 		newNodes.put(node.id(), node);
-		return new SyntaxImpl(path, id, name, nodes);
+		return new SyntaxImpl(path, id, name, newNodes);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ final class SyntaxImpl implements Syntax
 	{
 		final SortedMap<String, SyntaxNode> newNodes = new TreeMap<>(nodes);
 		newNodes.remove(nodeId);
-		return new SyntaxImpl(path, id, name, nodes);
+		return new SyntaxImpl(path, id, name, newNodes);
 	}
 
 }
