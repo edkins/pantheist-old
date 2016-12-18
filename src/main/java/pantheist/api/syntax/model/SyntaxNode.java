@@ -3,25 +3,11 @@ package pantheist.api.syntax.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+@JsonDeserialize(as = SyntaxNodeImpl.class)
 public interface SyntaxNode
 {
-	/**
-	 * @return the path to this component, e.g. /syntax/mysyntax/node/%7B
-	 */
-	@JsonProperty("path")
-	String path();
-
-	/**
-	 * This will be the (url-decoded) last section of the path, e.g. "{" in the
-	 * example above.
-	 *
-	 * @return an identifier for the node, unique only within this syntax
-	 *         resource.
-	 */
-	@JsonProperty("id")
-	String id();
-
 	/**
 	 * The type determines how this syntax node is handled.
 	 *

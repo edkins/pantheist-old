@@ -85,14 +85,14 @@ services = {
 			}));
 	},
 	
-	putComponent: function(resourceType,resourceId,componentType,componentId,request)
+	createComponent: function(resourceType,resourceId,componentType,componentId,request)
 	{
 		var path = services.componentPath(resourceType,resourceId,componentType,componentId);
 		return Promise.resolve($.ajax( path,
 			{
 				method: 'PUT',
 				contentType: 'application/json',
-				data: JSON.stringify(request)
+				data: JSON.stringify({data:request})
 			}));
 	}
 };

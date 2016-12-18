@@ -8,4 +8,9 @@ public class NotFoundException extends Exception
 	{
 		super(name + " not found");
 	}
+
+	public NotFoundException(final Exception e)
+	{
+		super(e);
+	}
 }

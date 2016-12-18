@@ -11,19 +11,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.assistedinject.Assisted;
 
-final class ListNodeResponseImpl implements ListNodeResponse
+final class ListComponentResponseImpl implements ListComponentResponse
 {
-	private final List<SyntaxNode> components;
+	private final List<ListedComponent> components;
 
 	@Inject
-	ListNodeResponseImpl(@Assisted @JsonProperty("components") final Collection<SyntaxNode> components)
+	ListComponentResponseImpl(@Assisted @JsonProperty("components") final Collection<ListedComponent> components)
 	{
 		checkNotNull(components);
 		this.components = ImmutableList.copyOf(components);
 	}
 
 	@Override
-	public List<SyntaxNode> components()
+	public List<ListedComponent> components()
 	{
 		return components;
 	}

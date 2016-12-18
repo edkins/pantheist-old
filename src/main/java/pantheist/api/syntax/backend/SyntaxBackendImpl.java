@@ -4,8 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -15,16 +15,13 @@ import javax.inject.Inject;
 
 import com.google.common.base.Throwables;
 
-import pantheist.api.syntax.model.ListNodeResponse;
+import pantheist.api.syntax.model.ListComponentResponse;
 import pantheist.api.syntax.model.ListSyntaxResponse;
-import pantheist.api.syntax.model.ListTokenResponse;
-import pantheist.api.syntax.model.PutNodeRequest;
-import pantheist.api.syntax.model.PutTokenRequest;
+import pantheist.api.syntax.model.ListedComponent;
+import pantheist.api.syntax.model.PutComponentRequest;
 import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxMetadata;
 import pantheist.api.syntax.model.SyntaxModelFactory;
-import pantheist.api.syntax.model.SyntaxNode;
-import pantheist.api.syntax.model.SyntaxToken;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 
@@ -70,7 +67,7 @@ final class SyntaxBackendImpl implements SyntaxBackend
 
 	private Syntax emptySyntax(final String id)
 	{
-		return modelFactory.syntax(syntaxPath(id), id, id, new TreeMap<>(), new TreeMap<>());
+		return modelFactory.syntax(syntaxPath(id), id, id, ComponentType.emptyMap(() -> new TreeMap<>()));
 	}
 
 	private static String urlEncode(final String thing)
@@ -101,35 +98,57 @@ final class SyntaxBackendImpl implements SyntaxBackend
 	}
 
 	@Override
-	public synchronized ListNodeResponse listNodes(final String syntaxId) throws NotFoundException
+	public synchronized ListComponentResponse listComponents(final String syntaxId, final ComponentType componentType)
+			throws NotFoundException
 	{
 		if (!syntax.containsKey(syntaxId))
 		{
 			throw new NotFoundException(syntaxId);
 		}
 
-		final Collection<SyntaxNode> nodes = syntax.get(syntaxId).nodes().values();
-		return modelFactory.listNodeResponse(nodes);
+		final List<ListedComponent> nodes = syntax
+				.get(syntaxId)
+				.components()
+				.get(componentType)
+				.entrySet()
+				.stream()
+				.map(e -> toListedComponent(syntaxId, componentType, e))
+				.collect(Collectors.toList());
+		return modelFactory.listComponentResponse(nodes);
+	}
+
+	private ListedComponent toListedComponent(final String syntaxId,
+			final ComponentType componentType,
+			final Entry<String, Object> entry)
+	{
+		final String componentId = entry.getKey();
+		final Object data = entry.getValue();
+		final String path = componentPath(syntaxId, componentType, componentId);
+		return modelFactory.listedComponent(path, componentId, data);
 	}
 
 	@Override
-	public synchronized SyntaxNode getNode(final String syntaxId, final String nodeId) throws NotFoundException
+	public synchronized Object getComponent(final String syntaxId,
+			final ComponentType componentType,
+			final String componentId) throws NotFoundException
 	{
-		final Optional<SyntaxNode> result = findNode(syntaxId, nodeId);
+		final Optional<Object> result = findComponent(syntaxId, componentType, componentId);
 		if (!result.isPresent())
 		{
-			throw new NotFoundException(nodeId);
+			throw new NotFoundException(componentId);
 		}
 		return result.get();
 	}
 
-	private Optional<SyntaxNode> findNode(final String syntaxId, final String nodeId) throws NotFoundException
+	private Optional<Object> findComponent(final String syntaxId,
+			final ComponentType componentType,
+			final String componentId) throws NotFoundException
 	{
 		if (!syntax.containsKey(syntaxId))
 		{
 			throw new NotFoundException(syntaxId);
 		}
-		return Optional.ofNullable(syntax.get(syntaxId).nodes().get(nodeId));
+		return Optional.ofNullable(syntax.get(syntaxId).components().get(componentType).get(componentId));
 	}
 
 	private static <T> void checkPresence(final Optional<T> optional, final boolean expected, final String id)
@@ -152,102 +171,34 @@ final class SyntaxBackendImpl implements SyntaxBackend
 	}
 
 	@Override
-	public synchronized void putNode(final String syntaxId, final String nodeId, final PutNodeRequest request)
+	public synchronized <T> void putComponent(final String syntaxId,
+			final ComponentType componentType,
+			final String componentId,
+			final PutComponentRequest<T> request)
 			throws NotFoundException, AlreadyPresentException
 	{
-		final SyntaxNode newNode = nodeFromRequest(syntaxId, nodeId, request);
+		checkPresence(findComponent(syntaxId, componentType, componentId), request.updateExisting(), componentId);
 
-		checkPresence(findNode(syntaxId, nodeId), request.updateExisting(), nodeId);
-
-		final Syntax newSyntax = syntax.get(syntaxId).withNode(newNode);
+		final Syntax newSyntax = syntax.get(syntaxId).withComponent(componentType, componentId, request.data());
 		syntax.put(syntaxId, newSyntax);
 	}
 
-	private SyntaxNode nodeFromRequest(final String syntaxId, final String nodeId, final PutNodeRequest request)
+	private String componentPath(final String syntaxId, final ComponentType componentType, final String componentId)
 	{
-		return modelFactory.node(nodePath(syntaxId, nodeId), nodeId, request.type(), request.children());
-	}
-
-	private String nodePath(final String syntaxId, final String nodeId)
-	{
-		return syntaxPath(syntaxId) + "/node/" + urlEncode(nodeId);
+		return syntaxPath(syntaxId) + "/" + componentType.toString() + "/" + urlEncode(componentId);
 	}
 
 	@Override
-	public synchronized void deleteNode(final String syntaxId, final String nodeId) throws NotFoundException
+	public synchronized void deleteComponent(final String syntaxId,
+			final ComponentType componentType,
+			final String componentId) throws NotFoundException
 	{
-		if (!findNode(syntaxId, nodeId).isPresent())
+		if (!findComponent(syntaxId, componentType, componentId).isPresent())
 		{
-			throw new NotFoundException(nodeId);
+			throw new NotFoundException(componentId);
 		}
 
-		final Syntax newSyntax = syntax.get(syntaxId).withoutNode(nodeId);
-		syntax.put(syntaxId, newSyntax);
-	}
-
-	@Override
-	public ListTokenResponse listTokens(final String syntaxId) throws NotFoundException
-	{
-		if (!syntax.containsKey(syntaxId))
-		{
-			throw new NotFoundException(syntaxId);
-		}
-
-		final Collection<SyntaxToken> tokens = syntax.get(syntaxId).tokens().values();
-		return modelFactory.listTokenResponse(tokens);
-	}
-
-	private Optional<SyntaxToken> findToken(final String syntaxId, final String tokenId) throws NotFoundException
-	{
-		if (!syntax.containsKey(syntaxId))
-		{
-			throw new NotFoundException(syntaxId);
-		}
-		return Optional.ofNullable(syntax.get(syntaxId).tokens().get(tokenId));
-	}
-
-	@Override
-	public SyntaxToken getToken(final String syntaxId, final String tokenId) throws NotFoundException
-	{
-		final Optional<SyntaxToken> result = findToken(syntaxId, tokenId);
-		if (!result.isPresent())
-		{
-			throw new NotFoundException(tokenId);
-		}
-		return result.get();
-	}
-
-	private SyntaxToken tokenFromRequest(final String syntaxId, final String tokenId, final PutTokenRequest request)
-	{
-		return modelFactory.token(tokenPath(syntaxId, tokenId), tokenId, request.type(), request.value());
-	}
-
-	private String tokenPath(final String syntaxId, final String tokenId)
-	{
-		return syntaxPath(syntaxId) + "/token/" + urlEncode(tokenId);
-	}
-
-	@Override
-	public void putToken(final String syntaxId, final String tokenId, final PutTokenRequest request)
-			throws NotFoundException, AlreadyPresentException
-	{
-		final SyntaxToken newToken = tokenFromRequest(syntaxId, tokenId, request);
-
-		checkPresence(findToken(syntaxId, tokenId), request.updateExisting(), tokenId);
-
-		final Syntax newSyntax = syntax.get(syntaxId).withToken(newToken);
-		syntax.put(syntaxId, newSyntax);
-	}
-
-	@Override
-	public void deleteToken(final String syntaxId, final String tokenId) throws NotFoundException
-	{
-		if (!findToken(syntaxId, tokenId).isPresent())
-		{
-			throw new NotFoundException(tokenId);
-		}
-
-		final Syntax newSyntax = syntax.get(syntaxId).withoutToken(tokenId);
+		final Syntax newSyntax = syntax.get(syntaxId).withoutComponent(componentType, componentId);
 		syntax.put(syntaxId, newSyntax);
 	}
 

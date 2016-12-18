@@ -1,7 +1,10 @@
 package pantheist.api.syntax.model;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -10,28 +13,25 @@ import javax.inject.Inject;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.inject.assistedinject.Assisted;
 
-import pantheist.common.except.OtherPreconditions;
+import pantheist.api.syntax.backend.ComponentType;
 
 final class SyntaxImpl implements Syntax
 {
 	private final String path;
 	private final String id;
 	private final String name;
-	private final SortedMap<String, SyntaxNode> nodes;
-	private final SortedMap<String, SyntaxToken> tokens;
+	private final Map<ComponentType, SortedMap<String, Object>> components;
 
 	@Inject
 	SyntaxImpl(@Assisted("path") @JsonProperty("path") final String path,
 			@Assisted("id") @JsonProperty("id") final String id,
 			@Assisted("name") @JsonProperty("name") final String name,
-			@Assisted @JsonProperty("nodes") final SortedMap<String, SyntaxNode> nodes,
-			@Assisted @JsonProperty("tokens") final SortedMap<String, SyntaxToken> tokens)
+			@Assisted @JsonProperty("components") final Map<ComponentType, SortedMap<String, Object>> components)
 	{
 		this.path = checkNotNullOrEmpty(path);
 		this.id = checkNotNullOrEmpty(id);
 		this.name = checkNotNullOrEmpty(name);
-		this.nodes = OtherPreconditions.copyOfNotNullSorted(nodes);
-		this.tokens = OtherPreconditions.copyOfNotNullSorted(tokens);
+		this.components = checkNotNull(components);
 	}
 
 	@Override
@@ -53,47 +53,31 @@ final class SyntaxImpl implements Syntax
 	}
 
 	@Override
-	public SortedMap<String, SyntaxNode> nodes()
+	public Map<ComponentType, SortedMap<String, Object>> components()
 	{
-		return nodes;
+		return components;
 	}
 
 	@Override
-	public Syntax withNode(final SyntaxNode node)
+	public <T> Syntax withComponent(final ComponentType componentType, final String componentId, final T data)
 	{
-		final SortedMap<String, SyntaxNode> newNodes = new TreeMap<>(nodes);
-		newNodes.put(node.id(), node);
-		return new SyntaxImpl(path, id, name, newNodes, tokens);
+		componentType.verifyType(data);
+
+		final SortedMap<String, Object> newMap = new TreeMap<>(components.get(componentType));
+		newMap.put(componentId, data);
+		final Map<ComponentType, SortedMap<String, Object>> newComponents = new HashMap<>(components);
+		newComponents.put(componentType, newMap);
+		return new SyntaxImpl(path, id, name, newComponents);
 	}
 
 	@Override
-	public Syntax withoutNode(final String nodeId)
+	public Syntax withoutComponent(final ComponentType componentType, final String componentId)
 	{
-		final SortedMap<String, SyntaxNode> newNodes = new TreeMap<>(nodes);
-		newNodes.remove(nodeId);
-		return new SyntaxImpl(path, id, name, newNodes, tokens);
-	}
-
-	@Override
-	public SortedMap<String, SyntaxToken> tokens()
-	{
-		return tokens;
-	}
-
-	@Override
-	public Syntax withToken(final SyntaxToken token)
-	{
-		final SortedMap<String, SyntaxToken> newTokens = new TreeMap<>(tokens);
-		newTokens.put(token.id(), token);
-		return new SyntaxImpl(path, id, name, nodes, newTokens);
-	}
-
-	@Override
-	public Syntax withoutToken(final String tokenId)
-	{
-		final SortedMap<String, SyntaxToken> newTokens = new TreeMap<>(tokens);
-		newTokens.remove(tokenId);
-		return new SyntaxImpl(path, id, name, nodes, newTokens);
+		final SortedMap<String, Object> newMap = new TreeMap<>(components.get(componentType));
+		newMap.remove(componentId);
+		final Map<ComponentType, SortedMap<String, Object>> newComponents = new HashMap<>(components);
+		newComponents.put(componentType, newMap);
+		return new SyntaxImpl(path, id, name, newComponents);
 	}
 
 }

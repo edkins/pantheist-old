@@ -12,7 +12,8 @@ public class ApiSyntaxModelModule extends PrivateModule
 		expose(SyntaxModelFactory.class);
 		install(new FactoryModuleBuilder()
 				.implement(ListSyntaxResponse.class, ListSyntaxResponseImpl.class)
-				.implement(ListNodeResponse.class, ListNodeResponseImpl.class)
+				.implement(ListComponentResponse.class, ListComponentResponseImpl.class)
+				.implement(ListedComponent.class, ListedComponentImpl.class)
 				.implement(ListTokenResponse.class, ListTokenResponseImpl.class)
 				.implement(SyntaxMetadata.class, SyntaxMetadataImpl.class)
 				.implement(SyntaxNode.class, SyntaxNodeImpl.class)

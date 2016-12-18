@@ -1,8 +1,11 @@
 package pantheist.api.syntax.model;
 
+import java.util.Map;
 import java.util.SortedMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import pantheist.api.syntax.backend.ComponentType;
 
 public interface Syntax
 {
@@ -27,48 +30,42 @@ public interface Syntax
 	String name();
 
 	/**
-	 * @return a map of nodes associated with this syntax resource, indexed by
-	 *         nodeId.
+	 * This gives a map of all the components associated with the resource,
+	 * indexed by component type and component id. It is also sorted by
+	 * component id.
+	 *
+	 * Note that component id's are only unique within one particular component
+	 * type.
+	 *
+	 * @return a map of the components associated with this resource
 	 */
-	@JsonProperty("nodes")
-	SortedMap<String, SyntaxNode> nodes();
+	@JsonProperty("components")
+	Map<ComponentType, SortedMap<String, Object>> components();
 
 	/**
-	 * @return a map of tokens associated with this syntax resource, indexed by
-	 *         tokenId.
-	 */
-	@JsonProperty("nodes")
-	SortedMap<String, SyntaxToken> tokens();
-
-	/**
-	 * @param node
-	 *            replacement node
+	 * @param componentType
+	 *            component type
+	 * @param componentId
+	 *            component id
+	 * @param component
+	 *            replacement component
 	 * @return a new syntax object with this node added (or replaced if there's
-	 *         already one with that id)
+	 *         already one with that type and id)
+	 * @throws IllegalArgumentException
+	 *             if the java type of the component is incompatible with what
+	 *             ComponentType expects.
 	 */
-	Syntax withNode(SyntaxNode node);
+	<T> Syntax withComponent(ComponentType componentType, String componentId, T component);
 
 	/**
-	 * @param nodeId
-	 *            node id to remove
-	 * @return a new syntax object without the node that has this id. (Returns
-	 *         an identical syntax object if the id was not present)
+	 * @param componentType
+	 *            component type
+	 * @param componentId
+	 *            component id to remove
+	 * @return a new syntax object without the component that has this id and
+	 *         type. (Returns an identical syntax object if the id was not
+	 *         present)
 	 */
-	Syntax withoutNode(String nodeId);
+	Syntax withoutComponent(ComponentType componentType, String componentId);
 
-	/**
-	 * @param token
-	 *            replacement token
-	 * @return a new syntax object with this token added (or replaced if there's
-	 *         already one with that id)
-	 */
-	Syntax withToken(SyntaxToken token);
-
-	/**
-	 * @param tokenId
-	 *            token id to remove
-	 * @return a new syntax object without the token that has this id. (Returns
-	 *         an identical syntax object if the id was not present)
-	 */
-	Syntax withoutToken(String tokenId);
 }

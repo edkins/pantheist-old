@@ -116,7 +116,7 @@ resourcePanel = {
 	clickCreateComponent: function(event)
 	{
 		var data = resourcePanel.componentCreatorData();
-		services.putComponent(
+		services.createComponent(
 			resourcePanel.resourceType(),
 			resourcePanel.resourceId(),
 			data.componentType,
@@ -140,8 +140,8 @@ resourcePanel = {
 	{
 		switch(componentType)
 		{
-		case 'node': return ['id','type','children'];
-		case 'token': return ['id','type','value'];
+		case 'node': return ['type','children'];
+		case 'token': return ['type','value'];
 		default:
 			console.log('bad componentType ' + componentType);
 		}
@@ -175,6 +175,9 @@ resourcePanel = {
 			var table = $('<table>');
 			var thr = $('<tr>');
 			thr.append($('<th>'));
+			var th_id = $('<th>');
+			th_id.text('id');
+			thr.append(th_id);
 			for (var k = 0; k < headings.length; k++)
 			{
 				var th = $('<th>');
@@ -197,11 +200,14 @@ resourcePanel = {
 				td_del.append(inp_del);
 				tr.append(td_del);
 				
+				var td_id = $('<td>');
+				td_id.text(obj2.id);
+				tr.append(td_id);
 				for (var k = 0; k < headings.length; k++)
 				{
 					var prop = headings[k];
 					var td = $('<td>');
-					td.text(JSON.stringify(obj2[prop]));
+					td.text(JSON.stringify(obj2.data[prop]));
 					tr.append(td);
 				}
 				table.append(tr);

@@ -2,11 +2,14 @@ package pantheist.api.syntax.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 
 import javax.annotation.Nullable;
 
 import com.google.inject.assistedinject.Assisted;
+
+import pantheist.api.syntax.backend.ComponentType;
 
 public interface SyntaxModelFactory
 {
@@ -16,7 +19,11 @@ public interface SyntaxModelFactory
 			@Assisted("id") String id,
 			@Assisted("name") String name);
 
-	ListNodeResponse listNodeResponse(Collection<SyntaxNode> nodes);
+	ListComponentResponse listComponentResponse(Collection<ListedComponent> components);
+
+	ListedComponent listedComponent(@Assisted("path") String path,
+			@Assisted("id") String id,
+			@Assisted("data") Object data);
 
 	ListTokenResponse listTokenResponse(Collection<SyntaxToken> nodes);
 
@@ -29,6 +36,5 @@ public interface SyntaxModelFactory
 	Syntax syntax(@Assisted("path") String path,
 			@Assisted("id") String id,
 			@Assisted("name") String name,
-			SortedMap<String, SyntaxNode> nodes,
-			SortedMap<String, SyntaxToken> tokens);
+			Map<ComponentType, SortedMap<String, Object>> components);
 }

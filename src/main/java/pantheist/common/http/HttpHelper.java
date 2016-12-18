@@ -3,6 +3,8 @@ package pantheist.common.http;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 
@@ -33,6 +35,19 @@ public interface HttpHelper
 	 *             if unable to serialize.
 	 */
 	<T> T parseRequest(String json, Class<T> clazz);
+
+	/**
+	 * Parse a request given a type reference instead of a class.
+	 *
+	 * @param json
+	 *            The json request data
+	 * @param typeRef
+	 *            Type reference identifying class to deserialize to
+	 * @return The request as a java object of the desired type
+	 * @throws WebApplicationException
+	 *             if unable to serialize.
+	 */
+	<T> T parseRequest(String json, TypeReference<? extends T> typeRef);
 
 	/**
 	 * Throws the given exception as a WebApplicationException, with status 400

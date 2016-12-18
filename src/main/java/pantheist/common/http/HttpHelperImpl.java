@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pantheist.common.except.AlreadyPresentException;
@@ -48,6 +49,19 @@ final class HttpHelperImpl implements HttpHelper
 		try
 		{
 			return objectMapper.readValue(json, clazz);
+		}
+		catch (final IOException e)
+		{
+			throw new WebApplicationException(e, 400);
+		}
+	}
+
+	@Override
+	public <T> T parseRequest(final String json, final TypeReference<? extends T> typeRef)
+	{
+		try
+		{
+			return objectMapper.readValue(json, typeRef);
 		}
 		catch (final IOException e)
 		{

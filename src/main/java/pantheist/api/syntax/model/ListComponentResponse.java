@@ -5,12 +5,12 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(as = ListNodeResponseImpl.class)
-public interface ListNodeResponse
+@JsonDeserialize(as = ListComponentResponseImpl.class)
+public interface ListComponentResponse
 {
 	/**
-	 * @return a list of nodes
+	 * @return a list of components together with their id and path.
 	 */
 	@JsonProperty("components")
-	List<SyntaxNode> components();
+	List<ListedComponent> components();
 }

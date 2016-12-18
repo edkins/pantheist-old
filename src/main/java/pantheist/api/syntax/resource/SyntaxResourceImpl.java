@@ -16,9 +16,9 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import pantheist.api.syntax.backend.ComponentType;
 import pantheist.api.syntax.backend.SyntaxBackend;
-import pantheist.api.syntax.model.PutNodeRequest;
-import pantheist.api.syntax.model.PutTokenRequest;
+import pantheist.api.syntax.model.PutComponentRequest;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 import pantheist.common.http.HttpHelper;
@@ -108,14 +108,27 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	// node
 	//
 	///////////////
-	@GET
-	@Path("{syn}/node")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response listNodes(@PathParam("syn") final String syntaxId)
+
+	private ComponentType ct(final String t) throws NotFoundException
 	{
 		try
 		{
-			return httpHelper.jsonResponse(this.backend.listNodes(syntaxId));
+			return ComponentType.valueOf(t);
+		}
+		catch (final IllegalArgumentException e)
+		{
+			throw new NotFoundException(e);
+		}
+	}
+
+	@GET
+	@Path("{syn}/{t}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response listComponents(@PathParam("syn") final String syntaxId, @PathParam("t") final String t)
+	{
+		try
+		{
+			return httpHelper.jsonResponse(this.backend.listComponents(syntaxId, ct(t)));
 		}
 		catch (final NotFoundException e)
 		{
@@ -129,13 +142,15 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	}
 
 	@GET
-	@Path("{syn}/node/{n}")
+	@Path("{syn}/{t}/{n}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getNode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId)
+	public Response getComponent(@PathParam("syn") final String syntaxId,
+			@PathParam("t") final String t,
+			@PathParam("n") final String nodeId)
 	{
 		try
 		{
-			return httpHelper.jsonResponse(this.backend.getNode(syntaxId, nodeId));
+			return httpHelper.jsonResponse(this.backend.getComponent(syntaxId, ct(t), nodeId));
 		}
 		catch (final NotFoundException e)
 		{
@@ -149,15 +164,20 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	}
 
 	@PUT
-	@Path("{syn}/node/{n}")
+	@Path("{syn}/{t}/{n}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response putNode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId,
+	public Response putNode(@PathParam("syn") final String syntaxId,
+			@PathParam("t") final String t,
+			@PathParam("n") final String componentId,
 			final String requestJson)
 	{
 		try
 		{
-			final PutNodeRequest request = httpHelper.parseRequest(requestJson, PutNodeRequest.class);
-			this.backend.putNode(syntaxId, nodeId, request);
+			final ComponentType componentType = ct(t);
+			final PutComponentRequest<?> request = httpHelper.parseRequest(
+					requestJson,
+					componentType.putRequestTypeRef());
+			this.backend.putComponent(syntaxId, componentType, componentId, request);
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
@@ -176,106 +196,15 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	}
 
 	@DELETE
-	@Path("{syn}/node/{n}")
+	@Path("{syn}/{t}/{n}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteNode(@PathParam("syn") final String syntaxId, @PathParam("n") final String nodeId)
+	public Response deleteNode(@PathParam("syn") final String syntaxId,
+			@PathParam("t") final String t,
+			@PathParam("n") final String componentId)
 	{
 		try
 		{
-			this.backend.deleteNode(syntaxId, nodeId);
-			return Response.noContent().build();
-		}
-		catch (final NotFoundException e)
-		{
-			throw httpHelper.rethrow(e);
-		}
-		catch (final RuntimeException e)
-		{
-			LOGGER.catching(e);
-			throw e;
-		}
-	}
-
-	///////////////
-	//
-	// token
-	//
-	///////////////
-	@GET
-	@Path("{syn}/token")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response listTokens(@PathParam("syn") final String syntaxId)
-	{
-		try
-		{
-			return httpHelper.jsonResponse(this.backend.listTokens(syntaxId));
-		}
-		catch (final NotFoundException e)
-		{
-			throw httpHelper.rethrow(e);
-		}
-		catch (final RuntimeException e)
-		{
-			LOGGER.catching(e);
-			throw e;
-		}
-	}
-
-	@GET
-	@Path("{syn}/token/{n}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response getToken(@PathParam("syn") final String syntaxId, @PathParam("n") final String tokenId)
-	{
-		try
-		{
-			return httpHelper.jsonResponse(this.backend.getToken(syntaxId, tokenId));
-		}
-		catch (final NotFoundException e)
-		{
-			throw httpHelper.rethrow(e);
-		}
-		catch (final RuntimeException e)
-		{
-			LOGGER.catching(e);
-			throw e;
-		}
-	}
-
-	@PUT
-	@Path("{syn}/token/{n}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response putToken(@PathParam("syn") final String syntaxId, @PathParam("n") final String tokenId,
-			final String requestJson)
-	{
-		try
-		{
-			final PutTokenRequest request = httpHelper.parseRequest(requestJson, PutTokenRequest.class);
-			this.backend.putToken(syntaxId, tokenId, request);
-			return Response.noContent().build();
-		}
-		catch (final NotFoundException e)
-		{
-			throw httpHelper.rethrow(e);
-		}
-		catch (final AlreadyPresentException e)
-		{
-			throw httpHelper.rethrow(e);
-		}
-		catch (final RuntimeException e)
-		{
-			LOGGER.catching(e);
-			throw e;
-		}
-	}
-
-	@DELETE
-	@Path("{syn}/token/{n}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteToken(@PathParam("syn") final String syntaxId, @PathParam("n") final String tokenId)
-	{
-		try
-		{
-			this.backend.deleteToken(syntaxId, tokenId);
+			this.backend.deleteComponent(syntaxId, ct(t), componentId);
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
