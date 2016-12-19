@@ -9,20 +9,20 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 
-public class IntolerantMapImpl<T> implements IntolerantMap
+public class TypedMapImpl<T> implements TypedMap
 {
 	private final SortedMap<String, T> map;
 	private final Class<T> clazz;
 
-	private IntolerantMapImpl(final SortedMap<String, T> map, final Class<T> clazz)
+	private TypedMapImpl(final SortedMap<String, T> map, final Class<T> clazz)
 	{
 		this.map = checkNotNull(map);
 		this.clazz = checkNotNull(clazz);
 	}
 
-	public static <T> IntolerantMap of(final SortedMap<String, T> map, final Class<T> clazz)
+	public static <T> TypedMap of(final SortedMap<String, T> map, final Class<T> clazz)
 	{
-		return new IntolerantMapImpl<>(map, clazz);
+		return new TypedMapImpl<>(map, clazz);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class IntolerantMapImpl<T> implements IntolerantMap
 	public List<Entry<String, Object>> sortedEntryList()
 	{
 		return map.entrySet().stream()
-				.map(e -> new IntolerantEntryImpl(e.getKey(), e.getValue()))
+				.map(e -> new TypedMapEntryImpl(e.getKey(), e.getValue()))
 				.collect(Collectors.toList());
 	}
 

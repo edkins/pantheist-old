@@ -15,7 +15,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import pantheist.api.generic.model.ApiGenericModelFactory;
-import pantheist.api.generic.model.IntolerantMap;
+import pantheist.api.generic.model.TypedMap;
 import pantheist.api.generic.model.ListComponentResponse;
 import pantheist.api.generic.model.ListResourceResponse;
 import pantheist.api.generic.model.ListedComponent;
@@ -186,7 +186,7 @@ final class GenericBackendImpl implements GenericBackend
 					{
 						try (ResourceStoreSession session = store.open())
 						{
-							final IntolerantMap map = session.resource(resourceType, resourceId)
+							final TypedMap map = session.resource(resourceType, resourceId)
 									.components(componentType);
 							if (map.containsKey(componentId))
 							{
@@ -200,7 +200,7 @@ final class GenericBackendImpl implements GenericBackend
 					{
 						try (ResourceStoreSession session = store.open())
 						{
-							final IntolerantMap map = session.resource(resourceType, resourceId)
+							final TypedMap map = session.resource(resourceType, resourceId)
 									.components(componentType);
 							if (map.remove(componentId) == null)
 							{

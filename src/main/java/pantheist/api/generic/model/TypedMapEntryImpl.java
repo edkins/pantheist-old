@@ -5,12 +5,12 @@ import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.Map.Entry;
 
-class IntolerantEntryImpl implements Entry<String, Object>
+class TypedMapEntryImpl implements Entry<String, Object>
 {
 	private final String key;
 	private final Object value;
 
-	IntolerantEntryImpl(final String key, final Object value)
+	TypedMapEntryImpl(final String key, final Object value)
 	{
 		this.key = checkNotNullOrEmpty(key);
 		this.value = checkNotNull(value);

@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
  * A map which will throw exceptions if you try to store the wrong type of
  * object.
  */
-public interface IntolerantMap
+public interface TypedMap
 {
 	/**
 	 * @return immutable list of keys sorted into alphabetical order

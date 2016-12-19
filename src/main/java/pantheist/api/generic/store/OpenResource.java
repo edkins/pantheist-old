@@ -1,6 +1,6 @@
 package pantheist.api.generic.store;
 
-import pantheist.api.generic.model.IntolerantMap;
+import pantheist.api.generic.model.TypedMap;
 import pantheist.common.except.NotFoundException;
 
 /**
@@ -20,5 +20,5 @@ public interface OpenResource
 	 * @throws NotFoundException
 	 *             if the component type is invalid for this resource
 	 */
-	IntolerantMap components(String componentType) throws NotFoundException;
+	TypedMap components(String componentType) throws NotFoundException;
 }

@@ -4,9 +4,9 @@ import java.util.SortedMap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import pantheist.api.generic.model.IntolerantMap;
-import pantheist.api.generic.model.IntolerantMapBuilder;
-import pantheist.api.generic.model.IntolerantMapImpl;
+import pantheist.api.generic.model.TypedMap;
+import pantheist.api.generic.model.TypedMapBuilder;
+import pantheist.api.generic.model.TypedMapImpl;
 import pantheist.common.except.NotFoundException;
 import pantheist.common.except.OtherPreconditions;
 
@@ -23,13 +23,13 @@ final class SyntaxImpl implements Syntax
 	}
 
 	@Override
-	public IntolerantMap components(final String componentType) throws NotFoundException
+	public TypedMap components(final String componentType) throws NotFoundException
 	{
 		switch (componentType) {
 		case "node":
-			return IntolerantMapImpl.of(node, SyntaxNode.class);
+			return TypedMapImpl.of(node, SyntaxNode.class);
 		case "doc":
-			return IntolerantMapBuilder.wrap(doc)
+			return TypedMapBuilder.wrap(doc)
 					.with("root", SyntaxDocProperty.class, SyntaxDocProperties::root,
 							MutableSyntaxDocProperties::setRoot)
 					.with("whitespace", SyntaxDocProperty.class, SyntaxDocProperties::whitespace,

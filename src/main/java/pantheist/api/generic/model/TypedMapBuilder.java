@@ -24,23 +24,23 @@ import javax.annotation.Nullable;
  *
  * You can even specify different types for each property!
  */
-public class IntolerantMapBuilder<T>
+public class TypedMapBuilder<T>
 {
 	private final T obj;
 	private final SortedMap<String, PropertyEntry<T, ?>> properties;
 
-	private IntolerantMapBuilder(final T obj)
+	private TypedMapBuilder(final T obj)
 	{
 		this.obj = checkNotNull(obj);
 		this.properties = new TreeMap<>();
 	}
 
-	public static <T> IntolerantMapBuilder<T> wrap(final T obj)
+	public static <T> TypedMapBuilder<T> wrap(final T obj)
 	{
-		return new IntolerantMapBuilder<>(obj);
+		return new TypedMapBuilder<>(obj);
 	}
 
-	public <U> IntolerantMapBuilder<T> with(
+	public <U> TypedMapBuilder<T> with(
 			final String name,
 			final Class<U> clazz,
 			final Function<T, U> getter,
@@ -56,12 +56,12 @@ public class IntolerantMapBuilder<T>
 		return this;
 	}
 
-	public IntolerantMap build()
+	public TypedMap build()
 	{
 		return new IntolerantMapClass<>(properties);
 	}
 
-	private static class IntolerantMapClass<T> implements IntolerantMap
+	private static class IntolerantMapClass<T> implements TypedMap
 	{
 		private final SortedMap<String, PropertyEntry<T, ?>> properties;
 
@@ -85,7 +85,7 @@ public class IntolerantMapBuilder<T>
 			return properties.keySet()
 					.stream()
 					.filter(this::containsKey)
-					.map(key -> new IntolerantEntryImpl(key, get(key)))
+					.map(key -> new TypedMapEntryImpl(key, get(key)))
 					.collect(Collectors.toList());
 		}
 
