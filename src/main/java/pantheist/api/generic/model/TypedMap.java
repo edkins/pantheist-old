@@ -2,6 +2,7 @@ package pantheist.api.generic.model;
 
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -29,7 +30,7 @@ public interface TypedMap
 	 * @param value
 	 * @throws NullPointerException
 	 *             if value is null
-	 * @throws IllegalArgumentException
+	 * @throws ClassCastException
 	 *             if the value is the wrong type
 	 */
 	void put(String key, Object value);
@@ -60,4 +61,13 @@ public interface TypedMap
 	 * @return
 	 */
 	boolean containsKey(String key);
+
+	/**
+	 * Return the desired type for the particular key, or empty if nothing can
+	 * be stored with that key.
+	 *
+	 * @param key
+	 * @return
+	 */
+	Optional<Class<?>> typeOf(String key);
 }

@@ -6,6 +6,7 @@ import javax.ws.rs.core.Response;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import pantheist.common.except.AlreadyPresentException;
+import pantheist.common.except.InvalidLocationException;
 import pantheist.common.except.NotFoundException;
 
 public interface HttpHelper
@@ -62,6 +63,20 @@ public interface HttpHelper
 	 *         happy.
 	 */
 	RuntimeException rethrow(AlreadyPresentException ex);
+
+	/**
+	 * Throws the given exception as a WebApplicationException, with status 400
+	 * indicating the resource could not be created due to an invalid locatoin.
+	 *
+	 * This will call LOGGER.catching itself so you don't need to.
+	 *
+	 * @param ex
+	 *            the exception caught from the backend that we wish to rethrow.
+	 * @return Never actually returns. The return type is RuntimeException to
+	 *         allow you to pretend to throw something to keep the compiler
+	 *         happy.
+	 */
+	RuntimeException rethrow(InvalidLocationException e);
 
 	/**
 	 * Throws the given exception as a WebApplicationException, with status 404

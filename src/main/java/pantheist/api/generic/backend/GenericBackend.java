@@ -3,6 +3,7 @@ package pantheist.api.generic.backend;
 import pantheist.api.generic.model.ListComponentResponse;
 import pantheist.api.generic.model.ListResourceResponse;
 import pantheist.common.except.AlreadyPresentException;
+import pantheist.common.except.InvalidLocationException;
 import pantheist.common.except.NotFoundException;
 
 public interface GenericBackend
@@ -89,6 +90,24 @@ public interface GenericBackend
 	 */
 	void createComponent(String resourceType, String resourceId, String componentType, String componentId, Object data)
 			throws NotFoundException, AlreadyPresentException;
+
+	/**
+	 * Returns the desired java type for components stored at the given
+	 * location.
+	 *
+	 * @param resourceType
+	 * @param resourceId
+	 * @param componentType
+	 * @param componentId
+	 * @return
+	 * @throws NotFoundException
+	 *             if the resource does not exist or the compnentType is invalid
+	 *             for the resource
+	 * @throws InvalidLocationException
+	 *             if the componentId is invalid for that componentType.
+	 */
+	Class<?> desiredComponentType(String resourceType, String resourceId, String componentType, String componentId)
+			throws NotFoundException, InvalidLocationException;
 
 	/**
 	 * Delete a component

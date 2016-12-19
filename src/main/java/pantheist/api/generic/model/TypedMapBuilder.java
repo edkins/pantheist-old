@@ -5,6 +5,7 @@ import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
@@ -58,14 +59,14 @@ public class TypedMapBuilder<T>
 
 	public TypedMap build()
 	{
-		return new IntolerantMapClass<>(properties);
+		return new TypedMapClass<>(properties);
 	}
 
-	private static class IntolerantMapClass<T> implements TypedMap
+	private static class TypedMapClass<T> implements TypedMap
 	{
 		private final SortedMap<String, PropertyEntry<T, ?>> properties;
 
-		IntolerantMapClass(final SortedMap<String, PropertyEntry<T, ?>> properties)
+		TypedMapClass(final SortedMap<String, PropertyEntry<T, ?>> properties)
 		{
 			this.properties = checkNotNull(properties);
 		}
@@ -131,6 +132,20 @@ public class TypedMapBuilder<T>
 			return get(key) != null;
 		}
 
+		@Override
+		public Optional<Class<?>> typeOf(final String key)
+		{
+			checkNotNullOrEmpty(key);
+			if (properties.containsKey(key))
+			{
+				return Optional.of(properties.get(key).getPropertyType());
+			}
+			else
+			{
+				return Optional.empty();
+			}
+		}
+
 	}
 
 	private static class PropertyEntry<T, U>
@@ -156,6 +171,11 @@ public class TypedMapBuilder<T>
 		public void setData(@Nullable final Object data)
 		{
 			setter.accept(obj, clazz.cast(data));
+		}
+
+		public Class<U> getPropertyType()
+		{
+			return clazz;
 		}
 	}
 }

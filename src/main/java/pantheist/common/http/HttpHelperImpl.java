@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pantheist.common.except.AlreadyPresentException;
+import pantheist.common.except.InvalidLocationException;
 import pantheist.common.except.NotFoundException;
 
 final class HttpHelperImpl implements HttpHelper
@@ -71,6 +72,13 @@ final class HttpHelperImpl implements HttpHelper
 
 	@Override
 	public RuntimeException rethrow(final AlreadyPresentException ex)
+	{
+		LOGGER.catching(ex);
+		throw new WebApplicationException(ex, 400);
+	}
+
+	@Override
+	public RuntimeException rethrow(final InvalidLocationException ex)
 	{
 		LOGGER.catching(ex);
 		throw new WebApplicationException(ex, 400);

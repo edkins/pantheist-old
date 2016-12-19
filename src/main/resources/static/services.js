@@ -29,19 +29,39 @@ services = {
 		}
 	},
 	
+	escape: function(segment)
+	{
+		if (typeof(segment) !== 'string' || segment === '')
+		{
+			throw 'Must be nonempty string';
+		}
+		else if (segment === '.')
+		{
+			return '%2E';
+		}
+		else if (segment === '..')
+		{
+			return '%2E%2E';
+		}
+		else
+		{
+			return encodeURIComponent(segment);
+		}
+	},
+	
 	resourcePath: function(resourceType,resourceId)
 	{
-		return '/' + encodeURIComponent(resourceType) + '/' + encodeURIComponent(resourceId);
+		return '/' + services.escape(resourceType) + '/' + services.escape(resourceId);
 	},
 	
 	componentTypePath: function(resourceType,resourceId,componentType)
 	{
-		return services.resourcePath(resourceType,resourceId) + '/' + encodeURIComponent(componentType);
+		return services.resourcePath(resourceType,resourceId) + '/' + services.escape(componentType);
 	},
 
 	componentPath: function(resourceType,resourceId,componentType,componentId)
 	{
-		return services.componentTypePath(resourceType,resourceId,componentType) + '/' + encodeURIComponent(componentId);
+		return services.componentTypePath(resourceType,resourceId,componentType) + '/' + services.escape(componentId);
 	},
 
 	getComponents: function(resourceType,resourceId)
@@ -92,7 +112,7 @@ services = {
 			{
 				method: 'PUT',
 				contentType: 'application/json',
-				data: JSON.stringify({data:request})
+				data: JSON.stringify(request)
 			}));
 	},
 

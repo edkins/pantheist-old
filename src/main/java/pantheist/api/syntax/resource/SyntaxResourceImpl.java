@@ -18,11 +18,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pantheist.api.generic.backend.GenericBackend;
-import pantheist.api.generic.schema.TypeKnower;
 import pantheist.api.syntax.backend.SyntaxBackend;
-import pantheist.api.syntax.model.PutComponentRequest;
 import pantheist.api.syntax.model.TryOutTextReport;
 import pantheist.common.except.AlreadyPresentException;
+import pantheist.common.except.InvalidLocationException;
 import pantheist.common.except.NotFoundException;
 import pantheist.common.http.HttpHelper;
 import pantheist.common.model.EmptyObject;
@@ -33,16 +32,13 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	private static final Logger LOGGER = LogManager.getLogger(SyntaxResourceImpl.class);
 	private final GenericBackend backend;
 	private final HttpHelper httpHelper;
-	private final TypeKnower typeKnower;
 	private final SyntaxBackend syntaxBackend;
 
 	@Inject
-	SyntaxResourceImpl(final GenericBackend backend, final HttpHelper httpHelper, final TypeKnower typeKnower,
-			final SyntaxBackend syntaxBackend)
+	SyntaxResourceImpl(final GenericBackend backend, final HttpHelper httpHelper, final SyntaxBackend syntaxBackend)
 	{
 		this.backend = checkNotNull(backend);
 		this.httpHelper = checkNotNull(httpHelper);
-		this.typeKnower = checkNotNull(typeKnower);
 		this.syntaxBackend = checkNotNull(syntaxBackend);
 	}
 
@@ -170,13 +166,17 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	{
 		try
 		{
-			final PutComponentRequest<?> request = httpHelper.parseRequest(
+			final Object data = httpHelper.parseRequest(
 					requestJson,
-					typeKnower.putRequestTypeRef("syntax", t));
-			backend.createComponent("syntax", syntaxId, t, componentId, request.data());
+					backend.desiredComponentType("syntax", syntaxId, t, componentId));
+			backend.createComponent("syntax", syntaxId, t, componentId, data);
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)
+		{
+			throw httpHelper.rethrow(e);
+		}
+		catch (final InvalidLocationException e)
 		{
 			throw httpHelper.rethrow(e);
 		}

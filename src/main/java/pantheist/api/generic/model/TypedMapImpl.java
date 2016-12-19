@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 
@@ -31,20 +32,11 @@ public class TypedMapImpl<T> implements TypedMap
 		return ImmutableList.copyOf(map.keySet());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void put(final String key, final Object value)
 	{
 		checkNotNull(value);
-		try
-		{
-			clazz.cast(value);
-		}
-		catch (final ClassCastException e)
-		{
-			throw new IllegalArgumentException(e);
-		}
-		map.put(key, (T) value);
+		map.put(key, clazz.cast(value));
 	}
 
 	@Override
@@ -71,5 +63,11 @@ public class TypedMapImpl<T> implements TypedMap
 	public boolean containsKey(final String key)
 	{
 		return map.containsKey(key);
+	}
+
+	@Override
+	public Optional<Class<?>> typeOf(final String key)
+	{
+		return Optional.of(clazz);
 	}
 }

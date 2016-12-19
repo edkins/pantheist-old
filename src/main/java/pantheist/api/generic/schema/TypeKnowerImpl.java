@@ -6,15 +6,11 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 
 import pantheist.api.generic.store.OpenResource;
-import pantheist.api.syntax.model.PutComponentRequest;
 import pantheist.api.syntax.model.Syntax;
-import pantheist.api.syntax.model.SyntaxDocProperty;
-import pantheist.api.syntax.model.SyntaxNode;
 
 final class TypeKnowerImpl implements TypeKnower
 {
@@ -24,61 +20,6 @@ final class TypeKnowerImpl implements TypeKnower
 	TypeKnowerImpl(final ObjectMapper objectMapper)
 	{
 		this.objectMapper = checkNotNull(objectMapper);
-	}
-
-	@Override
-	public TypeReference<? extends PutComponentRequest<?>> putRequestTypeRef(
-			final String resourceType,
-			final String componentType)
-	{
-		switch (resourceType) {
-		case "syntax":
-			switch (componentType) {
-			case "node":
-				return new TypeReference<PutComponentRequest<SyntaxNode>>() {
-				};
-			case "doc":
-				return new TypeReference<PutComponentRequest<SyntaxDocProperty>>() {
-				};
-			}
-		}
-		throw new IllegalArgumentException(String.format("Cannot find type for %s//%s", resourceType, componentType));
-	}
-
-	private Class<?> clazz(final String resourceType,
-			final String componentType)
-	{
-		switch (resourceType) {
-		case "syntax":
-			switch (componentType) {
-			case "node":
-				return SyntaxNode.class;
-			case "doc":
-				return SyntaxDocProperty.class;
-			}
-		}
-		throw new IllegalArgumentException(String.format("Cannot find type for %s//%s", resourceType, componentType));
-	}
-
-	@Override
-	public void verifyDataType(final String resourceType, final String componentType, final Object data)
-	{
-		checkNotNull(data);
-		clazz(resourceType, componentType).cast(data);
-	}
-
-	@Override
-	public boolean componentTypeExists(final String resourceType, final String componentType)
-	{
-		switch (resourceType) {
-		case "syntax":
-			switch (componentType) {
-			case "node":
-			case "doc":
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
