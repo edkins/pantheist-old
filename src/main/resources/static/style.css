@@ -3,6 +3,23 @@ body {
 	margin: 0;
 }
 
+.pantheist-main {
+	display: table;
+	table-layout: fixed;
+	width: 100%;
+}
+.pantheist-body {
+	display: table-row;
+}
+.pantheist-body .sidebar {
+	display: table-cell;
+	width: 20%;
+}
+.pantheist-body .main-panel-holder {
+	display: table-cell;
+	width: 80%;
+}
+
 .header {
 	display: block;
 	width: 100%;
@@ -32,19 +49,14 @@ body {
 }
 
 .sidebar {
-	width: 20%;
-	float: left;
 	background: #006;
 	color: white;
 	padding: 4pt;
-	resize: horizontal;
 	overflow: auto;
 	margin-right: 4pt;
-	height: 500pt;
 }
 
 .main-panel {
-	width: 80%;
 	background: white;
 	color: black;
 	padding: 4pt;

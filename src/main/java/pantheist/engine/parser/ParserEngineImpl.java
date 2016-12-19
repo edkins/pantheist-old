@@ -16,7 +16,6 @@ import org.codehaus.jparsec.Scanners;
 
 import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxToken;
-import pantheist.api.syntax.model.SyntaxTokenType;
 
 final class ParserEngineImpl implements ParserEngine
 {
@@ -41,21 +40,11 @@ final class ParserEngineImpl implements ParserEngine
 			this.syntax = checkNotNull(syntax);
 		}
 
-		private List<String> literalTokens()
-		{
-			return syntax.tokens()
-					.entrySet()
-					.stream()
-					.filter(e -> e.getValue().type().equals(SyntaxTokenType.literal))
-					.map(e -> e.getKey())
-					.collect(Collectors.toList());
-		}
-
 		Parser<ParsedToken> tokenParser(final String name, final SyntaxToken st)
 		{
 			switch (st.type()) {
 			case literal:
-				return Scanners.string(name).retn(ParsedTokenLiteralImpl.of(name));
+				return Scanners.string(st.value()).retn(ParsedTokenLiteralImpl.of(name));
 			case regex:
 				return Scanners
 						.pattern(new RegexPattern(st.value()), name)
@@ -121,6 +110,12 @@ final class ParserEngineImpl implements ParserEngine
 		{
 			return new ParsedTokenLiteralImpl(value);
 		}
+
+		@Override
+		public String toString()
+		{
+			return "lit[:" + value + ":]";
+		}
 	}
 
 	private static class ParsedTokenSrcImpl implements ParsedToken
@@ -135,6 +130,12 @@ final class ParserEngineImpl implements ParserEngine
 		static ParsedToken of(final String value)
 		{
 			return new ParsedTokenSrcImpl(value);
+		}
+
+		@Override
+		public String toString()
+		{
+			return "src[:" + value + ":]";
 		}
 	}
 }

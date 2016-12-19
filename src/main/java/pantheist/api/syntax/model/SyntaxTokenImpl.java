@@ -1,6 +1,7 @@
 package pantheist.api.syntax.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -19,7 +20,18 @@ final class SyntaxTokenImpl implements SyntaxToken
 			@Nullable @Assisted("value") @JsonProperty("value") final String value)
 	{
 		this.type = checkNotNull(type);
-		this.value = value;
+		this.value = maybeCheckNotNull(type, value);
+	}
+
+	private String maybeCheckNotNull(final SyntaxTokenType type, final String value)
+	{
+		switch (type) {
+		case literal:
+		case regex:
+			return checkNotNullOrEmpty(value);
+		default:
+			throw new IllegalArgumentException("Unrecognized token type: " + type);
+		}
 	}
 
 	@Override

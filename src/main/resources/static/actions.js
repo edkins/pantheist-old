@@ -24,6 +24,7 @@ actions = {
 	visitRoot: function()
 	{
 		$('.main-panel').css('display','none');
+		$('#welcomePanel').css('display','block');
 	},
 
 	visitResourceType: function(resourceType, name)
@@ -36,5 +37,11 @@ actions = {
 	{
 		$('.main-panel').css('display','none');
 		resourcePanel.show(resourceType, resourceId, name);
+	},
+	
+	onload: function()
+	{
+		actions.visitRoot();
+		actions.refreshResources();
 	}
 };

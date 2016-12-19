@@ -23,7 +23,7 @@ resourcePanel = {
 		$('#resourcePanel #resourceId').val(resourceId);
 		$('#resourcePanel #typeName').text(resourceType);
 		$('#resourcePanel #name').text(name);
-		$('#resourcePanel #componentCreatorType').val('syntax-node-literal');
+		$('#resourcePanel #componentCreatorType').val('syntax-token-literal');
 		resourcePanel.refreshAll();
 	},
 	
@@ -49,17 +49,26 @@ resourcePanel = {
 		$('#resourcePanel #createFailureMessage').text('Failed.');
 	},
 	
-	componentCreatorData: function()
+	componentCreatorData: function(componentId)
 	{
 		var creatorId = $('#resourcePanel #componentCreatorType').val();
 		var p = $('#resourcePanel #' + creatorId);
 		switch( creatorId )
 		{
-		case 'syntax-node-literal':
+		case 'syntax-token-literal':
 			return {
-				componentType: 'node',
+				componentType: 'token',
 				request: {
-					type: 'literal'
+					type: 'literal',
+					value: componentId
+				}
+			};
+		case 'syntax-token-regex':
+			return {
+				componentType: 'token',
+				request: {
+					type: 'regex',
+					value: $('input',p).val()
 				}
 			};
 		case 'syntax-node-zero_or_more':
@@ -94,21 +103,6 @@ resourcePanel = {
 					children: $('input',p).val().split(' ')
 				}
 			};
-		case 'syntax-token-literal':
-			return {
-				componentType: 'token',
-				request: {
-					type: 'literal'
-				}
-			};
-		case 'syntax-token-regex':
-			return {
-				componentType: 'token',
-				request: {
-					type: 'regex',
-					value: $('input',p).val()
-				}
-			};
 		default:
 			console.log("Don't know what to do with " + creatorId);
 		}
@@ -116,12 +110,13 @@ resourcePanel = {
 	
 	clickCreateComponent: function(event)
 	{
-		var data = resourcePanel.componentCreatorData();
+		var componentId = $('#resourcePanel #createComponentId').val();
+		var data = resourcePanel.componentCreatorData(componentId);
 		services.createComponent(
 			resourcePanel.resourceType(),
 			resourcePanel.resourceId(),
 			data.componentType,
-			$('#resourcePanel #createComponentId').val(),
+			componentId,
 			data.request
 		).then( resourcePanel.refreshAll )
 		.catch( resourcePanel.showCreateFailureMessage );
