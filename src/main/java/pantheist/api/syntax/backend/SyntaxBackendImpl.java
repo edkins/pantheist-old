@@ -4,7 +4,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.inject.Inject;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jparsec.Parser;
+import org.codehaus.jparsec.error.ParserException;
 
 import pantheist.api.generic.store.ResourceStore;
 import pantheist.api.generic.store.ResourceStoreSession;
@@ -16,6 +19,7 @@ import pantheist.engine.parser.ParserEngine;
 
 final class SyntaxBackendImpl implements SyntaxBackend
 {
+	private static final Logger LOGGER = LogManager.getLogger(SyntaxBackendImpl.class);
 	private final ParserEngine engine;
 	private final ResourceStore store;
 	private final SyntaxModelFactory modelFactory;
@@ -42,9 +46,17 @@ final class SyntaxBackendImpl implements SyntaxBackend
 	{
 		final Parser<?> parser = engine.jparsecForSyntax(fetchSyntax(syntaxId));
 
-		final Object result = parser.parse(text);
+		try
+		{
+			final Object result = parser.parse(text);
 
-		return modelFactory.tryOutTextReport("It returned an object " + result);
+			return modelFactory.tryOutTextReport("It returned an object " + result);
+		}
+		catch (final ParserException e)
+		{
+			LOGGER.catching(e);
+			return modelFactory.tryOutTextReport(e.getMessage());
+		}
 	}
 
 }

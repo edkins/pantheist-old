@@ -219,7 +219,7 @@ resourcePanel = {
 	
 	clickTrySyntax: function(event)
 	{
-		var text = $('#syntaxResourceDiv #text-to-try').text();
+		var text = $('#syntaxResourceDiv #text-to-try').val();
 		services.trySyntax(resourcePanel.resourceId(),text)
 			.then( report => $('#syntaxResourceDiv #whatHappened').text( report.whatHappened ) )
 			.catch( () => $('#syntaxResourceDiv #whatHappened').text('Failed.') );
