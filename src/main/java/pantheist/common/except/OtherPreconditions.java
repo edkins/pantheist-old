@@ -70,6 +70,15 @@ public class OtherPreconditions
 		throw new IllegalArgumentException("List is not null or empty");
 	}
 
+	public static <T> List<T> emptyIfNull(final List<T> list)
+	{
+		if (list == null)
+		{
+			return ImmutableList.of();
+		}
+		return ImmutableList.copyOf(list);
+	}
+
 	/**
 	 * @param list
 	 *            must contain exactly one element
@@ -88,7 +97,7 @@ public class OtherPreconditions
 
 	/**
 	 * Returns the only element of this list.
-	 * 
+	 *
 	 * @param list
 	 *            a non-null list with one element
 	 * @throws IllegalArgumentException

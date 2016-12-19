@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,11 +21,13 @@ import org.codehaus.jparsec.Token;
 import org.codehaus.jparsec.TokenMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxDocProperty;
 import pantheist.api.syntax.model.SyntaxNode;
 import pantheist.common.except.OtherPreconditions;
+import pantheist.common.util.OtherLists;
 
 final class ParserEngineImpl implements ParserEngine
 {
@@ -57,7 +60,7 @@ final class ParserEngineImpl implements ParserEngine
 		@Override
 		public String toString()
 		{
-			return TokenArtifact.of(nodeId).toString();
+			return nodeId;
 		}
 
 		@Override
@@ -102,14 +105,14 @@ final class ParserEngineImpl implements ParserEngine
 			return OtherPreconditions.singletonValue(root.children());
 		}
 
-		List<String> whitespaceNodeIds()
+		Optional<List<String>> whitespaceNodeIds()
 		{
 			final SyntaxDocProperty ws = syntax.doc().whitespace();
 			if (ws == null)
 			{
-				return ImmutableList.of();
+				return Optional.empty();
 			}
-			return OtherPreconditions.nullOrEmptyList(ws.children());
+			return Optional.of(ws.children());
 		}
 
 		private Parser<Artifact> recurse(final String nodeId, final ParseLevel level)
@@ -123,17 +126,33 @@ final class ParserEngineImpl implements ParserEngine
 
 			final SyntaxNode sn = lookup(nodeId);
 
-			final Parser<String> tokenizer;
-			Parser<Artifact> parser;
+			Parser<String> tokenizer = null;
+			Parser<Artifact> parser = null;
+
+			final List<Parser<Artifact>> childParsers = Lists.transform(sn.children(), id -> recurse(id, level));
 
 			switch (sn.type()) {
 			case literal:
 				tokenizer = Scanners.string(sn.value()).retn(nodeId);
-				parser = null;
 				break;
 			case regex:
 				tokenizer = Scanners.pattern(new RegexPattern(sn.value()), nodeId).retn(nodeId);
-				parser = null;
+				break;
+			case zero_or_more:
+				parser = OtherPreconditions.singletonValue(childParsers)
+						.many()
+						.map(children -> SequenceArtifact.of(nodeId, children));
+				break;
+			case one_or_more:
+				parser = OtherPreconditions.singletonValue(childParsers)
+						.many1()
+						.map(children -> SequenceArtifact.of(nodeId, children));
+				break;
+			case sequence:
+				parser = seq(nodeId, childParsers);
+				break;
+			case choice:
+				parser = Parsers.or(childParsers);
 				break;
 			default:
 				throw new UnsupportedOperationException("Unsupported syntax node type: " + sn.type());
@@ -161,6 +180,16 @@ final class ParserEngineImpl implements ParserEngine
 			return parser;
 		}
 
+		private Parser<Artifact> seq(final String nodeId, final List<Parser<Artifact>> parsers)
+		{
+			Parser<List<Artifact>> result = Parsers.constant(ImmutableList.of());
+			for (final Parser<Artifact> p : parsers)
+			{
+				result = Parsers.sequence(result, p, OtherLists::add);
+			}
+			return result.map(children -> SequenceArtifact.of(nodeId, children));
+		}
+
 		private SyntaxNode lookup(final String nodeId)
 		{
 			final SyntaxNode result = syntax.node().get(nodeId);
@@ -179,14 +208,23 @@ final class ParserEngineImpl implements ParserEngine
 			visitedTokens.clear();
 			listOfTokenParsers.clear();
 
-			final List<Parser<Void>> listOfWhitespaceParsers = new ArrayList<>();
-			for (final String whitespaceNodeId : whitespaceNodeIds())
+			final Parser<Void> delim;
+			if (whitespaceNodeIds().isPresent())
 			{
-				final Parser<Artifact> p = recurse(whitespaceNodeId, ParseLevel.CHARACTER);
-				listOfWhitespaceParsers.add(p.retn(null));
+				final List<Parser<Void>> listOfWhitespaceParsers = new ArrayList<>();
+				for (final String whitespaceNodeId : whitespaceNodeIds().get())
+				{
+					final Parser<Artifact> p = recurse(whitespaceNodeId, ParseLevel.CHARACTER);
+					listOfWhitespaceParsers.add(p.retn(null));
+				}
+				delim = Parsers.or(listOfWhitespaceParsers);
+			}
+			else
+			{
+				// If no whitespace is specified, delimiter is assumed to be the empty string.
+				delim = Parsers.always();
 			}
 
-			final Parser<Void> delim = Parsers.or(listOfWhitespaceParsers);
 			return tokenLevelRoot.from(tokenizer, delim);
 		}
 	}
@@ -197,14 +235,14 @@ final class ParserEngineImpl implements ParserEngine
 
 		RegexPattern(final String regex)
 		{
-			this.pattern = Pattern.compile("^" + regex);
+			this.pattern = Pattern.compile(regex);
 		}
 
 		@Override
 		public int match(final CharSequence src, final int begin, final int end)
 		{
 			final Matcher matcher = pattern.matcher(src.subSequence(begin, end));
-			if (matcher.matches())
+			if (matcher.lookingAt())
 			{
 				return matcher.end();
 			}
@@ -237,51 +275,43 @@ final class ParserEngineImpl implements ParserEngine
 		@Override
 		public String toString()
 		{
-			return "[:" + nodeId + ":]";
+			return nodeId;
 		}
 	}
 
-	private static class TokenLiteral implements Artifact
+	private static class SequenceArtifact implements Artifact
 	{
-		final String value;
+		final String nodeId;
+		final List<Artifact> children;
 
-		private TokenLiteral(final String value)
+		private SequenceArtifact(final String nodeId, final List<Artifact> children)
 		{
-			this.value = checkNotNullOrEmpty(value);
+			this.nodeId = checkNotNullOrEmpty(nodeId);
+			this.children = OtherPreconditions.copyOfNotNull(children);
 		}
 
-		static Artifact of(final String value)
+		static Artifact of(final String nodeId, final List<Artifact> children)
 		{
-			return new TokenLiteral(value);
+			return new SequenceArtifact(nodeId, children);
 		}
 
 		@Override
 		public String toString()
 		{
-			return "lit[:" + value + ":]";
+			final StringBuilder sb = new StringBuilder();
+			sb.append(nodeId).append("{");
+			boolean first = true;
+			for (final Artifact child : children)
+			{
+				if (!first)
+				{
+					sb.append(" ");
+				}
+				first = false;
+				sb.append(child);
+			}
+			return sb.append("}").toString();
 		}
 	}
 
-	private static class TokenSrc implements Artifact
-	{
-		final String name;
-		final String value;
-
-		private TokenSrc(final String name, final String value)
-		{
-			this.name = checkNotNullOrEmpty(name);
-			this.value = checkNotNullOrEmpty(value);
-		}
-
-		static Artifact of(final String name, final String value)
-		{
-			return new TokenSrc(name, value);
-		}
-
-		@Override
-		public String toString()
-		{
-			return name + "[:" + value + ":]";
-		}
-	}
 }
