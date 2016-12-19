@@ -23,7 +23,7 @@ resourcePanel = {
 		$('#resourcePanel #resourceId').val(resourceId);
 		$('#resourcePanel #typeName').text(resourceType);
 		$('#resourcePanel #name').text(name);
-		$('#resourcePanel #componentCreatorType').val('syntax-token-literal');
+		$('#resourcePanel #componentCreatorType').val('syntax-node-literal');
 		resourcePanel.refreshAll();
 	},
 	
@@ -32,6 +32,7 @@ resourcePanel = {
 		resourcePanel.refreshComponentCreator();
 		resourcePanel.hideFailureMessage();
 		actions.refreshComponents();
+		$('#resourcePanel input[type=text]').val('');
 		$('#syntaxResourceDiv #whatHappened').text('');
 	},
 	
@@ -55,17 +56,17 @@ resourcePanel = {
 		var p = $('#resourcePanel #' + creatorId);
 		switch( creatorId )
 		{
-		case 'syntax-token-literal':
+		case 'syntax-node-literal':
 			return {
-				componentType: 'token',
+				componentType: 'node',
 				request: {
 					type: 'literal',
 					value: componentId
 				}
 			};
-		case 'syntax-token-regex':
+		case 'syntax-node-regex':
 			return {
-				componentType: 'token',
+				componentType: 'node',
 				request: {
 					type: 'regex',
 					value: $('input',p).val()
@@ -103,6 +104,22 @@ resourcePanel = {
 					children: $('input',p).val().split(' ')
 				}
 			};
+		case 'syntax-node-root':
+			return {
+				componentType: 'node',
+				request: {
+					type: 'root',
+					children: [$('input',p).val()]
+				}
+			};
+		case 'syntax-node-whitespace':
+			return {
+				componentType: 'node',
+				request: {
+					type: 'whitespace',
+					children: $('input',p).val().split(' ')
+				}
+			};
 		default:
 			console.log("Don't know what to do with " + creatorId);
 		}
@@ -136,8 +153,11 @@ resourcePanel = {
 	{
 		switch(componentType)
 		{
-		case 'node': return ['type','children'];
-		case 'token': return ['type','value'];
+		case 'node': return [
+				['type',x=>x],
+				['value',x => x==null ? '' : x],
+				['children',x => x.length===0 ? '' : JSON.stringify(x)]
+			];
 		default:
 			console.log('bad componentType ' + componentType);
 		}
@@ -177,7 +197,7 @@ resourcePanel = {
 			for (var k = 0; k < headings.length; k++)
 			{
 				var th = $('<th>');
-				th.text(headings[k]);
+				th.text(headings[k][0]);
 				thr.append(th);
 			}
 			table.append(thr);
@@ -201,9 +221,10 @@ resourcePanel = {
 				tr.append(td_id);
 				for (var k = 0; k < headings.length; k++)
 				{
-					var prop = headings[k];
+					var prop = headings[k][0];
+					var fn = headings[k][1];
 					var td = $('<td>');
-					td.text(JSON.stringify(obj2.data[prop]));
+					td.text(fn(obj2.data[prop]));
 					tr.append(td);
 				}
 				table.append(tr);

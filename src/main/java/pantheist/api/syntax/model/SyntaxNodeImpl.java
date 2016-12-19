@@ -1,32 +1,74 @@
 package pantheist.api.syntax.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
-import javax.inject.Inject;
+import javax.annotation.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-import com.google.inject.assistedinject.Assisted;
+
+import pantheist.common.except.OtherPreconditions;
 
 final class SyntaxNodeImpl implements SyntaxNode
 {
 	private final SyntaxNodeType type;
+	@Nullable
+	private final String value;
 	private final List<String> children;
 
-	@Inject
-	SyntaxNodeImpl(@Assisted @JsonProperty("type") final SyntaxNodeType type,
-			@Assisted @JsonProperty("children") final List<String> children)
+	SyntaxNodeImpl(@JsonProperty("type") final SyntaxNodeType type,
+			@JsonProperty("value") final String value,
+			@JsonProperty("children") final List<String> children)
 	{
 		this.type = checkNotNull(type);
-		if (children == null)
-		{
-			this.children = ImmutableList.of();
+		this.value = maybeNotNull(type, value);
+		this.children = checkChildCount(type, children);
+	}
+
+	private static List<String> checkChildCount(final SyntaxNodeType type, final List<String> children)
+	{
+		switch (type) {
+		case literal:
+		case regex:
+			return OtherPreconditions.nullOrEmptyList(children);
+		case zero_or_more:
+		case one_or_more:
+		case root:
+			return OtherPreconditions.copyOfSingleton(children);
+		case sequence:
+		case choice:
+		case whitespace:
+			return OtherPreconditions.copyOfOneOrMore(children);
+		default:
+			throw new IllegalArgumentException("Unknown node type " + type);
 		}
-		else
-		{
-			this.children = ImmutableList.copyOf(children);
+	}
+
+	private static String maybeNotNull(final SyntaxNodeType type, final String value)
+	{
+		switch (type) {
+		case literal:
+			return checkNotNullOrEmpty(value);
+		case regex:
+			checkNotNullOrEmpty(value);
+			Pattern.compile(value);
+			return value;
+		case zero_or_more:
+		case one_or_more:
+		case sequence:
+		case choice:
+		case root:
+		case whitespace:
+			if (value != null)
+			{
+				throw new IllegalArgumentException("Value must be null for node type " + type);
+			}
+			return null;
+		default:
+			throw new IllegalArgumentException("Unknown node type " + type);
 		}
 	}
 
@@ -40,6 +82,12 @@ final class SyntaxNodeImpl implements SyntaxNode
 	public List<String> children()
 	{
 		return children;
+	}
+
+	@Override
+	public String value()
+	{
+		return value;
 	}
 
 }

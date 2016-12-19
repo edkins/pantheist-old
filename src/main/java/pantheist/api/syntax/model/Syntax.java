@@ -12,7 +12,4 @@ public interface Syntax extends OpenResource
 {
 	@JsonProperty("nodes")
 	SortedMap<String, SyntaxNode> nodes();
-
-	@JsonProperty("tokens")
-	SortedMap<String, SyntaxToken> tokens();
 }

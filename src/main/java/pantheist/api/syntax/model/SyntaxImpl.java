@@ -10,10 +10,8 @@ import pantheist.common.except.NotFoundException;
 final class SyntaxImpl implements Syntax
 {
 	private final SortedMap<String, SyntaxNode> nodes;
-	private final SortedMap<String, SyntaxToken> tokens;
 
-	SyntaxImpl(@JsonProperty("nodes") final SortedMap<String, SyntaxNode> nodes,
-			@JsonProperty("tokens") final SortedMap<String, SyntaxToken> tokens)
+	SyntaxImpl(@JsonProperty("nodes") final SortedMap<String, SyntaxNode> nodes)
 	{
 		if (nodes == null)
 		{
@@ -23,14 +21,6 @@ final class SyntaxImpl implements Syntax
 		{
 			this.nodes = nodes;
 		}
-		if (tokens == null)
-		{
-			this.tokens = new TreeMap<>();
-		}
-		else
-		{
-			this.tokens = tokens;
-		}
 	}
 
 	@Override
@@ -39,8 +29,6 @@ final class SyntaxImpl implements Syntax
 		switch (componentType) {
 		case "node":
 			return new IntolerantMapImpl<>(nodes(), SyntaxNode.class);
-		case "token":
-			return new IntolerantMapImpl<>(tokens(), SyntaxToken.class);
 		default:
 			throw new NotFoundException(componentType);
 		}
@@ -50,11 +38,5 @@ final class SyntaxImpl implements Syntax
 	public SortedMap<String, SyntaxNode> nodes()
 	{
 		return nodes;
-	}
-
-	@Override
-	public SortedMap<String, SyntaxToken> tokens()
-	{
-		return tokens;
 	}
 }

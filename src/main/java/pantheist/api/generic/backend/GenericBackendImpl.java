@@ -19,12 +19,9 @@ import pantheist.api.generic.model.ListComponentResponse;
 import pantheist.api.generic.model.ListResourceResponse;
 import pantheist.api.generic.model.ListedComponent;
 import pantheist.api.generic.model.ResourceMetadata;
-import pantheist.api.generic.schema.TypeKnower;
 import pantheist.api.generic.store.ResourceStore;
 import pantheist.api.generic.store.ResourceStoreSession;
 import pantheist.api.syntax.model.IntolerantMap;
-import pantheist.api.syntax.model.SyntaxNode;
-import pantheist.api.syntax.model.SyntaxToken;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 
@@ -32,43 +29,12 @@ final class GenericBackendImpl implements GenericBackend
 {
 	private final ApiGenericModelFactory modelFactory;
 	private final ResourceStore store;
-	private final TypeKnower typeKnower;
 
 	@Inject
-	GenericBackendImpl(final ApiGenericModelFactory modelFactory, final ResourceStore store,
-			final TypeKnower typeKnower)
+	GenericBackendImpl(final ApiGenericModelFactory modelFactory, final ResourceStore store)
 	{
 		this.modelFactory = checkNotNull(modelFactory);
 		this.store = checkNotNull(store);
-		this.typeKnower = checkNotNull(typeKnower);
-	}
-
-	void checkDataType(final String resourceTypeId, final String componentTypeId, final Object data)
-	{
-		boolean ok = false;
-		switch (resourceTypeId) {
-		case "syntax":
-			ok = checkSyntaxDataType(componentTypeId, data);
-			break;
-		}
-
-		if (!ok)
-		{
-			throw new IllegalArgumentException(String.format("Data type %s is incorrect for %s//%s",
-					data.getClass().getSimpleName(), resourceTypeId, componentTypeId));
-		}
-	}
-
-	private boolean checkSyntaxDataType(final String componentTypeId, final Object data)
-	{
-		switch (componentTypeId) {
-		case "node":
-			return data instanceof SyntaxNode;
-		case "token":
-			return data instanceof SyntaxToken;
-		default:
-			return false;
-		}
 	}
 
 	@Override

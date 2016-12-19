@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -15,7 +16,7 @@ import org.codehaus.jparsec.Parsers;
 import org.codehaus.jparsec.Scanners;
 
 import pantheist.api.syntax.model.Syntax;
-import pantheist.api.syntax.model.SyntaxToken;
+import pantheist.api.syntax.model.SyntaxNode;
 
 final class ParserEngineImpl implements ParserEngine
 {
@@ -40,30 +41,32 @@ final class ParserEngineImpl implements ParserEngine
 			this.syntax = checkNotNull(syntax);
 		}
 
-		Parser<ParsedToken> tokenParser(final String name, final SyntaxToken st)
+		Optional<Parser<Token>> tokenParser(final String name, final SyntaxNode st)
 		{
 			switch (st.type()) {
 			case literal:
-				return Scanners.string(st.value()).retn(ParsedTokenLiteralImpl.of(name));
+				return Optional.of(Scanners.string(st.value()).retn(TokenLiteral.of(name)));
 			case regex:
-				return Scanners
+				return Optional.of(Scanners
 						.pattern(new RegexPattern(st.value()), name)
 						.source()
-						.map(ParsedTokenSrcImpl::of);
+						.map(value -> TokenSrc.of(name, value)));
 			default:
-				throw new IllegalArgumentException("Unrecognized token type: " + st.type());
+				return Optional.empty();
 			}
 		}
 
 		Parser<?> asJparsec()
 		{
-			final List<Parser<ParsedToken>> listOfTokenParsers = syntax.tokens()
+			final List<Parser<Token>> listOfTokenParsers = syntax.nodes()
 					.entrySet()
 					.stream()
 					.map(e -> tokenParser(e.getKey(), e.getValue()))
+					.filter(Optional::isPresent)
+					.map(Optional::get)
 					.collect(Collectors.toList());
 
-			final Parser<ParsedToken> tokenizer = Parsers.or(listOfTokenParsers);
+			final Parser<Token> tokenizer = Parsers.or(listOfTokenParsers);
 			return tokenizer;
 		}
 	}
@@ -93,22 +96,22 @@ final class ParserEngineImpl implements ParserEngine
 
 	}
 
-	private static interface ParsedToken
+	private static interface Token
 	{
 	}
 
-	private static class ParsedTokenLiteralImpl implements ParsedToken
+	private static class TokenLiteral implements Token
 	{
 		final String value;
 
-		private ParsedTokenLiteralImpl(final String value)
+		private TokenLiteral(final String value)
 		{
 			this.value = checkNotNullOrEmpty(value);
 		}
 
-		static ParsedToken of(final String value)
+		static Token of(final String value)
 		{
-			return new ParsedTokenLiteralImpl(value);
+			return new TokenLiteral(value);
 		}
 
 		@Override
@@ -118,24 +121,26 @@ final class ParserEngineImpl implements ParserEngine
 		}
 	}
 
-	private static class ParsedTokenSrcImpl implements ParsedToken
+	private static class TokenSrc implements Token
 	{
+		final String name;
 		final String value;
 
-		private ParsedTokenSrcImpl(final String value)
+		private TokenSrc(final String name, final String value)
 		{
+			this.name = checkNotNullOrEmpty(name);
 			this.value = checkNotNullOrEmpty(value);
 		}
 
-		static ParsedToken of(final String value)
+		static Token of(final String name, final String value)
 		{
-			return new ParsedTokenSrcImpl(value);
+			return new TokenSrc(name, value);
 		}
 
 		@Override
 		public String toString()
 		{
-			return "src[:" + value + ":]";
+			return name + "[:" + value + ":]";
 		}
 	}
 }

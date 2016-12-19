@@ -2,6 +2,8 @@ package pantheist.api.syntax.model;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -32,7 +34,21 @@ public interface SyntaxNode
 	SyntaxNodeType type();
 
 	/**
-	 * Identifiers for child nodes. Not used for type "literal".
+	 * For literal tokens, this is the value to be matched. For regex tokens,
+	 * this is the regex. The regex for "regex" tokens.
+	 *
+	 * For other node types this is unused and may be null.
+	 *
+	 * @return string representing how this token behaves
+	 */
+	@Nullable
+	@JsonProperty("value")
+	String value();
+
+	/**
+	 * Identifiers for child nodes.
+	 *
+	 * An empty list will be returned for types "literal" or "regex"
 	 *
 	 * @return List of node id's
 	 */

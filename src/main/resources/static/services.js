@@ -23,7 +23,7 @@ services = {
 	{
 		switch(type)
 		{
-		case 'syntax': return ['node','token'];
+		case 'syntax': return ['node'];
 		default:
 			console.log('bad type ' + type);
 		}

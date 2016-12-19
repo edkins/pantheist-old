@@ -11,8 +11,6 @@ public class ApiSyntaxModelModule extends PrivateModule
 	{
 		expose(SyntaxModelFactory.class);
 		install(new FactoryModuleBuilder()
-				.implement(SyntaxNode.class, SyntaxNodeImpl.class)
-				.implement(SyntaxToken.class, SyntaxTokenImpl.class)
 				.implement(TryOutTextReport.class, TryOutTextReportImpl.class)
 				.build(SyntaxModelFactory.class));
 	}
