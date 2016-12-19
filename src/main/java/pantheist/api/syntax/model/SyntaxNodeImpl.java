@@ -36,11 +36,9 @@ final class SyntaxNodeImpl implements SyntaxNode
 			return OtherPreconditions.nullOrEmptyList(children);
 		case zero_or_more:
 		case one_or_more:
-		case root:
 			return OtherPreconditions.copyOfSingleton(children);
 		case sequence:
 		case choice:
-		case whitespace:
 			return OtherPreconditions.copyOfOneOrMore(children);
 		default:
 			throw new IllegalArgumentException("Unknown node type " + type);
@@ -60,8 +58,6 @@ final class SyntaxNodeImpl implements SyntaxNode
 		case one_or_more:
 		case sequence:
 		case choice:
-		case root:
-		case whitespace:
 			if (value != null)
 			{
 				throw new IllegalArgumentException("Value must be null for node type " + type);

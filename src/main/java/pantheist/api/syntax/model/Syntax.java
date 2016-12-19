@@ -10,6 +10,9 @@ import pantheist.api.generic.store.OpenResource;
 @JsonDeserialize(as = SyntaxImpl.class)
 public interface Syntax extends OpenResource
 {
-	@JsonProperty("nodes")
-	SortedMap<String, SyntaxNode> nodes();
+	@JsonProperty("node")
+	SortedMap<String, SyntaxNode> node();
+
+	@JsonProperty("doc")
+	SyntaxDocProperties doc();
 }

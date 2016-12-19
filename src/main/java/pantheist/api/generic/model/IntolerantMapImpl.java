@@ -1,7 +1,6 @@
-package pantheist.api.syntax.model;
+package pantheist.api.generic.model;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.List;
 import java.util.Map.Entry;
@@ -15,10 +14,15 @@ public class IntolerantMapImpl<T> implements IntolerantMap
 	private final SortedMap<String, T> map;
 	private final Class<T> clazz;
 
-	public IntolerantMapImpl(final SortedMap<String, T> map, final Class<T> clazz)
+	private IntolerantMapImpl(final SortedMap<String, T> map, final Class<T> clazz)
 	{
 		this.map = checkNotNull(map);
 		this.clazz = checkNotNull(clazz);
+	}
+
+	public static <T> IntolerantMap of(final SortedMap<String, T> map, final Class<T> clazz)
+	{
+		return new IntolerantMapImpl<>(map, clazz);
 	}
 
 	@Override
@@ -55,37 +59,6 @@ public class IntolerantMapImpl<T> implements IntolerantMap
 		return map.entrySet().stream()
 				.map(e -> new IntolerantEntryImpl(e.getKey(), e.getValue()))
 				.collect(Collectors.toList());
-	}
-
-	private static class IntolerantEntryImpl implements Entry<String, Object>
-	{
-		private final String key;
-		private final Object value;
-
-		IntolerantEntryImpl(final String key, final Object value)
-		{
-			this.key = checkNotNullOrEmpty(key);
-			this.value = checkNotNull(value);
-		}
-
-		@Override
-		public String getKey()
-		{
-			return key;
-		}
-
-		@Override
-		public Object getValue()
-		{
-			return value;
-		}
-
-		@Override
-		public Object setValue(final Object value)
-		{
-			throw new UnsupportedOperationException();
-		}
-
 	}
 
 	@Override

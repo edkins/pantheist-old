@@ -1,6 +1,6 @@
 package pantheist.api.generic.store;
 
-import pantheist.api.syntax.model.IntolerantMap;
+import pantheist.api.generic.model.IntolerantMap;
 import pantheist.common.except.NotFoundException;
 
 /**

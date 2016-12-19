@@ -45,6 +45,15 @@ public class OtherPreconditions
 		return new TreeMap<>(map);
 	}
 
+	public static <K, T> SortedMap<K, T> nullable(final SortedMap<K, T> map)
+	{
+		if (map == null)
+		{
+			return new TreeMap<>();
+		}
+		return map;
+	}
+
 	/**
 	 * @param list
 	 *            must be null or empty
@@ -75,6 +84,23 @@ public class OtherPreconditions
 			throw new IllegalArgumentException("List is not singleton");
 		}
 		return ImmutableList.copyOf(list);
+	}
+
+	/**
+	 * Returns the only element of this list.
+	 * 
+	 * @param list
+	 *            a non-null list with one element
+	 * @throws IllegalArgumentException
+	 *             if input list is null, empty or has size greater than 1
+	 */
+	public static <T> T singletonValue(final List<T> list)
+	{
+		if (list == null || list.size() != 1)
+		{
+			throw new IllegalArgumentException("List is not singleton");
+		}
+		return list.get(0);
 	}
 
 	/**

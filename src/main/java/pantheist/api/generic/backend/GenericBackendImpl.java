@@ -15,13 +15,13 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 
 import pantheist.api.generic.model.ApiGenericModelFactory;
+import pantheist.api.generic.model.IntolerantMap;
 import pantheist.api.generic.model.ListComponentResponse;
 import pantheist.api.generic.model.ListResourceResponse;
 import pantheist.api.generic.model.ListedComponent;
 import pantheist.api.generic.model.ResourceMetadata;
 import pantheist.api.generic.store.ResourceStore;
 import pantheist.api.generic.store.ResourceStoreSession;
-import pantheist.api.syntax.model.IntolerantMap;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
 

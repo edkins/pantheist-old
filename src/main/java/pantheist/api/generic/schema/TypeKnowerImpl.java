@@ -13,6 +13,7 @@ import com.google.common.base.Throwables;
 import pantheist.api.generic.store.OpenResource;
 import pantheist.api.syntax.model.PutComponentRequest;
 import pantheist.api.syntax.model.Syntax;
+import pantheist.api.syntax.model.SyntaxDocProperty;
 import pantheist.api.syntax.model.SyntaxNode;
 
 final class TypeKnowerImpl implements TypeKnower
@@ -36,6 +37,9 @@ final class TypeKnowerImpl implements TypeKnower
 			case "node":
 				return new TypeReference<PutComponentRequest<SyntaxNode>>() {
 				};
+			case "doc":
+				return new TypeReference<PutComponentRequest<SyntaxDocProperty>>() {
+				};
 			}
 		}
 		throw new IllegalArgumentException(String.format("Cannot find type for %s//%s", resourceType, componentType));
@@ -49,6 +53,8 @@ final class TypeKnowerImpl implements TypeKnower
 			switch (componentType) {
 			case "node":
 				return SyntaxNode.class;
+			case "doc":
+				return SyntaxDocProperty.class;
 			}
 		}
 		throw new IllegalArgumentException(String.format("Cannot find type for %s//%s", resourceType, componentType));
@@ -68,6 +74,7 @@ final class TypeKnowerImpl implements TypeKnower
 		case "syntax":
 			switch (componentType) {
 			case "node":
+			case "doc":
 				return true;
 			}
 		}

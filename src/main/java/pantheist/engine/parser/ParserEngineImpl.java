@@ -3,20 +3,28 @@ package pantheist.engine.parser;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.codehaus.jparsec.Parser;
+import org.codehaus.jparsec.Parser.Reference;
 import org.codehaus.jparsec.Parsers;
 import org.codehaus.jparsec.Scanners;
+import org.codehaus.jparsec.Token;
+import org.codehaus.jparsec.TokenMap;
+
+import com.google.common.collect.ImmutableList;
 
 import pantheist.api.syntax.model.Syntax;
+import pantheist.api.syntax.model.SyntaxDocProperty;
 import pantheist.api.syntax.model.SyntaxNode;
+import pantheist.common.except.OtherPreconditions;
 
 final class ParserEngineImpl implements ParserEngine
 {
@@ -32,42 +40,154 @@ final class ParserEngineImpl implements ParserEngine
 		return new JparsecThing(syntax).asJparsec();
 	}
 
+	private static class TokenMapByNodeId implements TokenMap<Artifact>
+	{
+		private final String nodeId;
+
+		private TokenMapByNodeId(final String nodeId)
+		{
+			this.nodeId = checkNotNullOrEmpty(nodeId);
+		}
+
+		static TokenMap<Artifact> of(final String nodeId)
+		{
+			return new TokenMapByNodeId(nodeId);
+		}
+
+		@Override
+		public String toString()
+		{
+			return TokenArtifact.of(nodeId).toString();
+		}
+
+		@Override
+		public Artifact map(final Token token)
+		{
+			checkNotNullOrEmpty((String) token.value());
+			if (nodeId.equals(token.value()))
+			{
+				return TokenArtifact.of(nodeId);
+			}
+			else
+			{
+				return null;
+			}
+		}
+
+	}
+
+	private static enum ParseLevel
+	{
+		CHARACTER, TOKEN;
+	}
+
 	private class JparsecThing
 	{
 		private final Syntax syntax;
 
+		// State
+		private final Map<String, Parser<Artifact>> visitedTokens;
+		private final List<Parser<String>> listOfTokenParsers;
+
 		JparsecThing(final Syntax syntax)
 		{
 			this.syntax = checkNotNull(syntax);
+			this.visitedTokens = new HashMap<>();
+			this.listOfTokenParsers = new ArrayList<>();
 		}
 
-		Optional<Parser<Token>> tokenParser(final String name, final SyntaxNode st)
+		String rootNodeId()
 		{
-			switch (st.type()) {
-			case literal:
-				return Optional.of(Scanners.string(st.value()).retn(TokenLiteral.of(name)));
-			case regex:
-				return Optional.of(Scanners
-						.pattern(new RegexPattern(st.value()), name)
-						.source()
-						.map(value -> TokenSrc.of(name, value)));
-			default:
-				return Optional.empty();
+			final SyntaxDocProperty root = checkNotNull(syntax.doc().root());
+			return OtherPreconditions.singletonValue(root.children());
+		}
+
+		List<String> whitespaceNodeIds()
+		{
+			final SyntaxDocProperty ws = syntax.doc().whitespace();
+			if (ws == null)
+			{
+				return ImmutableList.of();
 			}
+			return OtherPreconditions.nullOrEmptyList(ws.children());
+		}
+
+		private Parser<Artifact> recurse(final String nodeId, final ParseLevel level)
+		{
+			if (visitedTokens.containsKey(nodeId))
+			{
+				return visitedTokens.get(nodeId);
+			}
+			final Reference<Artifact> reference = Parser.newReference();
+			visitedTokens.put(nodeId, reference.lazy());
+
+			final SyntaxNode sn = lookup(nodeId);
+
+			final Parser<String> tokenizer;
+			Parser<Artifact> parser;
+
+			switch (sn.type()) {
+			case literal:
+				tokenizer = Scanners.string(sn.value()).retn(nodeId);
+				parser = null;
+				break;
+			case regex:
+				tokenizer = Scanners.pattern(new RegexPattern(sn.value()), nodeId).retn(nodeId);
+				parser = null;
+				break;
+			default:
+				throw new UnsupportedOperationException("Unsupported syntax node type: " + sn.type());
+			}
+
+			switch (level) {
+			case CHARACTER:
+				if (parser == null)
+				{
+					checkNotNull(tokenizer);
+					parser = tokenizer.map(TokenArtifact::of);
+				}
+				break;
+			case TOKEN:
+				if (parser == null)
+				{
+					checkNotNull(tokenizer);
+					parser = Parsers.token(TokenMapByNodeId.of(nodeId));
+					listOfTokenParsers.add(tokenizer);
+				}
+				break;
+			}
+			checkNotNull(parser);
+			reference.set(parser);
+			return parser;
+		}
+
+		private SyntaxNode lookup(final String nodeId)
+		{
+			final SyntaxNode result = syntax.node().get(nodeId);
+			if (result == null)
+			{
+				throw new IllegalStateException("Node not found: " + nodeId);
+			}
+			return result;
 		}
 
 		Parser<?> asJparsec()
 		{
-			final List<Parser<Token>> listOfTokenParsers = syntax.nodes()
-					.entrySet()
-					.stream()
-					.map(e -> tokenParser(e.getKey(), e.getValue()))
-					.filter(Optional::isPresent)
-					.map(Optional::get)
-					.collect(Collectors.toList());
+			final Parser<Artifact> tokenLevelRoot = recurse(rootNodeId(), ParseLevel.TOKEN);
+			final Parser<String> tokenizer = Parsers.or(listOfTokenParsers);
 
-			final Parser<Token> tokenizer = Parsers.or(listOfTokenParsers);
-			return tokenizer;
+			visitedTokens.clear();
+			listOfTokenParsers.clear();
+
+			final List<Parser<Void>> listOfWhitespaceParsers = new ArrayList<>();
+			for (final String whitespaceNodeId : whitespaceNodeIds())
+			{
+				final Parser<Artifact> p = recurse(whitespaceNodeId, ParseLevel.CHARACTER);
+				listOfWhitespaceParsers.add(p.retn(null));
+			}
+
+			final Parser<Void> delim = Parsers.or(listOfWhitespaceParsers);
+			return tokenLevelRoot.from(tokenizer, delim);
 		}
 	}
 
@@ -96,11 +216,32 @@ final class ParserEngineImpl implements ParserEngine
 
 	}
 
-	private static interface Token
+	private static interface Artifact
 	{
 	}
 
-	private static class TokenLiteral implements Token
+	private static class TokenArtifact implements Artifact
+	{
+		final String nodeId;
+
+		private TokenArtifact(final String nodeId)
+		{
+			this.nodeId = checkNotNullOrEmpty(nodeId);
+		}
+
+		static Artifact of(final String nodeId)
+		{
+			return new TokenArtifact(nodeId);
+		}
+
+		@Override
+		public String toString()
+		{
+			return "[:" + nodeId + ":]";
+		}
+	}
+
+	private static class TokenLiteral implements Artifact
 	{
 		final String value;
 
@@ -109,7 +250,7 @@ final class ParserEngineImpl implements ParserEngine
 			this.value = checkNotNullOrEmpty(value);
 		}
 
-		static Token of(final String value)
+		static Artifact of(final String value)
 		{
 			return new TokenLiteral(value);
 		}
@@ -121,7 +262,7 @@ final class ParserEngineImpl implements ParserEngine
 		}
 	}
 
-	private static class TokenSrc implements Token
+	private static class TokenSrc implements Artifact
 	{
 		final String name;
 		final String value;
@@ -132,7 +273,7 @@ final class ParserEngineImpl implements ParserEngine
 			this.value = checkNotNullOrEmpty(value);
 		}
 
-		static Token of(final String name, final String value)
+		static Artifact of(final String name, final String value)
 		{
 			return new TokenSrc(name, value);
 		}

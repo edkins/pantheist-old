@@ -1,7 +1,9 @@
-package pantheist.api.syntax.model;
+package pantheist.api.generic.model;
 
 import java.util.List;
 import java.util.Map.Entry;
+
+import javax.annotation.Nullable;
 
 /**
  * A map which will throw exceptions if you try to store the wrong type of
@@ -38,6 +40,7 @@ public interface IntolerantMap
 	 * @param key
 	 * @return
 	 */
+	@Nullable
 	Object get(String key);
 
 	/**
@@ -47,11 +50,12 @@ public interface IntolerantMap
 	 * @param key
 	 * @return
 	 */
+	@Nullable
 	Object remove(String key);
 
 	/**
 	 * Return whether the key exists.
-	 * 
+	 *
 	 * @param key
 	 * @return
 	 */

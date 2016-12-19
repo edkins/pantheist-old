@@ -104,19 +104,10 @@ resourcePanel = {
 					children: $('input',p).val().split(' ')
 				}
 			};
-		case 'syntax-node-root':
+		case 'syntax-doc':
 			return {
-				componentType: 'node',
+				componentType: 'doc',
 				request: {
-					type: 'root',
-					children: [$('input',p).val()]
-				}
-			};
-		case 'syntax-node-whitespace':
-			return {
-				componentType: 'node',
-				request: {
-					type: 'whitespace',
 					children: $('input',p).val().split(' ')
 				}
 			};
@@ -157,6 +148,9 @@ resourcePanel = {
 				['type',x=>x],
 				['value',x => x==null ? '' : x],
 				['children',x => x.length===0 ? '' : JSON.stringify(x)]
+			];
+		case 'doc': return [
+				['children',JSON.stringify]
 			];
 		default:
 			console.log('bad componentType ' + componentType);
