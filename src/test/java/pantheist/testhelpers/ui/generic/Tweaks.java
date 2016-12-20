@@ -14,6 +14,11 @@ enum Tweaks
 		return equals(DEFAULT);
 	}
 
+	public boolean cannotEnterNewLines()
+	{
+		return equals(INPUT_TEXT);
+	}
+
 	public boolean textIsValueAttribute()
 	{
 		return equals(INPUT_BUTTON) || equals(INPUT_TEXT);

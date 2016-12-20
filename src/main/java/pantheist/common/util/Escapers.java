@@ -1,9 +1,9 @@
 package pantheist.common.util;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
-import com.google.common.base.Throwables;
+import org.glassfish.jersey.uri.UriComponent;
+import org.glassfish.jersey.uri.UriComponent.Type;
 
 public class Escapers
 {
@@ -14,13 +14,29 @@ public class Escapers
 
 	public static String url(final String segment)
 	{
-		try
+		checkNotNullOrEmpty(segment);
+		if (segment.equals("."))
 		{
-			return URLEncoder.encode(segment, "utf-8");
+			return "%2E";
 		}
-		catch (final UnsupportedEncodingException e)
+		else if (segment.equals(".."))
 		{
-			throw Throwables.propagate(e);
+			return "%2E%2E";
 		}
+		else
+		{
+			return UriComponent.encode(segment, Type.PATH_SEGMENT);
+		}
+	}
+
+	public static String decodeUrl(final String encoded)
+	{
+		checkNotNullOrEmpty(encoded);
+		return UriComponent.decode(encoded, Type.PATH_SEGMENT);
+	}
+
+	public static String doubleQuote(final String value)
+	{
+		return "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\\n") + "\"";
 	}
 }

@@ -27,6 +27,7 @@ import com.google.inject.assistedinject.Assisted;
 import pantheist.api.generic.schema.TypeKnower;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.NotFoundException;
+import pantheist.common.util.Escapers;
 import pantheist.system.config.PantheistConfig;
 
 final class ResourceStoreSessionImpl implements ResourceStoreSession
@@ -132,7 +133,7 @@ final class ResourceStoreSessionImpl implements ResourceStoreSession
 		{
 			for (final File file : path.listFiles())
 			{
-				result.add(file.getName());
+				result.add(Escapers.decodeUrl(file.getName()));
 			}
 		}
 		for (final ResourceIdWithType id : openResources.keySet())

@@ -19,7 +19,7 @@ public class SyntaxResourceTest
 	private static final String SYNTAX_ID = "cool-syntax";
 
 	@Rule
-	public MainRule sessionRule = MainRule.forNewTest(TestMode.API);
+	public MainRule sessionRule = MainRule.forNewTest(TestMode.UI_VISIBLE);
 
 	private PantheistActions act;
 
@@ -50,7 +50,31 @@ public class SyntaxResourceTest
 		act.createResource(SYNTAX, "zoo");
 		act.createResource(SYNTAX, "animal");
 
-		assertEquals(act.listResourceIdsOfType(SYNTAX), ImmutableList.of("animal", "zoo"));
+		assertEquals(ImmutableList.of("animal", "zoo"), act.listResourceIdsOfType(SYNTAX));
 	}
 
+	@Test
+	public void weirdResourceNames_canBeCreated() throws Exception
+	{
+		act.createResource(SYNTAX, " ");
+		act.createResource(SYNTAX, ".");
+		act.createResource(SYNTAX, "..");
+		act.createResource(SYNTAX, "a..");
+		act.createResource(SYNTAX, "...");
+		act.createResource(SYNTAX, "/");
+		act.createResource(SYNTAX, "%");
+		act.createResource(SYNTAX, "%20");
+		act.createResource(SYNTAX, "+");
+		act.createResource(SYNTAX, "http://");
+		act.createResource(SYNTAX, "?");
+		act.createResource(SYNTAX, "'");
+		act.createResource(SYNTAX, "\"");
+		act.createResource(SYNTAX, "\\");
+		act.createResource(SYNTAX, "\\\\");
+		act.createResource(SYNTAX, "<br>");
+		assertEquals(
+				ImmutableList.of(" ", "\"", "%", "%20", "'",
+						"+", ".", "..", "...", "/", "<br>", "?", "\\", "\\\\", "a..", "http://"),
+				act.listResourceIdsOfType(SYNTAX));
+	}
 }

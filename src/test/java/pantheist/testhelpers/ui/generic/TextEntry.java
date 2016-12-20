@@ -2,8 +2,8 @@ package pantheist.testhelpers.ui.generic;
 
 import pantheist.testhelpers.ui.except.CannotFindElementException;
 import pantheist.testhelpers.ui.except.DisabledElementException;
-import pantheist.testhelpers.ui.except.MultipleElementException;
 import pantheist.testhelpers.ui.except.IncorrectTextException;
+import pantheist.testhelpers.ui.except.MultipleElementException;
 
 /**
  * An element that supports entering text.
@@ -27,6 +27,9 @@ public interface TextEntry extends VisualElement
 	 * @throws CannotFindElementException
 	 * @throws MultipleElementException
 	 * @throws DisabledElementException
+	 * @throws IllegalArgumentException
+	 *             if text contains newline characters and this is a single-line
+	 *             text input
 	 */
 	void fillOut(String text);
 }

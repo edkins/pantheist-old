@@ -29,8 +29,7 @@ interface ExtendedElementFinder extends ElementFinder<CssPath>
 	 *            attribute value (may be empty but not null)
 	 * @return interface to access this element
 	 * @throws IllegalArgumentException
-	 *             if key or value contains problematic characters, or key is
-	 *             empty
+	 *             if key contains problematic characters or is empty
 	 */
 	ExtendedElementFinder withAttrib(String key, String value);
 }

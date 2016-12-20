@@ -1,6 +1,5 @@
 package pantheist.api.generic.store;
 
-import java.io.Closeable;
 import java.util.List;
 
 import pantheist.common.except.AlreadyPresentException;
@@ -14,7 +13,7 @@ import pantheist.common.except.NotFoundException;
  * memory when you ask for them, and stored back to disk when the session is
  * closed.
  */
-public interface ResourceStoreSession extends Closeable
+public interface ResourceStoreSession extends AutoCloseable
 {
 	List<String> listResources(String resourceType);
 

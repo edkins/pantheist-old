@@ -179,9 +179,19 @@ public class CssPath implements ClickableText, ContainerElement, TextEntry, Elem
 		return finder("input").withAttrib("type", "text").tweak(Tweaks.INPUT_TEXT);
 	}
 
+	private void checkValidInputText(final String text)
+	{
+		checkNotNull(text);
+		if (tweaks.cannotEnterNewLines() && text.contains("\n"))
+		{
+			throw new IllegalArgumentException("Cannot enter newline characters here");
+		}
+	}
+
 	@Override
 	public void fillOut(final String text)
 	{
+		checkValidInputText(text);
 		final String oldText = text();
 		if (!oldText.isEmpty())
 		{

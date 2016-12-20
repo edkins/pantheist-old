@@ -59,7 +59,8 @@ public class PantheistActionsApi implements PantheistActions
 
 	private WebTarget target(final String resourceType, final String resourceId)
 	{
-		return target(resourceType).path(Escapers.url(resourceId));
+		String escaped = Escapers.url(resourceId);
+		return target(resourceType).path(escaped);
 	}
 
 	@Override

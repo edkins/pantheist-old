@@ -4,6 +4,8 @@ import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import com.google.common.base.Objects;
 
+import pantheist.common.util.Escapers;
+
 final class ResourceIdWithType
 {
 	String resourceId;
@@ -19,7 +21,7 @@ final class ResourceIdWithType
 	String sanitizedResourceId()
 	{
 		checkNotNullOrEmpty(resourceId);
-		return resourceId.replace("/", "_");
+		return Escapers.url(resourceId);
 	}
 
 	@Override

@@ -5,6 +5,8 @@ import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.regex.Pattern;
 
+import pantheist.common.util.Escapers;
+
 final class ElementFinderImpl implements ExtendedElementFinder
 {
 	private static final Pattern ELEMENT_TYPE_PATTERN = Pattern.compile("[a-z]+");
@@ -12,7 +14,6 @@ final class ElementFinderImpl implements ExtendedElementFinder
 	private static final Pattern CLASS_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
 	private static final Pattern DATA_KEY_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
 	private static final Pattern ATTRIB_KEY_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
-	private static final Pattern ATTRIB_VALUE_PATTERN = Pattern.compile("[a-zA-Z0-9_ -]*");
 	private final UiSession session;
 	private final String path;
 	private final String selector;
@@ -90,11 +91,7 @@ final class ElementFinderImpl implements ExtendedElementFinder
 		{
 			throw new IllegalArgumentException("Bad attrib key: " + key);
 		}
-		if (!ATTRIB_VALUE_PATTERN.matcher(value).matches())
-		{
-			throw new IllegalArgumentException("Bad attrib value: " + value);
-		}
-		return with("[" + key + "=\"" + value + "\"]");
+		return with("[" + key + "=" + Escapers.doubleQuote(value) + "]");
 	}
 
 	@Override
