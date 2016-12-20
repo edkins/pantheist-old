@@ -1,5 +1,6 @@
 package pantheist.testhelpers.session;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -17,10 +18,13 @@ public final class TestSessionImpl implements TestSession
 
 	private final MutableOptional<WebDriver> webDriver;
 
+	private final MutableOptional<File> dataDir;
+
 	private TestSessionImpl()
 	{
 		pantheistPort = PortFinder.empty();
 		webDriver = MutableOptional.empty();
+		dataDir = MutableOptional.empty();
 	}
 
 	public static TestSession forNewTest()
@@ -70,6 +74,18 @@ public final class TestSessionImpl implements TestSession
 	public PantheistUi ui()
 	{
 		return PantheistUiImpl.root(webDriver());
+	}
+
+	@Override
+	public void supplyDataDir(final File newDataDir)
+	{
+		dataDir.add(newDataDir);
+	}
+
+	@Override
+	public File dataDir()
+	{
+		return dataDir.get();
 	}
 
 }

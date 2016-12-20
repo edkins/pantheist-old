@@ -37,4 +37,10 @@ final class SidebarImpl implements Sidebar
 				.withData("resource-id", resourceId)
 				.choose();
 	}
+
+	@Override
+	public ContainerElement hack()
+	{
+		return el;
+	}
 }

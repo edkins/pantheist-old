@@ -8,8 +8,9 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 import pantheist.testhelpers.app.AppRule;
+import pantheist.testhelpers.app.TempDirRule;
+import pantheist.testhelpers.selenium.FirefoxRule;
 import pantheist.testhelpers.selenium.NavigateToHomeRule;
-import pantheist.testhelpers.selenium.WebDriverRule;
 import pantheist.testhelpers.ui.pan.PantheistUi;
 
 public class MainRule implements TestRule
@@ -23,7 +24,8 @@ public class MainRule implements TestRule
 		this.ruleChain = RuleChain
 				.outerRule(SessionClearingRule.forTest(session))
 				.around(new ErrorLoggingRule())
-				.around(WebDriverRule.forTest(session))
+				.around(FirefoxRule.forTest(session))
+				.around(TempDirRule.forTest(session))
 				.around(AppRule.forTest(session))
 				.around(NavigateToHomeRule.forTest(session));
 	}

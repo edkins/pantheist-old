@@ -1,5 +1,6 @@
 package pantheist.testhelpers.session;
 
+import java.io.File;
 import java.net.URL;
 
 import org.openqa.selenium.WebDriver;
@@ -12,6 +13,8 @@ public interface TestSession
 
 	void supplyWebDriver(WebDriver webDriver);
 
+	void supplyDataDir(File dataDir);
+
 	WebDriver webDriver();
 
 	PantheistUi ui();
@@ -19,4 +22,6 @@ public interface TestSession
 	int pantheistPort();
 
 	URL pantheistUrl();
+
+	File dataDir();
 }

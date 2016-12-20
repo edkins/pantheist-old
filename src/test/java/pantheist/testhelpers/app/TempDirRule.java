@@ -1,26 +1,30 @@
-package pantheist.testhelpers.selenium;
+package pantheist.testhelpers.app;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.openqa.selenium.firefox.FirefoxDriver;
+
+import com.google.common.io.Files;
 
 import pantheist.testhelpers.session.TestSession;
 
-public class WebDriverRule implements TestRule
+public class TempDirRule implements TestRule
 {
 	private final TestSession session;
 
-	private WebDriverRule(final TestSession session)
+	private TempDirRule(final TestSession session)
 	{
 		this.session = checkNotNull(session);
 	}
 
 	public static TestRule forTest(final TestSession session)
 	{
-		return new WebDriverRule(session);
+		return new TempDirRule(session);
 	}
 
 	@Override
@@ -31,16 +35,15 @@ public class WebDriverRule implements TestRule
 			@Override
 			public void evaluate() throws Throwable
 			{
-				System.setProperty("webdriver.gecko.driver", System.getProperty("user.home") + "/bin/geckodriver");
-				final FirefoxDriver webDriver = new FirefoxDriver();
+				final File tempDir = Files.createTempDir();
 				try
 				{
-					session.supplyWebDriver(webDriver);
+					session.supplyDataDir(tempDir);
 					base.evaluate();
 				}
 				finally
 				{
-					webDriver.quit();
+					FileUtils.deleteDirectory(tempDir);
 				}
 			}
 		};

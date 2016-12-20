@@ -17,6 +17,7 @@ public class SyntaxResourceTest
 	public void resourceTypePrettyNames() throws Exception
 	{
 		final PantheistUi ui = sessionRule.ui();
+		ui.sidebar().hack().a().choose().dump();
 		assertEquals(ui.sidebar().resourceType("syntax").text(), "Syntax");
 	}
 }

@@ -2,6 +2,8 @@ package pantheist.testhelpers.app;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.io.File;
+
 import javax.inject.Inject;
 
 import com.netflix.config.DynamicPropertyFactory;
@@ -24,5 +26,11 @@ final class OverrideConfig extends PantheistConfigImpl
 	public int httpPort()
 	{
 		return session.pantheistPort();
+	}
+
+	@Override
+	public File dataPath()
+	{
+		return session.dataDir();
 	}
 }
