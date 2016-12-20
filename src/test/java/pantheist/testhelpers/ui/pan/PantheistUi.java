@@ -7,4 +7,6 @@ package pantheist.testhelpers.ui.pan;
 public interface PantheistUi
 {
 	Sidebar sidebar();
+
+	ResourceTypePanel resourceTypePanel();
 }

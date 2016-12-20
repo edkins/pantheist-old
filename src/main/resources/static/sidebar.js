@@ -35,8 +35,8 @@ var sidebar = {
 		a.attr('href','#');
 		a.attr('data-resource-type', resourceType);
 		a.attr('data-resource-id', obj.id);
-		a.data('data-name', obj.name);
-		a.data('data-level', 'resource');
+		a.attr('data-name', obj.name);
+		a.attr('data-level', 'resource');
 		a.click(sidebar.resourceClick);
 		return a;
 	},

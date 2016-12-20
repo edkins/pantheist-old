@@ -3,7 +3,7 @@ package pantheist.testhelpers.ui.except;
 /**
  * Thrown when a css path matches multiple elements, and it's not supposed to.
  */
-public class MultipleElementException extends RuntimeException
+public class MultipleElementException extends UiStateException
 {
 	private static final long serialVersionUID = -8846903164060569694L;
 

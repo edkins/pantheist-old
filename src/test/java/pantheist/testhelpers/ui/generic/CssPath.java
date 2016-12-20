@@ -1,50 +1,52 @@
 package pantheist.testhelpers.ui.generic;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import pantheist.testhelpers.ui.except.CannotFindElementException;
 import pantheist.testhelpers.ui.except.DisabledElementException;
-import pantheist.testhelpers.ui.except.EmptyTextException;
+import pantheist.testhelpers.ui.except.IncorrectTextException;
 import pantheist.testhelpers.ui.except.MultipleElementException;
 
 /**
  * This class represents a CSS Path. It offers all of the possible interfaces,
  * not all of which may necessarily be relevant.
  */
-public class CssPath implements ClickableText, ContainerElement
+public class CssPath implements ClickableText, ContainerElement, TextEntry
 {
 	private static final Logger LOGGER = LogManager.getLogger(CssPath.class);
-	private final WebDriver webDriver;
+	private final UiSession session;
 	private final String path;
+	private final Tweaks tweaks;
 
-	private CssPath(final WebDriver webDriver, final String path)
+	private CssPath(final UiSession session, final String path, final Tweaks tweaks)
 	{
-		this.webDriver = checkNotNull(webDriver);
+		this.session = checkNotNull(session);
 		this.path = checkNotNull(path);
+		this.tweaks = checkNotNull(tweaks);
 	}
 
 	public static ContainerElement root(final WebDriver webDriver)
 	{
-		return new CssPath(webDriver, "");
+		return new CssPath(UiSessionImpl.from(webDriver), "", Tweaks.DEFAULT);
 	}
 
-	static CssPath of(final WebDriver webDriver, final String path)
+	static CssPath of(final UiSession session, final String path, final Tweaks tweaks)
 	{
-		return new CssPath(webDriver, path);
+		return new CssPath(session, path, tweaks);
 	}
 
 	@Override
 	public boolean isVisible()
 	{
-		final List<WebElement> results = webDriver.findElements(By.cssSelector(path));
+		final List<WebElement> results = session.find(path);
 		if (results.size() > 1)
 		{
 			throw new MultipleElementException("Multiple elements match css selector: " + path);
@@ -66,7 +68,7 @@ public class CssPath implements ClickableText, ContainerElement
 	 */
 	private WebElement visibleElement()
 	{
-		final List<WebElement> results = webDriver.findElements(By.cssSelector(path));
+		final List<WebElement> results = session.find(path);
 		if (results.size() > 1)
 		{
 			throw new MultipleElementException("Multiple elements match css selector: " + path);
@@ -86,45 +88,56 @@ public class CssPath implements ClickableText, ContainerElement
 	}
 
 	/**
+	 * Includes retries.
+	 *
 	 * @return the corresponding selenium web element if it's visible and
 	 *         enabled.
 	 */
 	private WebElement enabledElement()
 	{
-		final WebElement result = visibleElement();
-		if (!result.isEnabled())
-		{
-			throw new DisabledElementException("Element is visible but disabled: " + path);
-		}
-		return result;
+		return session.retry(() -> {
+			final WebElement result = visibleElement();
+			if (!result.isEnabled())
+			{
+				throw new DisabledElementException("Element is visible but disabled: " + path);
+			}
+			return result;
+		});
 	}
 
 	@Override
 	public void assertVisible()
 	{
-		visibleElement();
+		session.retry(this::visibleElement);
 	}
 
 	@Override
 	public void click()
 	{
 		enabledElement().click();
+		session.disrupt();
 	}
 
 	@Override
 	public String text()
 	{
-		final String result = visibleElement().getText();
-		if (result == null || result.isEmpty())
+		final WebElement el = visibleElement();
+		final String result;
+		if (tweaks.textIsValueAttribute())
 		{
-			throw new EmptyTextException("No text for element: " + path);
+			result = el.getAttribute("value");
 		}
+		else
+		{
+			result = el.getText();
+		}
+		checkNotNull(result);
 		return result;
 	}
 
-	private ElementFinder<CssPath> finder(final String elementType)
+	private ExtendedElementFinder finder(final String elementType)
 	{
-		return ElementFinderImpl.elementType(webDriver, path, elementType);
+		return ElementFinderImpl.elementType(session, path, elementType);
 	}
 
 	@Override
@@ -142,7 +155,7 @@ public class CssPath implements ClickableText, ContainerElement
 	@Override
 	public void dump(final String... attributes)
 	{
-		final List<WebElement> elements = webDriver.findElements(By.cssSelector(path));
+		final List<WebElement> elements = session.find(path);
 		LOGGER.info("DUMP {}", path);
 		LOGGER.info("Matches {} elements", elements.size());
 		for (final WebElement el : elements)
@@ -157,4 +170,45 @@ public class CssPath implements ClickableText, ContainerElement
 		}
 	}
 
+	@Override
+	public ElementFinder<? extends TextEntry> inputText()
+	{
+		return finder("input").withAttrib("type", "text").tweak(Tweaks.INPUT_TEXT);
+	}
+
+	@Override
+	public void fillOut(final String text)
+	{
+		final String oldText = text();
+		if (!oldText.isEmpty())
+		{
+			throw new IncorrectTextException("Text not initially empty for " + path + ", instead " + oldText);
+		}
+		enabledElement().sendKeys(text);
+		checkText(text);
+	}
+
+	@Override
+	public ElementFinder<? extends ClickableText> inputButton()
+	{
+		return finder("input").withAttrib("type", "button").tweak(Tweaks.INPUT_BUTTON);
+	}
+
+	private Void checkText(final String expectedText)
+	{
+		final String actualText = text();
+		if (!actualText.equals(expectedText))
+		{
+			throw new IncorrectTextException(
+					"Text incorrect for " + path + ", should have been " + expectedText + ", instead " + actualText);
+		}
+		return null;
+	}
+
+	@Override
+	public void assertText(final String expectedText)
+	{
+		checkNotNullOrEmpty(expectedText);
+		session.retry(() -> checkText(expectedText));
+	}
 }

@@ -35,4 +35,19 @@ public interface ContainerElement extends AnyElement
 	 * @return element finder.
 	 */
 	ElementFinder<? extends ContainerElement> div();
+
+	/**
+	 * Find an html 'input' element with type="text".
+	 *
+	 * @return element finder.
+	 */
+	ElementFinder<? extends TextEntry> inputText();
+
+	/**
+	 * Find an html 'input' element with type="button".
+	 *
+	 * @return element finder.
+	 */
+	ElementFinder<? extends ClickableText> inputButton();
+
 }

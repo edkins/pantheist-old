@@ -18,13 +18,13 @@ public class MainRule implements TestRule
 	private final TestSession session;
 	private final RuleChain ruleChain;
 
-	private MainRule(final TestSession session)
+	private MainRule(final TestSession session, final boolean visible)
 	{
 		this.session = checkNotNull(session);
 		this.ruleChain = RuleChain
 				.outerRule(SessionClearingRule.forTest(session))
 				.around(new ErrorLoggingRule())
-				.around(FirefoxRule.forTest(session))
+				.around(FirefoxRule.forTest(session, visible))
 				.around(TempDirRule.forTest(session))
 				.around(AppRule.forTest(session))
 				.around(NavigateToHomeRule.forTest(session));
@@ -32,8 +32,13 @@ public class MainRule implements TestRule
 
 	public static MainRule forNewTest()
 	{
+		return forNewTest(false);
+	}
+
+	public static MainRule forNewTest(final boolean visible)
+	{
 		final TestSession session = TestSessionImpl.forNewTest();
-		return new MainRule(session);
+		return new MainRule(session, visible);
 	}
 
 	public PantheistUi ui()

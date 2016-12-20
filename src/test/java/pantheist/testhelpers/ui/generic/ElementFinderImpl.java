@@ -5,10 +5,7 @@ import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.regex.Pattern;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-
-final class ElementFinderImpl implements ElementFinder<CssPath>
+final class ElementFinderImpl implements ExtendedElementFinder
 {
 	private static final Pattern ELEMENT_TYPE_PATTERN = Pattern.compile("[a-z]+");
 	private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
@@ -16,24 +13,29 @@ final class ElementFinderImpl implements ElementFinder<CssPath>
 	private static final Pattern DATA_KEY_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
 	private static final Pattern ATTRIB_KEY_PATTERN = Pattern.compile("[a-zA-Z][a-zA-Z0-9_-]*");
 	private static final Pattern ATTRIB_VALUE_PATTERN = Pattern.compile("[a-zA-Z0-9_ -]*");
-	private final WebDriver webDriver;
+	private final UiSession session;
 	private final String path;
 	private final String selector;
+	private final Tweaks tweaks;
 
-	private ElementFinderImpl(final WebDriver webDriver, final String path, final String selector)
+	private ElementFinderImpl(final UiSession session,
+			final String path,
+			final String selector,
+			final Tweaks tweaks)
 	{
-		this.webDriver = checkNotNull(webDriver);
+		this.session = checkNotNull(session);
 		this.path = checkNotNull(path);
 		this.selector = checkNotNullOrEmpty(selector);
+		this.tweaks = checkNotNull(tweaks);
 	}
 
-	static ElementFinder<CssPath> elementType(final WebDriver webDriver, final String path, final String elementType)
+	static ExtendedElementFinder elementType(final UiSession session, final String path, final String elementType)
 	{
 		if (!ELEMENT_TYPE_PATTERN.matcher(elementType).matches())
 		{
 			throw new IllegalArgumentException("Bad element type: " + elementType);
 		}
-		return new ElementFinderImpl(webDriver, path, elementType);
+		return new ElementFinderImpl(session, path, elementType, Tweaks.DEFAULT);
 	}
 
 	private String fullPath()
@@ -51,12 +53,12 @@ final class ElementFinderImpl implements ElementFinder<CssPath>
 	@Override
 	public CssPath choose()
 	{
-		return CssPath.of(webDriver, fullPath());
+		return CssPath.of(session, fullPath(), tweaks);
 	}
 
-	private ElementFinder<CssPath> with(final String suffix)
+	private ExtendedElementFinder with(final String suffix)
 	{
-		return new ElementFinderImpl(webDriver, path, selector + suffix);
+		return new ElementFinderImpl(session, path, selector + suffix, tweaks);
 	}
 
 	@Override
@@ -81,7 +83,8 @@ final class ElementFinderImpl implements ElementFinder<CssPath>
 		return with("." + cssClass);
 	}
 
-	private ElementFinder<CssPath> withAttrib(final String key, final String value)
+	@Override
+	public ExtendedElementFinder withAttrib(final String key, final String value)
 	{
 		if (!ATTRIB_KEY_PATTERN.matcher(key).matches())
 		{
@@ -109,7 +112,17 @@ final class ElementFinderImpl implements ElementFinder<CssPath>
 	@Override
 	public int count()
 	{
-		return webDriver.findElements(By.cssSelector(fullPath())).size();
+		return session.find(fullPath()).size();
+	}
+
+	@Override
+	public ExtendedElementFinder tweak(final Tweaks newTweaks)
+	{
+		if (!tweaks.isDefault())
+		{
+			throw new IllegalStateException("Cannot combine tweaks");
+		}
+		return new ElementFinderImpl(session, path, selector, newTweaks);
 	}
 
 }

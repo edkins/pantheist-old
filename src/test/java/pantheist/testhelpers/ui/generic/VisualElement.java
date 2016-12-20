@@ -21,6 +21,8 @@ public interface VisualElement extends AnyElement
 	/**
 	 * Fails if the element does not exist or is invisible.
 	 *
+	 * This will retry if something disruptive happened recently.
+	 *
 	 * @throws CannotFindElementException
 	 *             if the element does not exist or is invisible
 	 * @throws MultipleElementException

@@ -18,6 +18,9 @@ public interface Clickable extends VisualElement
 	/**
 	 * Click this element.
 	 *
+	 * This counts as a "disruptive" event, i.e. assertions that fail shortly
+	 * after this will be retried.
+	 *
 	 * @throws CannotFindElementException
 	 *             if the element does not exist or is invisible
 	 * @throws MultipleElementException

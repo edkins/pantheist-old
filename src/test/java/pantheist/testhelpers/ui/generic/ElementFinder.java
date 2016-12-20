@@ -47,7 +47,8 @@ public interface ElementFinder<T>
 	 *            data value (may be empty but not null)
 	 * @return interface to access this element
 	 * @throws IllegalArgumentException
-	 *             if key or value is empty or contains problematic characters
+	 *             if key or value contains problematic characters, or key is
+	 *             empty
 	 */
 	ElementFinder<T> withData(String key, String value);
 

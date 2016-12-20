@@ -1,7 +1,7 @@
 package pantheist.testhelpers.ui.generic;
 
 import pantheist.testhelpers.ui.except.CannotFindElementException;
-import pantheist.testhelpers.ui.except.EmptyTextException;
+import pantheist.testhelpers.ui.except.IncorrectTextException;
 import pantheist.testhelpers.ui.except.MultipleElementException;
 
 /**
@@ -10,18 +10,29 @@ import pantheist.testhelpers.ui.except.MultipleElementException;
 public interface Textual
 {
 	/**
-	 * Returns the text or fails if the text is empty.
+	 * Returns the text.
 	 *
 	 * It's undefined what exactly will happen if this element contains markup
 	 * or other sub-elements instead of just plain text.
 	 *
-	 * @return The non-empty text contained in this element.
+	 * @return The text contained in this element, which may be empty.
 	 * @throws CannotFindElementException
 	 *             if the element does not exist or is invisible
 	 * @throws MultipleElementException
 	 *             if multiple elements match this css path
-	 * @throws EmptyTextException
-	 *             if it's visible but contains no actual text
 	 */
 	String text();
+
+	/**
+	 * Assert that the text is what it should be. This must be a non-empty
+	 * value.
+	 *
+	 * This will retry if something disruptive happened recently.
+	 *
+	 * @param text
+	 *            expected text
+	 * @throws IncorrectTextException
+	 *             if the text is wrong.
+	 */
+	void assertText(String text);
 }

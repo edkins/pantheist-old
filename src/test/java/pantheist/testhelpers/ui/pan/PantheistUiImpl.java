@@ -26,4 +26,10 @@ public class PantheistUiImpl implements PantheistUi
 	{
 		return SidebarImpl.from(el.div().withClass("sidebar").choose());
 	}
+
+	@Override
+	public ResourceTypePanel resourceTypePanel()
+	{
+		return ResourceTypePanelImpl.from(el.div().withId("resourceTypePanel").choose());
+	}
 }

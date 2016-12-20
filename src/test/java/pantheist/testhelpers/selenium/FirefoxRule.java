@@ -3,6 +3,7 @@ package pantheist.testhelpers.selenium;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.File;
+import java.util.Map;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
@@ -24,28 +25,31 @@ public class FirefoxRule implements TestRule
 
 	private final TestSession session;
 
-	private FirefoxRule(final TestSession session)
+	private final boolean visible;
+
+	private FirefoxRule(final TestSession session, final boolean visible)
 	{
 		this.session = checkNotNull(session);
+		this.visible = visible;
 	}
 
-	public static TestRule forTest(final TestSession session)
+	public static TestRule forTest(final TestSession session, final boolean visible)
 	{
-		return new FirefoxRule(session);
+		return new FirefoxRule(session, visible);
 	}
 
 	private static class FirefoxWithEnvDriver extends RemoteWebDriver
 	{
-		public FirefoxWithEnvDriver()
+		public FirefoxWithEnvDriver(final Map<String, String> env)
 		{
-			super(createCommandExecutor(), new DesiredCapabilities(), new DesiredCapabilities());
+			super(createCommandExecutor(env), new DesiredCapabilities(), new DesiredCapabilities());
 		}
 
-		private static final CommandExecutor createCommandExecutor()
+		private static final CommandExecutor createCommandExecutor(final Map<String, String> env)
 		{
 			final GeckoDriverService.Builder builder = new GeckoDriverService.Builder();
 			builder.usingPort(0);
-			builder.withEnvironment(ImmutableMap.of("DISPLAY", ":" + XVFB_DISPLAY));
+			builder.withEnvironment(env);
 			builder.usingDriverExecutable(geckoDriver());
 			return new DriverCommandExecutor(builder.build());
 		}
@@ -53,6 +57,18 @@ public class FirefoxRule implements TestRule
 		private static File geckoDriver()
 		{
 			return new File(System.getProperty("user.home") + "/bin/geckodriver");
+		}
+	}
+
+	private Map<String, String> env()
+	{
+		if (visible)
+		{
+			return ImmutableMap.of();
+		}
+		else
+		{
+			return ImmutableMap.of("DISPLAY", ":" + XVFB_DISPLAY);
 		}
 	}
 
@@ -64,7 +80,7 @@ public class FirefoxRule implements TestRule
 			@Override
 			public void evaluate() throws Throwable
 			{
-				final WebDriver webDriver = new FirefoxWithEnvDriver();
+				final WebDriver webDriver = new FirefoxWithEnvDriver(env());
 				try
 				{
 					session.supplyWebDriver(webDriver);
