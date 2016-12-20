@@ -55,7 +55,7 @@ public interface ElementFinder<T>
 	/**
 	 * Finds an element by its value attribute. Most useful for form elements
 	 * such as input buttons.
-	 * 
+	 *
 	 * @param value
 	 * @return
 	 */
@@ -72,10 +72,7 @@ public interface ElementFinder<T>
 	T choose();
 
 	/**
-	 * The number of elements that would be matched by this selection. They are
-	 * not all necessarily visible.
-	 *
-	 * @return elemenet count
+	 * @return corresponding element collection
 	 */
-	int count();
+	ElementCollection all();
 }

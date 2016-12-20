@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import pantheist.testhelpers.ui.generic.ClickableText;
 import pantheist.testhelpers.ui.generic.ContainerElement;
+import pantheist.testhelpers.ui.generic.ElementCollection;
 
 final class SidebarImpl implements Sidebar
 {
@@ -36,5 +37,14 @@ final class SidebarImpl implements Sidebar
 				.withData("resource-type", resourceType)
 				.withData("resource-id", resourceId)
 				.choose();
+	}
+
+	@Override
+	public ElementCollection allResourcesOfType(final String resourceType)
+	{
+		return el.a()
+				.withData("level", "resource")
+				.withData("resource-type", resourceType)
+				.all();
 	}
 }

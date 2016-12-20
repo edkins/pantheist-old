@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import com.google.common.collect.Lists;
+
 import pantheist.testhelpers.ui.except.CannotFindElementException;
 import pantheist.testhelpers.ui.except.DisabledElementException;
 import pantheist.testhelpers.ui.except.ElementStillPresentException;
@@ -20,7 +22,7 @@ import pantheist.testhelpers.ui.except.MultipleElementException;
  * This class represents a CSS Path. It offers all of the possible interfaces,
  * not all of which may necessarily be relevant.
  */
-public class CssPath implements ClickableText, ContainerElement, TextEntry
+public class CssPath implements ClickableText, ContainerElement, TextEntry, ElementCollection
 {
 	private static final Logger LOGGER = LogManager.getLogger(CssPath.class);
 	private final UiSession session;
@@ -223,5 +225,25 @@ public class CssPath implements ClickableText, ContainerElement, TextEntry
 			}
 			return null;
 		});
+	}
+
+	@Override
+	public int count()
+	{
+		return session.find(path).size();
+	}
+
+	@Override
+	public List<String> texts()
+	{
+		return Lists.transform(session.find(path), WebElement::getText);
+	}
+
+	@Override
+	public List<String> dataAttrs(final String key)
+	{
+		checkNotNullOrEmpty(key);
+		final String name = "data-" + key;
+		return Lists.transform(session.find(path), e -> e.getAttribute(name));
 	}
 }

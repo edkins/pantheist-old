@@ -110,12 +110,6 @@ final class ElementFinderImpl implements ExtendedElementFinder
 	}
 
 	@Override
-	public int count()
-	{
-		return session.find(fullPath()).size();
-	}
-
-	@Override
 	public ExtendedElementFinder tweak(final Tweaks newTweaks)
 	{
 		if (!tweaks.isDefault())
@@ -129,6 +123,12 @@ final class ElementFinderImpl implements ExtendedElementFinder
 	public ElementFinder<CssPath> withValue(final String value)
 	{
 		return withAttrib("value", value);
+	}
+
+	@Override
+	public ElementCollection all()
+	{
+		return choose();
 	}
 
 }
