@@ -8,10 +8,9 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
+import pantheist.testhelpers.actions.interf.PantheistActions;
 import pantheist.testhelpers.session.MainRule;
-import pantheist.testhelpers.ui.pan.ResourcePanel;
-import pantheist.testhelpers.ui.pan.ResourceTypePanel;
-import pantheist.testhelpers.ui.pan.Sidebar;
+import pantheist.testhelpers.session.TestMode;
 
 public class SyntaxResourceTest
 {
@@ -20,62 +19,38 @@ public class SyntaxResourceTest
 	private static final String SYNTAX_ID = "cool-syntax";
 
 	@Rule
-	public MainRule sessionRule = MainRule.forNewTest();
+	public MainRule sessionRule = MainRule.forNewTest(TestMode.API);
 
-	private Sidebar sb;
-	private ResourceTypePanel rt;
-	private ResourcePanel rp;
+	private PantheistActions act;
 
 	@Before
 	public void setup()
 	{
-		sb = sessionRule.ui().sidebar();
-		rt = sessionRule.ui().resourceTypePanel();
-		rp = sessionRule.ui().resourcePanel();
+		act = sessionRule.actions();
 	}
 
 	@Test
-	public void resourceTypePrettyNames() throws Exception
+	public void syntax_canBeCreated() throws Exception
 	{
-		assertEquals(sb.resourceType(SYNTAX).text(), "Syntax");
-	}
-
-	@Test
-	public void syntax_showsInSidebar() throws Exception
-	{
-		createSyntax();
-		sb.resource(SYNTAX, SYNTAX_ID).assertText(SYNTAX_ID);
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.assertResourceExists(SYNTAX, SYNTAX_ID);
 	}
 
 	@Test
 	public void syntax_canBeDeleted() throws Exception
 	{
-		createSyntax();
-		sb.resource(SYNTAX, SYNTAX_ID).click();
-		rp.assertDisplayed();
-		rp.deleteButton().click();
-		sb.resource(SYNTAX, SYNTAX_ID).assertGone();
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.deleteResource(SYNTAX, SYNTAX_ID);
+		act.assertResourceDoesNotExist(SYNTAX, SYNTAX_ID);
 	}
 
 	@Test
 	public void syntax_alphabetical() throws Exception
 	{
-		createSyntax("zoo");
-		createSyntax("animal");
-		assertEquals(sb.allResourcesOfType(SYNTAX).dataAttrs("resource-id"), ImmutableList.of("animal", "zoo"));
+		act.createResource(SYNTAX, "zoo");
+		act.createResource(SYNTAX, "animal");
+
+		assertEquals(act.listResourceIdsOfType(SYNTAX), ImmutableList.of("animal", "zoo"));
 	}
 
-	private void createSyntax()
-	{
-		createSyntax(SYNTAX_ID);
-	}
-
-	private void createSyntax(final String syntaxId)
-	{
-		sb.resourceType(SYNTAX).click();
-		rt.assertDisplayed();
-		rt.nameToCreate().fillOut(syntaxId);
-		rt.createButton().click();
-		sb.resource(SYNTAX, syntaxId).assertVisible();
-	}
 }

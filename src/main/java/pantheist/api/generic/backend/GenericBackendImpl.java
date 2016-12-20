@@ -2,14 +2,10 @@ package pantheist.api.generic.backend;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-
-import com.google.common.base.Throwables;
 
 import pantheist.api.generic.model.ApiGenericModelFactory;
 import pantheist.api.generic.model.ListComponentResponse;
@@ -22,6 +18,7 @@ import pantheist.api.generic.store.ResourceStoreSession;
 import pantheist.common.except.AlreadyPresentException;
 import pantheist.common.except.InvalidLocationException;
 import pantheist.common.except.NotFoundException;
+import pantheist.common.util.Escapers;
 
 final class GenericBackendImpl implements GenericBackend
 {
@@ -37,38 +34,24 @@ final class GenericBackendImpl implements GenericBackend
 
 	private String resourcePath(final String resourceType, final String resourceId)
 	{
-		try
-		{
-			return new StringBuilder()
-					.append(resourceType)
-					.append("/")
-					.append(URLEncoder.encode(resourceId, "utf-8"))
-					.toString();
-		}
-		catch (final UnsupportedEncodingException e)
-		{
-			throw Throwables.propagate(e);
-		}
+		return new StringBuilder()
+				.append(resourceType)
+				.append("/")
+				.append(Escapers.url(resourceId))
+				.toString();
 	}
 
 	private String componentPath(final String resourceType, final String resourceId,
 			final String componentType, final String componentId)
 	{
-		try
-		{
-			return new StringBuilder()
-					.append(resourceType)
-					.append("/")
-					.append(URLEncoder.encode(resourceId, "utf-8"))
-					.append("/")
-					.append(componentType)
-					.append(URLEncoder.encode(componentId, "utf-8"))
-					.toString();
-		}
-		catch (final UnsupportedEncodingException e)
-		{
-			throw Throwables.propagate(e);
-		}
+		return new StringBuilder()
+				.append(resourceType)
+				.append("/")
+				.append(Escapers.url(resourceId))
+				.append("/")
+				.append(componentType)
+				.append(Escapers.url(componentId))
+				.toString();
 	}
 
 	@Override
