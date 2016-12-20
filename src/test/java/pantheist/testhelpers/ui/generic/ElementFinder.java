@@ -53,6 +53,15 @@ public interface ElementFinder<T>
 	ElementFinder<T> withData(String key, String value);
 
 	/**
+	 * Finds an element by its value attribute. Most useful for form elements
+	 * such as input buttons.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	ElementFinder<T> withValue(String value);
+
+	/**
 	 * If there's only one element in this selection, return it.
 	 *
 	 * If there are multiple elements then you'll get

@@ -9,4 +9,6 @@ public interface PantheistUi
 	Sidebar sidebar();
 
 	ResourceTypePanel resourceTypePanel();
+
+	ResourcePanel resourcePanel();
 }

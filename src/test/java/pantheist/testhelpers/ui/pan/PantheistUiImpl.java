@@ -32,4 +32,10 @@ public class PantheistUiImpl implements PantheistUi
 	{
 		return ResourceTypePanelImpl.from(el.div().withId("resourceTypePanel").choose());
 	}
+
+	@Override
+	public ResourcePanel resourcePanel()
+	{
+		return ResourcePanelImpl.from(el.div().withId("resourcePanel").choose());
+	}
 }

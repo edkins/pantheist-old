@@ -12,6 +12,7 @@ import org.openqa.selenium.WebElement;
 
 import pantheist.testhelpers.ui.except.CannotFindElementException;
 import pantheist.testhelpers.ui.except.DisabledElementException;
+import pantheist.testhelpers.ui.except.ElementStillPresentException;
 import pantheist.testhelpers.ui.except.IncorrectTextException;
 import pantheist.testhelpers.ui.except.MultipleElementException;
 
@@ -210,5 +211,17 @@ public class CssPath implements ClickableText, ContainerElement, TextEntry
 	{
 		checkNotNullOrEmpty(expectedText);
 		session.retry(() -> checkText(expectedText));
+	}
+
+	@Override
+	public void assertGone()
+	{
+		session.retry(() -> {
+			if (!session.find(path).isEmpty())
+			{
+				throw new ElementStillPresentException("Element still exists: " + path);
+			}
+			return null;
+		});
 	}
 }

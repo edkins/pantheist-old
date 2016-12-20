@@ -125,4 +125,10 @@ final class ElementFinderImpl implements ExtendedElementFinder
 		return new ElementFinderImpl(session, path, selector, newTweaks);
 	}
 
+	@Override
+	public ElementFinder<CssPath> withValue(final String value)
+	{
+		return withAttrib("value", value);
+	}
+
 }
