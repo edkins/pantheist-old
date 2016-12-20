@@ -21,8 +21,9 @@ var sidebar = {
 		var a = $('<a>');
 		a.text(obj.name);
 		a.attr('href','#');
-		a.data('resourceType',obj.type);
-		a.data('name',obj.name);
+		a.attr('data-resource-type', obj.type);
+		a.attr('data-name', obj.name);
+		a.attr('data-level', 'resourceType');
 		a.click(sidebar.resourceTypeClick);
 		return a;
 	},
@@ -32,9 +33,10 @@ var sidebar = {
 		var a = $('<a>');
 		a.text(obj.name);
 		a.attr('href','#');
-		a.data('resourceType',resourceType);
-		a.data('resourceId',obj.id);
-		a.data('name',obj.name);
+		a.attr('data-resource-type', resourceType);
+		a.attr('data-resource-id', obj.id);
+		a.data('data-name', obj.name);
+		a.data('data-level', 'resource');
 		a.click(sidebar.resourceClick);
 		return a;
 	},

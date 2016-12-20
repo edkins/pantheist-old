@@ -40,11 +40,16 @@ public class MutableOptional<T>
 
 	public T get()
 	{
-		if (value.isPresent())
+		if (!value.isPresent())
 		{
 			throw new IllegalStateException("No values");
 		}
 		return value.get();
+	}
+
+	public void clear()
+	{
+		value = Optional.empty();
 	}
 
 	public static <T> MutableOptional<T> empty()

@@ -6,14 +6,20 @@ import java.io.File;
 
 import javax.inject.Inject;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.netflix.config.DynamicPropertyFactory;
 
-final class PantheistConfigImpl implements PantheistConfig
+import pantheist.common.annotations.NotFinalForTesting;
+
+@VisibleForTesting
+@NotFinalForTesting
+public class PantheistConfigImpl implements PantheistConfig
 {
 	private final DynamicPropertyFactory propertyFactory;
 
 	@Inject
-	PantheistConfigImpl(final DynamicPropertyFactory propertyFactory)
+	@VisibleForTesting
+	protected PantheistConfigImpl(final DynamicPropertyFactory propertyFactory)
 	{
 		this.propertyFactory = checkNotNull(propertyFactory);
 	}

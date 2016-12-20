@@ -12,7 +12,10 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import com.google.common.base.Throwables;
+
 import pantheist.api.syntax.resource.SyntaxResource;
+import pantheist.common.util.MutableOptional;
 import pantheist.system.config.PantheistConfig;
 import pantheist.system.statics.resource.StaticsResource;
 
@@ -23,6 +26,9 @@ final class PantheistServerImpl implements PantheistServer
 	private final StaticsResource staticsHandler;
 	private final SyntaxResource syntaxHandler;
 
+	// State
+	MutableOptional<Server> serverOpt;
+
 	@Inject
 	PantheistServerImpl(final PantheistConfig config, final StaticsResource staticsHandler,
 			final SyntaxResource syntaxHandler)
@@ -30,6 +36,7 @@ final class PantheistServerImpl implements PantheistServer
 		this.config = checkNotNull(config);
 		this.staticsHandler = checkNotNull(staticsHandler);
 		this.syntaxHandler = checkNotNull(syntaxHandler);
+		this.serverOpt = MutableOptional.empty();
 	}
 
 	@Override
@@ -43,6 +50,7 @@ final class PantheistServerImpl implements PantheistServer
 			context.setContextPath("/");
 
 			final Server server = new Server(port);
+			serverOpt.add(server);
 			server.setHandler(context);
 
 			final ResourceConfig resourceConfig = new ResourceConfig();
@@ -58,6 +66,23 @@ final class PantheistServerImpl implements PantheistServer
 		{
 			throw new StartupException(e);
 		}
+	}
+
+	@Override
+	public void close()
+	{
+		if (serverOpt.isPresent())
+		{
+			try
+			{
+				serverOpt.get().stop();
+			}
+			catch (final Exception e)
+			{
+				Throwables.propagate(e);
+			}
+		}
+		serverOpt.clear();
 	}
 
 }
