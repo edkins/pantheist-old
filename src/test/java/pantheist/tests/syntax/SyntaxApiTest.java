@@ -3,21 +3,26 @@ package pantheist.tests.syntax;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 
 import pantheist.testhelpers.actions.interf.PantheistActions;
+import pantheist.testhelpers.selenium.ApiRule;
+import pantheist.testhelpers.selenium.Interaction;
 import pantheist.testhelpers.session.MainRule;
-import pantheist.testhelpers.session.TestMode;
 
 public class SyntaxApiTest
 {
 	private static final String SYNTAX = "syntax";
 
+	@ClassRule
+	public static final ApiRule apiRule = Interaction.api();
+
 	@Rule
-	public MainRule sessionRule = MainRule.forNewTest(TestMode.API);
+	public MainRule sessionRule = MainRule.forNewTest(apiRule);
 
 	private PantheistActions act;
 

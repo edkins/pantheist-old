@@ -3,6 +3,11 @@ package pantheist.testhelpers.ui.generic;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
+import java.util.Optional;
+
+import pantheist.testhelpers.ui.except.CannotFindElementException;
+import pantheist.testhelpers.ui.except.ElementStillPresentException;
+
 final class InterpretedTableImpl implements InterpretedTable
 {
 	private final Column headColumn;
@@ -28,24 +33,32 @@ final class InterpretedTableImpl implements InterpretedTable
 		return new InterpretedTableImpl(thead, tbody, headColumn, headRow);
 	}
 
+	private Optional<Integer> findRowIndex(final String rowIdentifier)
+	{
+		final int headColumnIndex = headColumnIndex(headRow());
+		final int rowCount = tbody.childCount();
+		for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+		{
+			final TableCell headCell = cellAt(rowIndex, headColumnIndex);
+			if (headCell.hasText(rowIdentifier))
+			{
+				return Optional.of(rowIndex);
+			}
+		}
+		return Optional.empty();
+	}
+
 	@Override
 	public TableCell cell(final String rowIdentifier, final String columnIdentifier)
 	{
 		checkNotNullOrEmpty(rowIdentifier);
 		checkNotNullOrEmpty(columnIdentifier);
-		final TableContainer<? extends TableCell> headRow = headRow();
-		final int headColumnIndex = headColumnIndex(headRow);
-		final int columnIndex = indexOfTextInRow(headRow, columnIdentifier);
+		final int columnIndex = indexOfTextInRow(headRow(), columnIdentifier);
 
-		for (int rowIndex = 0;; rowIndex++)
-		{
-			final TableCell headCell = cellAt(rowIndex, headColumnIndex);
-			if (headCell.hasText(rowIdentifier))
-			{
-				return cellAt(rowIndex, columnIndex);
-			}
-			// if it can't find it we will fall off the bottom of the table and get a CannotFindElementException
-		}
+		final int rowIndex = findRowIndex(rowIdentifier)
+				.orElseThrow(() -> new CannotFindElementException("Cannot find row in table: " + rowIdentifier));
+
+		return cellAt(rowIndex, columnIndex);
 	}
 
 	private TableCell cellAt(final int rowIndex, final int colIndex)
@@ -73,14 +86,33 @@ final class InterpretedTableImpl implements InterpretedTable
 
 	private int indexOfTextInRow(final TableContainer<? extends TableCell> headRow, final String textToFind)
 	{
-		for (int colIndex = 0;; colIndex++)
+		final int colCount = headRow.childCount();
+		for (int colIndex = 0; colIndex < colCount; colIndex++)
 		{
 			final TableCell cell = headRow.child(colIndex);
 			if (cell.hasText(textToFind))
 			{
 				return colIndex;
 			}
-			// if it can't find it we will fall off the end of the table and get a CannotFindElementException
 		}
+		throw new CannotFindElementException("Cannot find element in table row: " + textToFind);
+	}
+
+	@Override
+	public void assertNoRow(final String rowIdentifier)
+	{
+		if (findRowIndex(rowIdentifier).isPresent())
+		{
+			throw new ElementStillPresentException("Row still present in table: " + rowIdentifier);
+		}
+	}
+
+	@Override
+	public ContainerElement row(final String rowIdentifier)
+	{
+		final int rowIndex = findRowIndex(rowIdentifier)
+				.orElseThrow(() -> new CannotFindElementException("Cannot find row in table: " + rowIdentifier));
+
+		return tbody.child(rowIndex);
 	}
 }

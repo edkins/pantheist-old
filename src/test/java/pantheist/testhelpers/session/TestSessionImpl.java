@@ -1,5 +1,7 @@
 package pantheist.testhelpers.session;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 
 import pantheist.common.util.MutableOptional;
+import pantheist.testhelpers.selenium.SeleniumInfo;
 import pantheist.testhelpers.ui.pan.PantheistUi;
 import pantheist.testhelpers.ui.pan.PantheistUiImpl;
 
@@ -17,42 +20,36 @@ public final class TestSessionImpl implements TestSession
 {
 	private final PortFinder pantheistPort;
 
-	private final MutableOptional<WebDriver> webDriver;
+	private final SeleniumInfo seleniumInfo;
 
 	private final MutableOptional<File> dataDir;
 
 	private final ObjectMapper objectMapper;
 
-	private TestSessionImpl()
+	private TestSessionImpl(final SeleniumInfo seleniumInfo)
 	{
-		pantheistPort = PortFinder.empty();
-		webDriver = MutableOptional.empty();
-		dataDir = MutableOptional.empty();
+		this.pantheistPort = PortFinder.empty();
+		this.seleniumInfo = checkNotNull(seleniumInfo);
+		this.dataDir = MutableOptional.empty();
 		this.objectMapper = new ObjectMapper();
 	}
 
-	public static TestSession forNewTest()
+	public static TestSession forNewTest(final SeleniumInfo seleniumInfo)
 	{
-		return new TestSessionImpl();
+		return new TestSessionImpl(seleniumInfo);
 	}
 
 	@Override
 	public void clear()
 	{
 		pantheistPort.clear();
-		webDriver.clear();
-	}
-
-	@Override
-	public void supplyWebDriver(final WebDriver newWebDriver)
-	{
-		webDriver.add(newWebDriver);
+		dataDir.clear();
 	}
 
 	@Override
 	public WebDriver webDriver()
 	{
-		return webDriver.get();
+		return seleniumInfo.webDriver();
 	}
 
 	@Override
@@ -96,6 +93,12 @@ public final class TestSessionImpl implements TestSession
 	public ObjectMapper objectMapper()
 	{
 		return objectMapper;
+	}
+
+	@Override
+	public TestMode mode()
+	{
+		return seleniumInfo.mode();
 	}
 
 }

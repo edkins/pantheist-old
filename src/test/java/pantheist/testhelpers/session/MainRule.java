@@ -13,31 +13,17 @@ import pantheist.testhelpers.actions.ui.PantheistActionsUi;
 import pantheist.testhelpers.app.AppRule;
 import pantheist.testhelpers.app.TempDirRule;
 import pantheist.testhelpers.app.WaitForServerRule;
-import pantheist.testhelpers.selenium.FirefoxRule;
 import pantheist.testhelpers.selenium.NavigateToHomeRule;
+import pantheist.testhelpers.selenium.SeleniumInfo;
 import pantheist.testhelpers.ui.pan.PantheistUi;
 
 public class MainRule implements TestRule
 {
 	private final TestSession session;
-	private final TestMode mode;
 
-	private TestRule webDriverRule(final TestMode mode)
-	{
-		switch (mode) {
-		case UI_VISIBLE:
-			return FirefoxRule.forTest(session, true);
-		case UI_INVISIBLE:
-			return FirefoxRule.forTest(session, false);
-		default:
-			return new NoRule();
-		}
-	}
-
-	private MainRule(final TestSession session, final TestMode mode)
+	private MainRule(final TestSession session)
 	{
 		this.session = checkNotNull(session);
-		this.mode = checkNotNull(mode);
 	}
 
 	private RuleChain createRuleChain()
@@ -45,16 +31,15 @@ public class MainRule implements TestRule
 		return RuleChain
 				.outerRule(SessionClearingRule.forTest(session))
 				.around(new ErrorLoggingRule())
-				.around(webDriverRule(mode))
 				.around(TempDirRule.forTest(session))
 				.around(AppRule.forTest(session))
 				.around(WaitForServerRule.forTest(session))
-				.around(navigateToHomeRule(session, mode));
+				.around(navigateToHomeRule());
 	}
 
-	private TestRule navigateToHomeRule(final TestSession session, final TestMode mode)
+	private TestRule navigateToHomeRule()
 	{
-		switch (mode) {
+		switch (session.mode()) {
 		case UI_VISIBLE:
 		case UI_INVISIBLE:
 			return NavigateToHomeRule.forTest(session);
@@ -63,15 +48,15 @@ public class MainRule implements TestRule
 		}
 	}
 
-	public static MainRule forNewTest(final TestMode mode)
+	public static MainRule forNewTest(final SeleniumInfo seleniumInfo)
 	{
-		final TestSession session = TestSessionImpl.forNewTest();
-		return new MainRule(session, mode);
+		final TestSession session = TestSessionImpl.forNewTest(seleniumInfo);
+		return new MainRule(session);
 	}
 
 	public PantheistActions actions()
 	{
-		switch (mode) {
+		switch (session.mode()) {
 		case UI_VISIBLE:
 		case UI_INVISIBLE:
 			return PantheistActionsUi.from(session.ui());

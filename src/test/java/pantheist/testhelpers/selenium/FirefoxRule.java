@@ -1,11 +1,8 @@
 package pantheist.testhelpers.selenium;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.io.File;
 import java.util.Map;
 
-import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.openqa.selenium.WebDriver;
@@ -17,25 +14,22 @@ import org.openqa.selenium.remote.service.DriverCommandExecutor;
 
 import com.google.common.collect.ImmutableMap;
 
-import pantheist.testhelpers.session.TestSession;
+import pantheist.common.util.MutableOptional;
+import pantheist.testhelpers.session.TestMode;
 
-public class FirefoxRule implements TestRule
+final class FirefoxRule implements ApiRule
 {
 	private static final int XVFB_DISPLAY = 99;
 
-	private final TestSession session;
-
 	private final boolean visible;
 
-	private FirefoxRule(final TestSession session, final boolean visible)
-	{
-		this.session = checkNotNull(session);
-		this.visible = visible;
-	}
+	// State
+	private final MutableOptional<WebDriver> webDriver;
 
-	public static TestRule forTest(final TestSession session, final boolean visible)
+	FirefoxRule(final boolean visible)
 	{
-		return new FirefoxRule(session, visible);
+		this.visible = visible;
+		this.webDriver = MutableOptional.empty();
 	}
 
 	private static class FirefoxWithEnvDriver extends RemoteWebDriver
@@ -83,7 +77,7 @@ public class FirefoxRule implements TestRule
 				final WebDriver webDriver = new FirefoxWithEnvDriver(env());
 				try
 				{
-					session.supplyWebDriver(webDriver);
+					FirefoxRule.this.webDriver.add(webDriver);
 					base.evaluate();
 				}
 				finally
@@ -92,6 +86,25 @@ public class FirefoxRule implements TestRule
 				}
 			}
 		};
+	}
+
+	@Override
+	public WebDriver webDriver()
+	{
+		return webDriver.get();
+	}
+
+	@Override
+	public TestMode mode()
+	{
+		if (visible)
+		{
+			return TestMode.UI_VISIBLE;
+		}
+		else
+		{
+			return TestMode.UI_INVISIBLE;
+		}
 	}
 
 }

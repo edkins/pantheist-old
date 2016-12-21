@@ -13,8 +13,6 @@ public interface TestSession
 {
 	void clear();
 
-	void supplyWebDriver(WebDriver webDriver);
-
 	void supplyDataDir(File dataDir);
 
 	WebDriver webDriver();
@@ -28,4 +26,6 @@ public interface TestSession
 	File dataDir();
 
 	ObjectMapper objectMapper();
+
+	TestMode mode();
 }

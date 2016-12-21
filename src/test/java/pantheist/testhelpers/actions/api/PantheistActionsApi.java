@@ -95,6 +95,14 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 		}
 	}
 
+	private void expectNotFound(final Response response)
+	{
+		if (response.getStatus() != 404)
+		{
+			throw UnexpectedHttpStatusException.forResponse(response);
+		}
+	}
+
 	private <T> T expectJson(final Response response, final Class<T> clazz)
 	{
 		if (response.getStatus() != 200)
@@ -170,6 +178,20 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 	{
 		final Response response = target("syntax", syntaxId, "node", nodeId).request().get();
 		return jsonInfo(response);
+	}
+
+	@Override
+	public void deleteNode(final String syntaxId, final String nodeId)
+	{
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().delete();
+		expectNoContent(response);
+	}
+
+	@Override
+	public void assertNodeIsGone(final String syntaxId, final String nodeId)
+	{
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().get();
+		expectNotFound(response);
 	}
 
 }

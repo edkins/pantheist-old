@@ -134,4 +134,17 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 				.with("children", children);
 	}
 
+	@Override
+	public void deleteNode(final String syntaxId, final String nodeId)
+	{
+		rp.syntaxNodes().row(nodeId).inputButton().withValue("Del").choose().click();
+	}
+
+	@Override
+	public void assertNodeIsGone(final String syntaxId, final String nodeId)
+	{
+		wantResource("syntax", syntaxId);
+		rp.syntaxNodes().assertNoRow(nodeId);
+	}
+
 }

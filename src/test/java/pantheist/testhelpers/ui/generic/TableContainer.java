@@ -3,7 +3,7 @@ package pantheist.testhelpers.ui.generic;
 /**
  * Internal interface for dealing with tables. Similar to ContainerElement.
  */
-interface TableContainer<T>
+interface TableContainer<T> extends ContainerElement
 {
 	/**
 	 * Useful for:
@@ -15,4 +15,6 @@ interface TableContainer<T>
 	 * @return finder for elements that are direct children of this element
 	 */
 	T child(int index);
+
+	int childCount();
 }

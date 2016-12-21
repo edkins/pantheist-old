@@ -2,24 +2,28 @@ package pantheist.tests.syntax;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
+import pantheist.testhelpers.selenium.ApiRule;
+import pantheist.testhelpers.selenium.Interaction;
 import pantheist.testhelpers.session.MainRule;
-import pantheist.testhelpers.session.TestMode;
 
 /**
  * Tests that only make sense for the UI.
  */
 public class SyntaxUiTest
 {
+	@ClassRule
+	public static final ApiRule apiRule = Interaction.hidden();
+
 	@Rule
-	public MainRule sessionRule = MainRule.forNewTest(TestMode.UI_INVISIBLE);
+	public MainRule sessionRule = MainRule.forNewTest(apiRule);
 
 	@Test
 	public void resourceTypePrettyNames() throws Exception
 	{
 		assertEquals(sessionRule.ui().sidebar().resourceType("syntax").text(), "Syntax");
 	}
-
 }

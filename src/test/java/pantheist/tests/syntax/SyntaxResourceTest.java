@@ -3,6 +3,7 @@ package pantheist.tests.syntax;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -10,17 +11,23 @@ import com.google.common.collect.ImmutableList;
 
 import pantheist.testhelpers.actions.interf.PantheistActions;
 import pantheist.testhelpers.model.Information;
+import pantheist.testhelpers.selenium.ApiRule;
+import pantheist.testhelpers.selenium.Interaction;
 import pantheist.testhelpers.session.MainRule;
-import pantheist.testhelpers.session.TestMode;
 
 public class SyntaxResourceTest
 {
+	private static final String LITERAL_TOKEN = "tok";
+
 	private static final String SYNTAX = "syntax";
 
 	private static final String SYNTAX_ID = "cool-syntax";
 
+	@ClassRule
+	public static final ApiRule apiRule = Interaction.hidden();
+
 	@Rule
-	public MainRule sessionRule = MainRule.forNewTest(TestMode.UI_VISIBLE);
+	public final MainRule sessionRule = MainRule.forNewTest(apiRule);
 
 	private PantheistActions act;
 
@@ -84,10 +91,19 @@ public class SyntaxResourceTest
 	public void syntax_createLiteralToken() throws Exception
 	{
 		act.createResource(SYNTAX, SYNTAX_ID);
-		act.syntax().createLiteralToken(SYNTAX_ID, "tok");
-		final Information node = act.syntax().describeNode(SYNTAX_ID, "tok");
+		act.syntax().createLiteralToken(SYNTAX_ID, LITERAL_TOKEN);
+		final Information node = act.syntax().describeNode(SYNTAX_ID, LITERAL_TOKEN);
 		node.field("type").assertString("literal");
-		node.field("value").assertString("tok");
+		node.field("value").assertString(LITERAL_TOKEN);
 		node.field("children").assertEmpty();
+	}
+
+	@Test
+	public void syntax_deleteToken() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createLiteralToken(SYNTAX_ID, LITERAL_TOKEN);
+		act.syntax().deleteNode(SYNTAX_ID, LITERAL_TOKEN);
+		act.syntax().assertNodeIsGone(SYNTAX_ID, LITERAL_TOKEN);
 	}
 }

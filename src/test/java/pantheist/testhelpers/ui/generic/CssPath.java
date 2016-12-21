@@ -304,7 +304,7 @@ public class CssPath
 	public boolean hasText(final String expectedText)
 	{
 		checkNotNullOrEmpty(expectedText);
-		return session.retry(() -> expectedText.equals(text()));
+		return expectedText.equals(text());
 	}
 
 	@Override
@@ -330,6 +330,12 @@ public class CssPath
 	public Information interpretAsJson()
 	{
 		return Informations.jsonOrEmpty(session.objectMapper(), text());
+	}
+
+	@Override
+	public int childCount()
+	{
+		return childrenOfType("*").all().count();
 	}
 
 }
