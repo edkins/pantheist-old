@@ -1,5 +1,6 @@
 package pantheist.testhelpers.ui.generic;
 
+import pantheist.testhelpers.model.Information;
 import pantheist.testhelpers.ui.except.CannotFindElementException;
 import pantheist.testhelpers.ui.except.IncorrectTextException;
 import pantheist.testhelpers.ui.except.MultipleElementException;
@@ -22,6 +23,30 @@ public interface Textual
 	 *             if multiple elements match this css path
 	 */
 	String text();
+
+	/**
+	 * Interpret the text as a simple string.
+	 *
+	 * @return Information object representing this text
+	 */
+	Information interpretDirectly();
+
+	/**
+	 * Interpret the text as json
+	 *
+	 * @return Information object representing this text
+	 */
+	Information interpretAsJson();
+
+	/**
+	 * Ask whether this element has the given text, which must be a non-empty
+	 * string.
+	 *
+	 * @param text
+	 *            expected text
+	 * @return whether this element has this text
+	 */
+	boolean hasText(String text);
 
 	/**
 	 * Assert that the text is what it should be. This must be a non-empty

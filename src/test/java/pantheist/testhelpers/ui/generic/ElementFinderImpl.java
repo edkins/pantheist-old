@@ -32,11 +32,23 @@ final class ElementFinderImpl implements ExtendedElementFinder
 
 	static ExtendedElementFinder elementType(final UiSession session, final String path, final String elementType)
 	{
-		if (!ELEMENT_TYPE_PATTERN.matcher(elementType).matches())
+		checkElementType(elementType);
+		return new ElementFinderImpl(session, path, elementType, Tweaks.DEFAULT);
+	}
+
+	private static void checkElementType(final String elementType)
+	{
+		checkNotNullOrEmpty(elementType);
+		if (!ELEMENT_TYPE_PATTERN.matcher(elementType).matches() && !elementType.equals("*"))
 		{
 			throw new IllegalArgumentException("Bad element type: " + elementType);
 		}
-		return new ElementFinderImpl(session, path, elementType, Tweaks.DEFAULT);
+	}
+
+	static ExtendedElementFinder childOfType(final UiSession session, final String path, final String elementType)
+	{
+		checkElementType(elementType);
+		return new ElementFinderImpl(session, path, "> " + elementType, Tweaks.DEFAULT);
 	}
 
 	private String fullPath()
@@ -126,6 +138,12 @@ final class ElementFinderImpl implements ExtendedElementFinder
 	public ElementCollection all()
 	{
 		return choose();
+	}
+
+	@Override
+	public ExtendedElementFinder nthChild(final int n)
+	{
+		return with(":nth-child(" + (n + 1) + ")");
 	}
 
 }

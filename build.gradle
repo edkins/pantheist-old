@@ -22,6 +22,7 @@ dependencies {
 	compile group: 'jparsec', name: 'jparsec', version: '2.0.1'
 
 	testCompile group: 'org.seleniumhq.selenium', name: 'selenium-firefox-driver', version: '3.0.1'
+	testCompile group: 'org.seleniumhq.selenium', name: 'selenium-support', version: '3.0.1'
 	testCompile group: 'junit', name: 'junit', version: '4.12'
 	testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
 	testCompile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.25'

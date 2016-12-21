@@ -32,4 +32,19 @@ interface ExtendedElementFinder extends ElementFinder<CssPath>
 	 *             if key contains problematic characters or is empty
 	 */
 	ExtendedElementFinder withAttrib(String key, String value);
+
+	/**
+	 * Selects elements that are the nth child.
+	 *
+	 * Note this starts counting from zero, unlike css.
+	 *
+	 * This isn't exposed in the main ElementFinder because it will do
+	 * unexpected things if the selected elements aren't all siblings of each
+	 * other. It's mostly useful for tables.
+	 *
+	 * @param n
+	 *            zero-based index
+	 * @return
+	 */
+	ExtendedElementFinder nthChild(int n);
 }

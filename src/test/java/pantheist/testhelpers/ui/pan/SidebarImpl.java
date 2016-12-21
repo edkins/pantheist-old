@@ -21,6 +21,12 @@ final class SidebarImpl implements Sidebar
 	}
 
 	@Override
+	public void assertDisplayed()
+	{
+		el.assertVisible();
+	}
+
+	@Override
 	public ClickableText resourceType(final String resourceType)
 	{
 		return el.a()

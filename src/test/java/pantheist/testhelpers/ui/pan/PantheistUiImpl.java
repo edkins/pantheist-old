@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.openqa.selenium.WebDriver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import pantheist.testhelpers.ui.generic.ContainerElement;
 import pantheist.testhelpers.ui.generic.CssPath;
 
@@ -16,9 +18,9 @@ public class PantheistUiImpl implements PantheistUi
 		this.el = checkNotNull(el);
 	}
 
-	public static PantheistUi root(final WebDriver webDriver)
+	public static PantheistUi root(final WebDriver webDriver, final ObjectMapper objectMapper)
 	{
-		return new PantheistUiImpl(CssPath.root(webDriver));
+		return new PantheistUiImpl(CssPath.root(webDriver, objectMapper));
 	}
 
 	@Override
@@ -37,5 +39,11 @@ public class PantheistUiImpl implements PantheistUi
 	public ResourcePanel resourcePanel()
 	{
 		return ResourcePanelImpl.from(el.div().withId("resourcePanel").choose());
+	}
+
+	@Override
+	public TopPanel topPanel()
+	{
+		return TopPanelImpl.from(el.div().withClass("header").choose());
 	}
 }

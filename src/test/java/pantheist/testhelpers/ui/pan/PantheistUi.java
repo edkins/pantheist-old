@@ -11,4 +11,6 @@ public interface PantheistUi
 	ResourceTypePanel resourceTypePanel();
 
 	ResourcePanel resourcePanel();
+
+	TopPanel topPanel();
 }

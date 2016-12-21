@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import org.openqa.selenium.WebElement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Represents a UI session.
  *
@@ -37,4 +39,19 @@ interface UiSession
 	 * @return
 	 */
 	<T> T retry(Supplier<T> fn);
+
+	/**
+	 * Always handy.
+	 *
+	 * @return an ObjectMapper
+	 */
+	ObjectMapper objectMapper();
+
+	/**
+	 * Wait until the page has had enough time to stabilize.
+	 *
+	 * This is when you're doing some kind of interrogation that is complicated
+	 * enough that you don't want things to still be changing, e.g. with tables.
+	 */
+	void allowTimeToStabilize();
 }

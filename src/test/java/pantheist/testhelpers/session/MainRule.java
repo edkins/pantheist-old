@@ -76,7 +76,7 @@ public class MainRule implements TestRule
 		case UI_INVISIBLE:
 			return PantheistActionsUi.from(session.ui());
 		default:
-			return PantheistActionsApi.from(session.pantheistUrl());
+			return PantheistActionsApi.from(session.pantheistUrl(), session.objectMapper());
 		}
 	}
 

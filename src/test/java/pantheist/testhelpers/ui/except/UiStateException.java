@@ -14,4 +14,9 @@ public abstract class UiStateException extends RuntimeException
 	{
 		super(message);
 	}
+
+	public UiStateException(final Exception ex)
+	{
+		super(ex);
+	}
 }

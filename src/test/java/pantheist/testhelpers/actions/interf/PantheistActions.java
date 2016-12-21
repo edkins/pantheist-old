@@ -18,4 +18,9 @@ public interface PantheistActions
 	void assertResourceDoesNotExist(String resourceType, String resourceId);
 
 	List<String> listResourceIdsOfType(String resourceType);
+
+	/**
+	 * Bundle together actions that relate to syntax
+	 */
+	SyntaxActions syntax();
 }

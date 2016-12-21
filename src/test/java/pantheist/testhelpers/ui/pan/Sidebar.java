@@ -8,6 +8,8 @@ import pantheist.testhelpers.ui.generic.ElementCollection;
  */
 public interface Sidebar
 {
+	void assertDisplayed();
+
 	ClickableText resourceType(String resourceType);
 
 	ClickableText resource(String resourceType, String resourceId);

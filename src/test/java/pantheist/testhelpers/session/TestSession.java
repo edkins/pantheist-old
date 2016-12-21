@@ -5,6 +5,8 @@ import java.net.URL;
 
 import org.openqa.selenium.WebDriver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import pantheist.testhelpers.ui.pan.PantheistUi;
 
 public interface TestSession
@@ -24,4 +26,6 @@ public interface TestSession
 	URL pantheistUrl();
 
 	File dataDir();
+
+	ObjectMapper objectMapper();
 }

@@ -27,7 +27,7 @@ import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxDocProperty;
 import pantheist.api.syntax.model.SyntaxNode;
 import pantheist.common.except.OtherPreconditions;
-import pantheist.common.util.OtherLists;
+import pantheist.common.util.Make;
 
 final class ParserEngineImpl implements ParserEngine
 {
@@ -185,7 +185,7 @@ final class ParserEngineImpl implements ParserEngine
 			Parser<List<Artifact>> result = Parsers.constant(ImmutableList.of());
 			for (final Parser<Artifact> p : parsers)
 			{
-				result = Parsers.sequence(result, p, OtherLists::add);
+				result = Parsers.sequence(result, p, Make::list);
 			}
 			return result.map(children -> SequenceArtifact.of(nodeId, children));
 		}

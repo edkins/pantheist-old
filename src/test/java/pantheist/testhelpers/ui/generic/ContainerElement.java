@@ -20,7 +20,7 @@ package pantheist.testhelpers.ui.generic;
  *
  * The ElementFinder interface assists with this.
  */
-public interface ContainerElement extends AnyElement
+public interface ContainerElement extends VisualElement
 {
 	/**
 	 * Find an html 'a' element.
@@ -49,5 +49,19 @@ public interface ContainerElement extends AnyElement
 	 * @return element finder.
 	 */
 	ElementFinder<? extends ClickableText> inputButton();
+
+	/**
+	 * Find an html 'select' element
+	 *
+	 * @return element finder.
+	 */
+	ElementFinder<? extends Menu> select();
+
+	/**
+	 * Find an html 'table' element
+	 * 
+	 * @return element finder
+	 */
+	ElementFinder<? extends ProtoTable> table();
 
 }

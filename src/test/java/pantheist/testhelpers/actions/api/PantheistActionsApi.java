@@ -26,8 +26,12 @@ import pantheist.api.generic.model.ListResourceResponse;
 import pantheist.api.generic.model.ResourceMetadata;
 import pantheist.common.util.Escapers;
 import pantheist.testhelpers.actions.interf.PantheistActions;
+import pantheist.testhelpers.actions.interf.SyntaxActions;
+import pantheist.testhelpers.model.Information;
+import pantheist.testhelpers.model.Informations;
+import pantheist.testhelpers.model.JsonBuilder;
 
-public class PantheistActionsApi implements PantheistActions
+public class PantheistActionsApi implements PantheistActions, SyntaxActions
 {
 	private final Client client;
 	private final URI baseUri;
@@ -40,16 +44,21 @@ public class PantheistActionsApi implements PantheistActions
 		this.objectMapper = checkNotNull(objectMapper);
 	}
 
-	public static PantheistActions from(final URL baseUrl)
+	public static PantheistActions from(final URL baseUrl, final ObjectMapper objectMapper)
 	{
 		try
 		{
-			return new PantheistActionsApi(ClientBuilder.newClient(), baseUrl.toURI(), new ObjectMapper());
+			return new PantheistActionsApi(ClientBuilder.newClient(), baseUrl.toURI(), objectMapper);
 		}
 		catch (final URISyntaxException e)
 		{
 			throw Throwables.propagate(e);
 		}
+	}
+
+	private JsonBuilder jb()
+	{
+		return JsonBuilder.from(objectMapper);
 	}
 
 	private WebTarget target(final String resourceType)
@@ -59,8 +68,16 @@ public class PantheistActionsApi implements PantheistActions
 
 	private WebTarget target(final String resourceType, final String resourceId)
 	{
-		String escaped = Escapers.url(resourceId);
+		final String escaped = Escapers.url(resourceId);
 		return target(resourceType).path(escaped);
+	}
+
+	private WebTarget target(final String resourceType,
+			final String resourceId,
+			final String componentType,
+			final String componentId)
+	{
+		return target(resourceType, resourceId).path(componentType).path(Escapers.url(componentId));
 	}
 
 	@Override
@@ -95,6 +112,16 @@ public class PantheistActionsApi implements PantheistActions
 		}
 	}
 
+	private Information jsonInfo(final Response response)
+	{
+		if (response.getStatus() != 200)
+		{
+			throw UnexpectedHttpStatusException.forResponse(response);
+		}
+		final String json = response.readEntity(String.class);
+		return Informations.jsonOrEmpty(objectMapper, json);
+	}
+
 	@Override
 	public void deleteResource(final String resourceType, final String resourceId)
 	{
@@ -122,6 +149,27 @@ public class PantheistActionsApi implements PantheistActions
 		final Response response = target(resourceType).request().get();
 		final List<ResourceMetadata> resources = expectJson(response, ListResourceResponse.class).resources();
 		return Lists.transform(resources, ResourceMetadata::id);
+	}
+
+	@Override
+	public SyntaxActions syntax()
+	{
+		return this;
+	}
+
+	@Override
+	public void createLiteralToken(final String syntaxId, final String value)
+	{
+		final Entity<String> json = jb().with("type", "literal").with("value", value).toEntity();
+		final Response response = target("syntax", syntaxId, "node", value).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public Information describeNode(final String syntaxId, final String nodeId)
+	{
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().get();
+		return jsonInfo(response);
 	}
 
 }

@@ -6,6 +6,7 @@ import java.net.URL;
 
 import org.openqa.selenium.WebDriver;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 
 import pantheist.common.util.MutableOptional;
@@ -20,11 +21,14 @@ public final class TestSessionImpl implements TestSession
 
 	private final MutableOptional<File> dataDir;
 
+	private final ObjectMapper objectMapper;
+
 	private TestSessionImpl()
 	{
 		pantheistPort = PortFinder.empty();
 		webDriver = MutableOptional.empty();
 		dataDir = MutableOptional.empty();
+		this.objectMapper = new ObjectMapper();
 	}
 
 	public static TestSession forNewTest()
@@ -73,7 +77,7 @@ public final class TestSessionImpl implements TestSession
 	@Override
 	public PantheistUi ui()
 	{
-		return PantheistUiImpl.root(webDriver());
+		return PantheistUiImpl.root(webDriver(), objectMapper);
 	}
 
 	@Override
@@ -86,6 +90,12 @@ public final class TestSessionImpl implements TestSession
 	public File dataDir()
 	{
 		return dataDir.get();
+	}
+
+	@Override
+	public ObjectMapper objectMapper()
+	{
+		return objectMapper;
 	}
 
 }

@@ -7,11 +7,16 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 
+import pantheist.testhelpers.model.Information;
+import pantheist.testhelpers.model.Informations;
 import pantheist.testhelpers.ui.except.CannotFindElementException;
 import pantheist.testhelpers.ui.except.DisabledElementException;
 import pantheist.testhelpers.ui.except.ElementStillPresentException;
@@ -22,7 +27,8 @@ import pantheist.testhelpers.ui.except.MultipleElementException;
  * This class represents a CSS Path. It offers all of the possible interfaces,
  * not all of which may necessarily be relevant.
  */
-public class CssPath implements ClickableText, ContainerElement, TextEntry, ElementCollection
+public class CssPath
+		implements ClickableText, TableCell, TextEntry, ElementCollection, Menu, ProtoTable, TableContainer<CssPath>
 {
 	private static final Logger LOGGER = LogManager.getLogger(CssPath.class);
 	private final UiSession session;
@@ -36,9 +42,9 @@ public class CssPath implements ClickableText, ContainerElement, TextEntry, Elem
 		this.tweaks = checkNotNull(tweaks);
 	}
 
-	public static ContainerElement root(final WebDriver webDriver)
+	public static ContainerElement root(final WebDriver webDriver, final ObjectMapper objectMapper)
 	{
-		return new CssPath(UiSessionImpl.from(webDriver), "", Tweaks.DEFAULT);
+		return new CssPath(UiSessionImpl.from(webDriver, objectMapper), "", Tweaks.DEFAULT);
 	}
 
 	static CssPath of(final UiSession session, final String path, final Tweaks tweaks)
@@ -141,6 +147,11 @@ public class CssPath implements ClickableText, ContainerElement, TextEntry, Elem
 	private ExtendedElementFinder finder(final String elementType)
 	{
 		return ElementFinderImpl.elementType(session, path, elementType);
+	}
+
+	private ExtendedElementFinder childrenOfType(final String elementType)
+	{
+		return ElementFinderImpl.childOfType(session, path, elementType);
 	}
 
 	@Override
@@ -256,4 +267,69 @@ public class CssPath implements ClickableText, ContainerElement, TextEntry, Elem
 		final String name = "data-" + key;
 		return Lists.transform(session.find(path), e -> e.getAttribute(name));
 	}
+
+	@Override
+	public InterpretedTable interpret(final Column headColumn, final Row headRow)
+	{
+		return InterpretedTableImpl.from(
+				childrenOfType("thead").choose(),
+				childrenOfType("tbody").choose(),
+				headColumn,
+				headRow);
+	}
+
+	@Override
+	public ElementFinder<? extends Menu> select()
+	{
+		return finder("select");
+	}
+
+	@Override
+	public void selectByText(final String text)
+	{
+		session.retry(() -> {
+			try
+			{
+				new Select(enabledElement()).selectByVisibleText(text);
+			}
+			catch (final NoSuchElementException ex)
+			{
+				throw new CannotFindElementException(ex);
+			}
+			return null;
+		});
+	}
+
+	@Override
+	public boolean hasText(final String expectedText)
+	{
+		checkNotNullOrEmpty(expectedText);
+		return session.retry(() -> expectedText.equals(text()));
+	}
+
+	@Override
+	public CssPath child(final int index)
+	{
+		return childrenOfType("*").nthChild(index).choose();
+	}
+
+	@Override
+	public ElementFinder<? extends ProtoTable> table()
+	{
+		session.allowTimeToStabilize();
+		return finder("table");
+	}
+
+	@Override
+	public Information interpretDirectly()
+	{
+		return Informations.string(text());
+	}
+
+	@Override
+	public Information interpretAsJson()
+	{
+		return Informations.jsonOrEmpty(session.objectMapper(), text());
+	}
+
 }

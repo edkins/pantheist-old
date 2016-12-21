@@ -9,6 +9,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import pantheist.testhelpers.actions.interf.PantheistActions;
+import pantheist.testhelpers.model.Information;
 import pantheist.testhelpers.session.MainRule;
 import pantheist.testhelpers.session.TestMode;
 
@@ -72,9 +73,21 @@ public class SyntaxResourceTest
 		act.createResource(SYNTAX, "\\");
 		act.createResource(SYNTAX, "\\\\");
 		act.createResource(SYNTAX, "<br>");
+		act.createResource(SYNTAX, "#");
 		assertEquals(
-				ImmutableList.of(" ", "\"", "%", "%20", "'",
+				ImmutableList.of(" ", "\"", "#", "%", "%20", "'",
 						"+", ".", "..", "...", "/", "<br>", "?", "\\", "\\\\", "a..", "http://"),
 				act.listResourceIdsOfType(SYNTAX));
+	}
+
+	@Test
+	public void syntax_createLiteralToken() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createLiteralToken(SYNTAX_ID, "tok");
+		final Information node = act.syntax().describeNode(SYNTAX_ID, "tok");
+		node.field("type").assertString("literal");
+		node.field("value").assertString("tok");
+		node.field("children").assertEmpty();
 	}
 }

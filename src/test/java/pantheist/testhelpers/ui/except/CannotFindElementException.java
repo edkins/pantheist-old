@@ -12,4 +12,9 @@ public class CannotFindElementException extends UiStateException
 	{
 		super(message);
 	}
+
+	public CannotFindElementException(final Exception ex)
+	{
+		super(ex);
+	}
 }

@@ -119,6 +119,11 @@ resourcePanel = {
 	clickCreateComponent: function(event)
 	{
 		var componentId = $('#resourcePanel #createComponentId').val();
+		if (componentId == '')
+		{
+			$('#resourcePanel #createFailureMessage').text('Must enter name');
+			return;
+		}
 		var data = resourcePanel.componentCreatorData(componentId);
 		services.createComponent(
 			resourcePanel.resourceType(),
@@ -183,6 +188,8 @@ resourcePanel = {
 			var headings = resourcePanel.componentTableHeadings(obj.componentType);
 			
 			var table = $('<table>');
+			table.attr('id','component-table-'+obj.componentType);
+			var thead = $('<thead>');
 			var thr = $('<tr>');
 			thr.append($('<th>'));
 			var th_id = $('<th>');
@@ -194,8 +201,11 @@ resourcePanel = {
 				th.text(headings[k][0]);
 				thr.append(th);
 			}
-			table.append(thr);
+			thead.append(thr);
+			table.append(thead);
 			
+			var tbody = $('<tbody>');
+
 			for (var j = 0; j < obj.components.length; j++)
 			{
 				var obj2 = obj.components[j];
@@ -221,8 +231,9 @@ resourcePanel = {
 					td.text(fn(obj2.data[prop]));
 					tr.append(td);
 				}
-				table.append(tr);
+				tbody.append(tr);
 			}
+			table.append(tbody);
 			$('#resourcePanel #components').append(table);
 		}
 	},
