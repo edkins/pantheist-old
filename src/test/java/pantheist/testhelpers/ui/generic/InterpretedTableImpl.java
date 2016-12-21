@@ -12,11 +12,11 @@ final class InterpretedTableImpl implements InterpretedTable
 {
 	private final Column headColumn;
 	private final Row headRow;
-	private final TableContainer<? extends TableContainer<? extends TableCell>> thead;
-	private final TableContainer<? extends TableContainer<? extends TableCell>> tbody;
+	private final TableContainer<? extends TableContainer<? extends ContainerWithText>> thead;
+	private final TableContainer<? extends TableContainer<? extends ContainerWithText>> tbody;
 
-	private InterpretedTableImpl(final TableContainer<? extends TableContainer<? extends TableCell>> thead,
-			final TableContainer<? extends TableContainer<? extends TableCell>> tbody,
+	private InterpretedTableImpl(final TableContainer<? extends TableContainer<? extends ContainerWithText>> thead,
+			final TableContainer<? extends TableContainer<? extends ContainerWithText>> tbody,
 			final Column headColumn,
 			final Row headRow)
 	{
@@ -26,8 +26,8 @@ final class InterpretedTableImpl implements InterpretedTable
 		this.headRow = checkNotNull(headRow);
 	}
 
-	static InterpretedTable from(final TableContainer<? extends TableContainer<? extends TableCell>> thead,
-			final TableContainer<? extends TableContainer<? extends TableCell>> tbody,
+	static InterpretedTable from(final TableContainer<? extends TableContainer<? extends ContainerWithText>> thead,
+			final TableContainer<? extends TableContainer<? extends ContainerWithText>> tbody,
 			final Column headColumn, final Row headRow)
 	{
 		return new InterpretedTableImpl(thead, tbody, headColumn, headRow);
@@ -39,7 +39,7 @@ final class InterpretedTableImpl implements InterpretedTable
 		final int rowCount = tbody.childCount();
 		for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
 		{
-			final TableCell headCell = cellAt(rowIndex, headColumnIndex);
+			final ContainerWithText headCell = cellAt(rowIndex, headColumnIndex);
 			if (headCell.hasText(rowIdentifier))
 			{
 				return Optional.of(rowIndex);
@@ -49,7 +49,7 @@ final class InterpretedTableImpl implements InterpretedTable
 	}
 
 	@Override
-	public TableCell cell(final String rowIdentifier, final String columnIdentifier)
+	public ContainerWithText cell(final String rowIdentifier, final String columnIdentifier)
 	{
 		checkNotNullOrEmpty(rowIdentifier);
 		checkNotNullOrEmpty(columnIdentifier);
@@ -61,12 +61,12 @@ final class InterpretedTableImpl implements InterpretedTable
 		return cellAt(rowIndex, columnIndex);
 	}
 
-	private TableCell cellAt(final int rowIndex, final int colIndex)
+	private ContainerWithText cellAt(final int rowIndex, final int colIndex)
 	{
 		return tbody.child(rowIndex).child(colIndex);
 	}
 
-	private TableContainer<? extends TableCell> headRow()
+	private TableContainer<? extends ContainerWithText> headRow()
 	{
 		if (!headRow.isFirstRow() || !headRow.inThead())
 		{
@@ -75,7 +75,7 @@ final class InterpretedTableImpl implements InterpretedTable
 		return thead.child(0);
 	}
 
-	private int headColumnIndex(final TableContainer<? extends TableCell> headRow)
+	private int headColumnIndex(final TableContainer<? extends ContainerWithText> headRow)
 	{
 		if (headColumn.isFirstColumn())
 		{
@@ -84,12 +84,12 @@ final class InterpretedTableImpl implements InterpretedTable
 		return indexOfTextInRow(headRow, headColumn.text());
 	}
 
-	private int indexOfTextInRow(final TableContainer<? extends TableCell> headRow, final String textToFind)
+	private int indexOfTextInRow(final TableContainer<? extends ContainerWithText> headRow, final String textToFind)
 	{
 		final int colCount = headRow.childCount();
 		for (int colIndex = 0; colIndex < colCount; colIndex++)
 		{
-			final TableCell cell = headRow.child(colIndex);
+			final ContainerWithText cell = headRow.child(colIndex);
 			if (cell.hasText(textToFind))
 			{
 				return colIndex;

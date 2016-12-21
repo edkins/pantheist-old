@@ -237,4 +237,63 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 		expectNoContent(response);
 	}
 
+	@Override
+	public void createRegexToken(final String syntaxId, final String nodeId, final String value)
+	{
+		final Entity<String> json = jb().with("type", "regex").with("value", value).toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public void createZeroOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	{
+		final Entity<String> json = jb()
+				.with("type", "zero_or_more")
+				.with("children", ImmutableList.of(child))
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public void createOneOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	{
+		final Entity<String> json = jb()
+				.with("type", "one_or_more")
+				.with("children", ImmutableList.of(child))
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public void createSequenceNode(final String syntaxId, final String nodeId, final List<String> children)
+	{
+		final Entity<String> json = jb()
+				.with("type", "sequence")
+				.with("children", children)
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public void createChoiceNode(final String syntaxId, final String nodeId, final List<String> children)
+	{
+		final Entity<String> json = jb()
+				.with("type", "choice")
+				.with("children", children)
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public Information tryOutSyntax(final String syntaxId, final String document)
+	{
+		final Response response = target("syntax", syntaxId).path("try").request().post(Entity.text(document));
+		return jsonInfo(response).field("whatHappened");
+	}
+
 }

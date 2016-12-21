@@ -3,11 +3,13 @@ package pantheist.testhelpers.ui.generic;
 /**
  * Represents tweaks for certain elements that don't behave quite as expected.
  *
- * - input buttons and input text: text is stored in value attribute
+ * - input buttons, input text and textarea: text is stored in value attribute
+ *
+ * - input text: cannot enter newline characters
  */
 enum Tweaks
 {
-	DEFAULT, INPUT_BUTTON, INPUT_TEXT;
+	DEFAULT, INPUT_BUTTON, INPUT_TEXT, TEXTAREA;
 
 	public boolean isDefault()
 	{
@@ -21,6 +23,6 @@ enum Tweaks
 
 	public boolean textIsValueAttribute()
 	{
-		return equals(INPUT_BUTTON) || equals(INPUT_TEXT);
+		return equals(INPUT_BUTTON) || equals(INPUT_TEXT) || equals(TEXTAREA);
 	}
 }

@@ -26,4 +26,9 @@ public interface AnyElement
 	 *             if the element is still there.
 	 */
 	void assertGone();
+
+	/**
+	 * Wait long enough for any disruptive event to have finished.
+	 */
+	void allowTimeToStabilize();
 }

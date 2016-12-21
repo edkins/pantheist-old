@@ -1,10 +1,10 @@
 package pantheist.testhelpers.ui.pan;
 
-import pantheist.testhelpers.ui.generic.TableCell;
+import pantheist.testhelpers.ui.generic.ContainerWithText;
 
 public interface DeletableTable
 {
-	TableCell cell(String rowIdentifier, String columnIdentifier);
+	ContainerWithText cell(String rowIdentifier, String columnIdentifier);
 
 	void assertNoRow(String rowIdentifier);
 

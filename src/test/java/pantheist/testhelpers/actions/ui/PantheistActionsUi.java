@@ -225,4 +225,65 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 		}
 	}
 
+	@Override
+	public void createRegexToken(final String syntaxId, final String nodeId, final String regex)
+	{
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Regex token");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxNodeRegex().fillOut(regex);
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createZeroOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	{
+		checkNoSpaces(child);
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Zero or more tokens");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxNodeZeroOrMore().fillOut(child);
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createOneOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	{
+		checkNoSpaces(child);
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("One or more tokens");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxNodeOneOrMore().fillOut(child);
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createSequenceNode(final String syntaxId, final String nodeId, final List<String> children)
+	{
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Sequence of tokens");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxNodeSequence().fillOut(spaceSeparated(children));
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createChoiceNode(final String syntaxId, final String nodeId, final List<String> children)
+	{
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Choice between tokens");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxNodeChoice().fillOut(spaceSeparated(children));
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public Information tryOutSyntax(final String syntaxId, final String document)
+	{
+		wantResource("syntax", syntaxId);
+		rp.trySyntaxText().fillOut(document);
+		rp.trySyntaxButton().click();
+		return rp.trySyntaxResult().interpretDirectly();
+	}
+
 }

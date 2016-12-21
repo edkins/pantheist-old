@@ -3,7 +3,6 @@ package pantheist.tests.syntax;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -12,10 +11,9 @@ import com.google.common.collect.ImmutableList;
 import pantheist.testhelpers.actions.interf.PantheistActions;
 import pantheist.testhelpers.model.Information;
 import pantheist.testhelpers.selenium.ApiRule;
-import pantheist.testhelpers.selenium.Interaction;
 import pantheist.testhelpers.session.MainRule;
 
-public class SyntaxResourceTest
+public abstract class SyntaxResourceTest
 {
 	private static final String LITERAL_TOKEN = "tok";
 
@@ -25,13 +23,15 @@ public class SyntaxResourceTest
 
 	private static final String NONEXISTENT_NODE = "some-node-id-which-does-not-exist-yet";
 
-	@ClassRule
-	public static final ApiRule apiRule = Interaction.hidden();
-
 	@Rule
-	public final MainRule sessionRule = MainRule.forNewTest(apiRule);
+	public final MainRule sessionRule;
 
-	private PantheistActions act;
+	protected PantheistActions act;
+
+	public SyntaxResourceTest(final ApiRule apiRule)
+	{
+		sessionRule = MainRule.forNewTest(apiRule);
+	}
 
 	@Before
 	public void setup()
@@ -117,5 +117,54 @@ public class SyntaxResourceTest
 		act.syntax().createDocRoot(SYNTAX_ID, NONEXISTENT_NODE);
 		final Information docRoot = act.syntax().describeDocRoot(SYNTAX_ID);
 		docRoot.field("children").assertStringList(NONEXISTENT_NODE);
+	}
+
+	@Test
+	public void grammar_toyExampleWithFruit_canParse() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createLiteralToken(SYNTAX_ID, "apple");
+		act.syntax().createLiteralToken(SYNTAX_ID, "pear");
+		act.syntax().createLiteralToken(SYNTAX_ID, "orange");
+		act.syntax().createLiteralToken(SYNTAX_ID, "purple");
+		act.syntax().createChoiceNode(SYNTAX_ID, "fruit", ImmutableList.of("apple", "pear", "orange"));
+		act.syntax().createChoiceNode(SYNTAX_ID, "colour", ImmutableList.of("purple", "orange"));
+		act.syntax().createSequenceNode(SYNTAX_ID, "colourFruit", ImmutableList.of("colour", "fruit"));
+		act.syntax().createOneOrMoreNode(SYNTAX_ID, "colourFruits", "colourFruit");
+
+		act.syntax().createRegexToken(SYNTAX_ID, "space", " ");
+		act.syntax().createDocWhitespace(SYNTAX_ID, ImmutableList.of("space"));
+		act.syntax().createDocRoot(SYNTAX_ID, "colourFruits");
+		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "orange apple purple orange");
+		assertSyntaxTree(result, "colourFruits{colourFruit{orange apple} colourFruit{purple orange}}");
+	}
+
+	@Test
+	public void grammar_zeroOrMore_canParseEmptyDocument() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createLiteralToken(SYNTAX_ID, "*");
+		act.syntax().createZeroOrMoreNode(SYNTAX_ID, "stars", "*");
+
+		act.syntax().createDocRoot(SYNTAX_ID, "stars");
+		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "");
+		assertSyntaxTree(result, "stars{}");
+	}
+
+	@Test
+	public void grammar_zeroOrMore_canParseNonemptyDocument() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createLiteralToken(SYNTAX_ID, "*");
+		act.syntax().createZeroOrMoreNode(SYNTAX_ID, "stars", "*");
+
+		act.syntax().createDocRoot(SYNTAX_ID, "stars");
+		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "****");
+		assertSyntaxTree(result, "stars{* * * *}");
+	}
+
+	private void assertSyntaxTree(final Information result, final String treeText)
+	{
+		result.assertString("It returned an object " + treeText);
 	}
 }

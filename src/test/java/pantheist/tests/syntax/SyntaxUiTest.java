@@ -13,13 +13,18 @@ import pantheist.testhelpers.session.MainRule;
 /**
  * Tests that only make sense for the UI.
  */
-public class SyntaxUiTest
+public class SyntaxUiTest extends SyntaxResourceTest
 {
 	@ClassRule
 	public static final ApiRule apiRule = Interaction.hidden();
 
 	@Rule
 	public MainRule sessionRule = MainRule.forNewTest(apiRule);
+
+	public SyntaxUiTest()
+	{
+		super(apiRule);
+	}
 
 	@Test
 	public void resourceTypePrettyNames() throws Exception

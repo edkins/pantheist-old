@@ -9,6 +9,7 @@ import pantheist.testhelpers.ui.generic.Menu;
 import pantheist.testhelpers.ui.generic.ProtoTable;
 import pantheist.testhelpers.ui.generic.Row;
 import pantheist.testhelpers.ui.generic.TextEntry;
+import pantheist.testhelpers.ui.generic.Textual;
 
 final class ResourcePanelImpl implements ResourcePanel
 {
@@ -75,6 +76,55 @@ final class ResourcePanelImpl implements ResourcePanel
 	public TextEntry syntaxDocNodeList()
 	{
 		return el.p().withId("syntax-doc").inputText().choose();
+	}
+
+	@Override
+	public TextEntry syntaxNodeRegex()
+	{
+		return el.p().withId("syntax-node-regex").inputText().choose();
+	}
+
+	@Override
+	public TextEntry syntaxNodeZeroOrMore()
+	{
+		return el.p().withId("syntax-node-zero_or_more").inputText().choose();
+	}
+
+	@Override
+	public TextEntry syntaxNodeOneOrMore()
+	{
+		return el.p().withId("syntax-node-one_or_more").inputText().choose();
+	}
+
+	@Override
+	public TextEntry syntaxNodeSequence()
+	{
+		return el.p().withId("syntax-node-sequence").inputText().choose();
+	}
+
+	@Override
+	public TextEntry syntaxNodeChoice()
+	{
+		return el.p().withId("syntax-node-choice").inputText().choose();
+	}
+
+	@Override
+	public TextEntry trySyntaxText()
+	{
+		return el.textarea().withId("text-to-try");
+	}
+
+	@Override
+	public ClickableText trySyntaxButton()
+	{
+		return el.inputButton().withValue("Try");
+	}
+
+	@Override
+	public Textual trySyntaxResult()
+	{
+		el.allowTimeToStabilize();
+		return el.p().withId("whatHappened");
 	}
 
 }

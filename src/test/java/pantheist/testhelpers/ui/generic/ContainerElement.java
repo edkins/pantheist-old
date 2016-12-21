@@ -42,7 +42,7 @@ public interface ContainerElement extends VisualElement
 	 *
 	 * @return element finder.
 	 */
-	ElementFinder<? extends ContainerElement> p();
+	ElementFinder<? extends ContainerWithText> p();
 
 	/**
 	 * Find an html 'input' element with type="text".
@@ -50,6 +50,13 @@ public interface ContainerElement extends VisualElement
 	 * @return element finder.
 	 */
 	ElementFinder<? extends TextEntry> inputText();
+
+	/**
+	 * Find an html 'textarea' element.
+	 *
+	 * @return element finder.
+	 */
+	ElementFinder<? extends TextEntry> textarea();
 
 	/**
 	 * Find an html 'input' element with type="button".

@@ -28,7 +28,8 @@ import pantheist.testhelpers.ui.except.MultipleElementException;
  * not all of which may necessarily be relevant.
  */
 public class CssPath
-		implements ClickableText, TableCell, TextEntry, ElementCollection, Menu, ProtoTable, TableContainer<CssPath>
+		implements ClickableText, ContainerWithText, TextEntry, ElementCollection, Menu, ProtoTable,
+		TableContainer<CssPath>
 {
 	private static final Logger LOGGER = LogManager.getLogger(CssPath.class);
 	private final UiSession session;
@@ -339,9 +340,21 @@ public class CssPath
 	}
 
 	@Override
-	public ElementFinder<? extends ContainerElement> p()
+	public ElementFinder<? extends ContainerWithText> p()
 	{
 		return finder("p");
+	}
+
+	@Override
+	public void allowTimeToStabilize()
+	{
+		session.allowTimeToStabilize();
+	}
+
+	@Override
+	public ElementFinder<? extends TextEntry> textarea()
+	{
+		return finder("textarea").tweak(Tweaks.TEXTAREA);
 	}
 
 }

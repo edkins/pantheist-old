@@ -19,7 +19,7 @@ public interface InterpretedTable
 	 *            value to search for in head row
 	 * @return cell within the table body
 	 */
-	TableCell cell(String rowIdentifier, String columnIdentifier);
+	ContainerWithText cell(String rowIdentifier, String columnIdentifier);
 
 	/**
 	 * Asserts that there is no row with the given identifier.

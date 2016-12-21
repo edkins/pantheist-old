@@ -3,7 +3,7 @@ package pantheist.testhelpers.ui.pan;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import pantheist.testhelpers.ui.generic.InterpretedTable;
-import pantheist.testhelpers.ui.generic.TableCell;
+import pantheist.testhelpers.ui.generic.ContainerWithText;
 
 final class DeletableTableImpl implements DeletableTable
 {
@@ -15,7 +15,7 @@ final class DeletableTableImpl implements DeletableTable
 	}
 
 	@Override
-	public TableCell cell(final String rowIdentifier, final String columnIdentifier)
+	public ContainerWithText cell(final String rowIdentifier, final String columnIdentifier)
 	{
 		return table.cell(rowIdentifier, columnIdentifier);
 	}
