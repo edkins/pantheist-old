@@ -139,7 +139,7 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	@Override
 	public void deleteNode(final String syntaxId, final String nodeId)
 	{
-		rp.syntaxNodes().row(nodeId).inputButton().withValue("Del").choose().click();
+		rp.syntaxNodes().deleteRow(nodeId);
 	}
 
 	@Override

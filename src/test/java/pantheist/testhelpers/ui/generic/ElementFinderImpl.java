@@ -75,25 +75,25 @@ final class ElementFinderImpl implements ExtendedElementFinder
 	}
 
 	@Override
-	public ElementFinder<CssPath> withId(final String id)
+	public CssPath withId(final String id)
 	{
 		checkNotNullOrEmpty(id);
 		if (!ID_PATTERN.matcher(id).matches())
 		{
 			throw new IllegalArgumentException("Bad css id: " + id);
 		}
-		return with("#" + id);
+		return with("#" + id).choose();
 	}
 
 	@Override
-	public ElementFinder<CssPath> withClass(final String cssClass)
+	public CssPath withClass(final String cssClass)
 	{
 		checkNotNullOrEmpty(cssClass);
 		if (!CLASS_PATTERN.matcher(cssClass).matches())
 		{
 			throw new IllegalArgumentException("Bad css class: " + cssClass);
 		}
-		return with("." + cssClass);
+		return with("." + cssClass).choose();
 	}
 
 	@Override
@@ -129,9 +129,9 @@ final class ElementFinderImpl implements ExtendedElementFinder
 	}
 
 	@Override
-	public ElementFinder<CssPath> withValue(final String value)
+	public CssPath withValue(final String value)
 	{
-		return withAttrib("value", value);
+		return withAttrib("value", value).choose();
 	}
 
 	@Override

@@ -22,13 +22,13 @@ public class TopPanelImpl implements TopPanel
 	@Override
 	public ClickableText home()
 	{
-		return el.a().withId("top-link-home").choose();
+		return el.a().withId("top-link-home");
 	}
 
 	@Override
 	public ClickableText doc()
 	{
-		return el.a().withId("top-link-doc").choose();
+		return el.a().withId("top-link-doc");
 	}
 
 }

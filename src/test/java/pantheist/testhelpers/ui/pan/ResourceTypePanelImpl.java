@@ -30,13 +30,13 @@ final class ResourceTypePanelImpl implements ResourceTypePanel
 	@Override
 	public TextEntry nameToCreate()
 	{
-		return el.inputText().withId("name").choose();
+		return el.inputText().withId("name");
 	}
 
 	@Override
 	public ClickableText createButton()
 	{
-		return el.inputButton().withValue("Create").choose();
+		return el.inputButton().withValue("Create");
 	}
 
 }

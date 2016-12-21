@@ -25,7 +25,7 @@ public interface ElementFinder<T>
 	 * @throws IllegalArgumentException
 	 *             if id is empty or contains problematic characters
 	 */
-	ElementFinder<T> withId(String id);
+	T withId(String id);
 
 	/**
 	 * Find an element by its css class.
@@ -36,21 +36,7 @@ public interface ElementFinder<T>
 	 * @throws IllegalArgumentException
 	 *             if cssClass is empty or contains problematic characters
 	 */
-	ElementFinder<T> withClass(String cssClass);
-
-	/**
-	 * Find an element by html data attribute.
-	 *
-	 * @param key
-	 *            data key name without "data-" prepended
-	 * @param value
-	 *            data value (may be empty but not null)
-	 * @return interface to access this element
-	 * @throws IllegalArgumentException
-	 *             if key or value contains problematic characters, or key is
-	 *             empty
-	 */
-	ElementFinder<T> withData(String key, String value);
+	T withClass(String cssClass);
 
 	/**
 	 * Finds an element by its value attribute. Most useful for form elements
@@ -59,7 +45,7 @@ public interface ElementFinder<T>
 	 * @param value
 	 * @return
 	 */
-	ElementFinder<T> withValue(String value);
+	T withValue(String value);
 
 	/**
 	 * If there's only one element in this selection, return it.
@@ -70,6 +56,20 @@ public interface ElementFinder<T>
 	 * @return interface to access this element
 	 */
 	T choose();
+
+	/**
+	 * Find an element by html data attribute.
+	 *
+	 * @param key
+	 *            data key name without "data-" prepended
+	 * @param value
+	 *            data value (may be empty but not null)
+	 * @return finder to allow you to chain these together
+	 * @throws IllegalArgumentException
+	 *             if key or value contains problematic characters, or key is
+	 *             empty
+	 */
+	ElementFinder<T> withData(String key, String value);
 
 	/**
 	 * @return corresponding element collection

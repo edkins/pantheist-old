@@ -1,7 +1,6 @@
 package pantheist.testhelpers.ui.pan;
 
 import pantheist.testhelpers.ui.generic.ClickableText;
-import pantheist.testhelpers.ui.generic.InterpretedTable;
 import pantheist.testhelpers.ui.generic.Menu;
 import pantheist.testhelpers.ui.generic.TextEntry;
 
@@ -20,9 +19,9 @@ public interface ResourcePanel
 
 	TextEntry syntaxCreateName();
 
-	InterpretedTable syntaxNodes();
+	DeletableTable syntaxNodes();
 
-	InterpretedTable syntaxDoc();
+	DeletableTable syntaxDoc();
 
 	TextEntry syntaxDocNodeList();
 }

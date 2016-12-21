@@ -5,8 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import pantheist.testhelpers.ui.generic.ClickableText;
 import pantheist.testhelpers.ui.generic.Column;
 import pantheist.testhelpers.ui.generic.ContainerElement;
-import pantheist.testhelpers.ui.generic.InterpretedTable;
 import pantheist.testhelpers.ui.generic.Menu;
+import pantheist.testhelpers.ui.generic.ProtoTable;
 import pantheist.testhelpers.ui.generic.Row;
 import pantheist.testhelpers.ui.generic.TextEntry;
 
@@ -33,47 +33,48 @@ final class ResourcePanelImpl implements ResourcePanel
 	@Override
 	public ClickableText deleteButton()
 	{
-		return el.inputButton().withValue("Delete").choose();
+		return el.inputButton().withValue("Delete");
 	}
 
 	@Override
 	public Menu syntaxCreateType()
 	{
-		return el.select().withId("componentCreatorType").choose();
+		return el.select().withId("componentCreatorType");
 	}
 
 	@Override
 	public ClickableText syntaxCreateButton()
 	{
-		return el.inputButton().withValue("Create").choose();
+		return el.inputButton().withValue("Create");
 	}
 
 	@Override
-	public InterpretedTable syntaxNodes()
+	public DeletableTable syntaxNodes()
 	{
-		return el.table().withId("component-table-node")
-				.choose()
-				.interpret(Column.identifiedBy("id"), Row.THEAD_FIRST);
+		return interp(el.table().withId("component-table-node"));
 	}
 
 	@Override
 	public TextEntry syntaxCreateName()
 	{
-		return el.inputText().withId("createComponentId").choose();
+		return el.inputText().withId("createComponentId");
 	}
 
 	@Override
-	public InterpretedTable syntaxDoc()
+	public DeletableTable syntaxDoc()
 	{
-		return el.table().withId("component-table-doc")
-				.choose()
-				.interpret(Column.identifiedBy("id"), Row.THEAD_FIRST);
+		return interp(el.table().withId("component-table-doc"));
+	}
+
+	private DeletableTable interp(final ProtoTable table)
+	{
+		return new DeletableTableImpl(table.interpret(Column.identifiedBy("id"), Row.THEAD_FIRST));
 	}
 
 	@Override
 	public TextEntry syntaxDocNodeList()
 	{
-		return el.p().withId("syntax-doc").choose().inputText().choose();
+		return el.p().withId("syntax-doc").inputText().choose();
 	}
 
 }
