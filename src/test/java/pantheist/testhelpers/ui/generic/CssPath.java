@@ -338,4 +338,10 @@ public class CssPath
 		return childrenOfType("*").all().count();
 	}
 
+	@Override
+	public ElementFinder<? extends ContainerElement> p()
+	{
+		return finder("p");
+	}
+
 }

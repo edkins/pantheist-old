@@ -21,4 +21,8 @@ public interface ResourcePanel
 	TextEntry syntaxCreateName();
 
 	InterpretedTable syntaxNodes();
+
+	InterpretedTable syntaxDoc();
+
+	TextEntry syntaxDocNodeList();
 }

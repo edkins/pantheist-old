@@ -37,6 +37,13 @@ public interface ContainerElement extends VisualElement
 	ElementFinder<? extends ContainerElement> div();
 
 	/**
+	 * Find an html 'p' element.
+	 *
+	 * @return element finder.
+	 */
+	ElementFinder<? extends ContainerElement> p();
+
+	/**
 	 * Find an html 'input' element with type="text".
 	 *
 	 * @return element finder.
@@ -59,7 +66,7 @@ public interface ContainerElement extends VisualElement
 
 	/**
 	 * Find an html 'table' element
-	 * 
+	 *
 	 * @return element finder
 	 */
 	ElementFinder<? extends ProtoTable> table();

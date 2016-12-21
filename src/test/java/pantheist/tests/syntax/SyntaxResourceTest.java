@@ -23,6 +23,8 @@ public class SyntaxResourceTest
 
 	private static final String SYNTAX_ID = "cool-syntax";
 
+	private static final String NONEXISTENT_NODE = "some-node-id-which-does-not-exist-yet";
+
 	@ClassRule
 	public static final ApiRule apiRule = Interaction.hidden();
 
@@ -105,5 +107,15 @@ public class SyntaxResourceTest
 		act.syntax().createLiteralToken(SYNTAX_ID, LITERAL_TOKEN);
 		act.syntax().deleteNode(SYNTAX_ID, LITERAL_TOKEN);
 		act.syntax().assertNodeIsGone(SYNTAX_ID, LITERAL_TOKEN);
+	}
+
+	@Test
+	public void syntax_createDocRoot_needNotExistYet() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().describeDocRoot(SYNTAX_ID).assertEmpty();
+		act.syntax().createDocRoot(SYNTAX_ID, NONEXISTENT_NODE);
+		final Information docRoot = act.syntax().describeDocRoot(SYNTAX_ID);
+		docRoot.field("children").assertStringList(NONEXISTENT_NODE);
 	}
 }

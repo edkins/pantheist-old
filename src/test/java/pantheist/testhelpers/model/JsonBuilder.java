@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.client.Entity;
@@ -31,6 +32,17 @@ public class JsonBuilder
 	}
 
 	public JsonBuilder with(final String key, final String value)
+	{
+		checkNotNullOrEmpty(key);
+		if (obj.containsKey(key))
+		{
+			throw new IllegalStateException("Already contains key " + key);
+		}
+		obj.put(key, value);
+		return this;
+	}
+
+	public JsonBuilder with(final String key, final List<String> value)
 	{
 		checkNotNullOrEmpty(key);
 		if (obj.containsKey(key))

@@ -10,6 +10,15 @@ package pantheist.testhelpers.ui.generic;
  */
 public interface InterpretedTable
 {
+	/**
+	 * Returns a particular cell, identified by values in the head column/row.
+	 *
+	 * @param rowIdentifier
+	 *            value to search for in head column
+	 * @param columnIdentifier
+	 *            value to search for in head row
+	 * @return cell within the table body
+	 */
 	TableCell cell(String rowIdentifier, String columnIdentifier);
 
 	/**
@@ -20,9 +29,14 @@ public interface InterpretedTable
 	void assertNoRow(String rowIdentifier);
 
 	/**
+	 * @return whether the row exists or not.
+	 */
+	boolean hasRow(String rowIdentifier);
+
+	/**
 	 * Return a given row as a container. Useful for finding things where you
 	 * can describe the element and know which row it's in but not which column.
-	 * 
+	 *
 	 * @param rowIdentifier
 	 * @return
 	 */

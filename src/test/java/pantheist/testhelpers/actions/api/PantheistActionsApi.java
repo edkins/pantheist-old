@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import pantheist.api.generic.model.ListResourceResponse;
@@ -130,6 +131,18 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 		return Informations.jsonOrEmpty(objectMapper, json);
 	}
 
+	private Information jsonInfoOrEmpty(final Response response)
+	{
+		if (response.getStatus() == 404)
+		{
+			return Informations.empty();
+		}
+		else
+		{
+			return jsonInfo(response);
+		}
+	}
+
 	@Override
 	public void deleteResource(final String resourceType, final String resourceId)
 	{
@@ -192,6 +205,36 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 	{
 		final Response response = target("syntax", syntaxId, "node", nodeId).request().get();
 		expectNotFound(response);
+	}
+
+	@Override
+	public void createDocRoot(final String syntaxId, final String rootNodeId)
+	{
+		final Entity<String> json = jb().with("children", ImmutableList.of(rootNodeId)).toEntity();
+		final Response response = target("syntax", syntaxId, "doc", "root").request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public Information describeDocRoot(final String syntaxId)
+	{
+		final Response response = target("syntax", syntaxId, "doc", "root").request().get();
+		return jsonInfoOrEmpty(response);
+	}
+
+	@Override
+	public Information describeDocWhitespace(final String syntaxId)
+	{
+		final Response response = target("syntax", syntaxId, "doc", "whitespace").request().get();
+		return jsonInfoOrEmpty(response);
+	}
+
+	@Override
+	public void createDocWhitespace(final String syntaxId, final List<String> whitespaceNodeIds)
+	{
+		final Entity<String> json = jb().with("children", whitespaceNodeIds).toEntity();
+		final Response response = target("syntax", syntaxId, "doc", "whitespace").request().put(json);
+		expectNoContent(response);
 	}
 
 }

@@ -1,6 +1,7 @@
 package pantheist.testhelpers.actions.ui;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.List;
 
@@ -8,6 +9,7 @@ import pantheist.testhelpers.actions.interf.PantheistActions;
 import pantheist.testhelpers.actions.interf.SyntaxActions;
 import pantheist.testhelpers.model.Information;
 import pantheist.testhelpers.model.InformationBuilder;
+import pantheist.testhelpers.model.Informations;
 import pantheist.testhelpers.ui.pan.PantheistUi;
 import pantheist.testhelpers.ui.pan.ResourcePanel;
 import pantheist.testhelpers.ui.pan.ResourceTypePanel;
@@ -145,6 +147,82 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	{
 		wantResource("syntax", syntaxId);
 		rp.syntaxNodes().assertNoRow(nodeId);
+	}
+
+	private void checkNoSpaces(final String id)
+	{
+		checkNotNullOrEmpty(id);
+		if (id.contains(" "))
+		{
+			throw new IllegalArgumentException("Id cannot contain spaces in the UI: " + id);
+		}
+	}
+
+	private String spaceSeparated(final List<String> ids)
+	{
+		checkNotNull(ids);
+		final StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		for (final String id : ids)
+		{
+			checkNoSpaces(id);
+			if (!first)
+			{
+				sb.append(' ');
+			}
+			first = false;
+			sb.append(id);
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public void createDocRoot(final String syntaxId, final String rootNodeId)
+	{
+		checkNoSpaces(rootNodeId);
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Document node");
+		rp.syntaxCreateName().fillOut("root");
+		rp.syntaxDocNodeList().fillOut(rootNodeId);
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createDocWhitespace(final String syntaxId, final List<String> whitespaceNodeIds)
+	{
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Document node");
+		rp.syntaxCreateName().fillOut("whitespace");
+		rp.syntaxDocNodeList().fillOut(spaceSeparated(whitespaceNodeIds));
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public Information describeDocRoot(final String syntaxId)
+	{
+		wantResource("syntax", syntaxId);
+		return describeDocThing("root");
+	}
+
+	@Override
+	public Information describeDocWhitespace(final String syntaxId)
+	{
+		wantResource("syntax", syntaxId);
+		return describeDocThing("whitespace");
+	}
+
+	private Information describeDocThing(final String item)
+	{
+		if (rp.syntaxDoc().hasRow(item))
+		{
+			final Information children = rp.syntaxDoc().cell(item, "children").interpretAsJson();
+			return InformationBuilder.create()
+					.with("children", children);
+		}
+		else
+		{
+			return Informations.empty();
+		}
 	}
 
 }

@@ -115,4 +115,10 @@ final class InterpretedTableImpl implements InterpretedTable
 
 		return tbody.child(rowIndex);
 	}
+
+	@Override
+	public boolean hasRow(final String rowIdentifier)
+	{
+		return findRowIndex(rowIdentifier).isPresent();
+	}
 }

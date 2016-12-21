@@ -62,4 +62,18 @@ final class ResourcePanelImpl implements ResourcePanel
 		return el.inputText().withId("createComponentId").choose();
 	}
 
+	@Override
+	public InterpretedTable syntaxDoc()
+	{
+		return el.table().withId("component-table-doc")
+				.choose()
+				.interpret(Column.identifiedBy("id"), Row.THEAD_FIRST);
+	}
+
+	@Override
+	public TextEntry syntaxDocNodeList()
+	{
+		return el.p().withId("syntax-doc").choose().inputText().choose();
+	}
+
 }
