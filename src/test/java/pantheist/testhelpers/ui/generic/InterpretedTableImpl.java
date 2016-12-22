@@ -3,6 +3,7 @@ package pantheist.testhelpers.ui.generic;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
+import java.util.List;
 import java.util.Optional;
 
 import pantheist.testhelpers.ui.except.CannotFindElementException;
@@ -120,5 +121,23 @@ final class InterpretedTableImpl implements InterpretedTable
 	public boolean hasRow(final String rowIdentifier)
 	{
 		return findRowIndex(rowIdentifier).isPresent();
+	}
+
+	@Override
+	public ElementFinder<? extends ContainerWithText> column(final String columnIdentifier)
+	{
+		final int columnIndex = indexOfTextInRow(headRow(), columnIdentifier);
+		return tbody.column(columnIndex);
+	}
+
+	private ElementFinder<? extends ContainerWithText> identificationColumn()
+	{
+		return tbody.column(headColumnIndex(headRow()));
+	}
+
+	@Override
+	public List<String> rowIdentifiers()
+	{
+		return identificationColumn().all().texts();
 	}
 }

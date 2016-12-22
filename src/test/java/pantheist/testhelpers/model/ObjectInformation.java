@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -38,7 +39,7 @@ final class ObjectInformation implements Information
 		checkNotNullOrEmpty(name);
 		if (value instanceof Map)
 		{
-			return new ObjectInformation(((Map) value).get(name));
+			return new ObjectInformation(((Map<?, ?>) value).get(name));
 		}
 		else
 		{
@@ -63,6 +64,32 @@ final class ObjectInformation implements Information
 	public void assertEmpty()
 	{
 		assertThat(value, anyOf(is(""), is(ImmutableList.of()), is(ImmutableMap.of())));
+	}
+
+	@Override
+	public Information singleOrEmpty()
+	{
+		if (value instanceof List)
+		{
+			final List<?> list = (List<?>) value;
+			if (list.size() > 1)
+			{
+				throw new IllegalStateException(
+						"List is supposed to be singleton but has " + list.size() + " elements");
+			}
+			else if (list.size() == 1)
+			{
+				return new ObjectInformation(list.get(0));
+			}
+			else
+			{
+				return Informations.empty();
+			}
+		}
+		else
+		{
+			throw new IllegalStateException("Is not a list");
+		}
 	}
 
 }

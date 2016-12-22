@@ -128,15 +128,15 @@ final class GenericBackendImpl implements GenericBackend
 	}
 
 	@Override
-	public void createComponent(final String resourceType, final String resourceId, final String componentType,
+	public void putComponent(final String resourceType, final String resourceId, final String componentType,
 			final String componentId,
-			final Object data) throws NotFoundException, AlreadyPresentException
+			final Object data, final boolean allowReplace) throws NotFoundException, AlreadyPresentException
 	{
 		try (ResourceStoreSession session = store.open())
 		{
 			final TypedMap map = session.resource(resourceType, resourceId)
 					.components(componentType);
-			if (map.containsKey(componentId))
+			if (!allowReplace && map.containsKey(componentId))
 			{
 				throw new AlreadyPresentException(componentId);
 			}

@@ -6,6 +6,7 @@ import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -162,15 +163,16 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	public Response putNode(@PathParam("syn") final String syntaxId,
 			@PathParam("t") final String t,
 			@PathParam("n") final String componentId,
+			@HeaderParam("X-Allow-Replace") final boolean allowReplace,
 			final String requestJson)
 	{
 		try
 		{
-			LOGGER.info("PUT /syntax/{}/{}/{} {}", syntaxId, t, componentId, requestJson);
+			LOGGER.info("PUT /syntax/{}/{}/{} {} {}", syntaxId, t, componentId, allowReplace, requestJson);
 			final Object data = httpHelper.parseRequest(
 					requestJson,
 					backend.desiredComponentType("syntax", syntaxId, t, componentId));
-			backend.createComponent("syntax", syntaxId, t, componentId, data);
+			backend.putComponent("syntax", syntaxId, t, componentId, data, allowReplace);
 			return Response.noContent().build();
 		}
 		catch (final NotFoundException e)

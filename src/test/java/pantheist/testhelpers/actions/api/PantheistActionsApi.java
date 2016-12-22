@@ -131,18 +131,6 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 		return Informations.jsonOrEmpty(objectMapper, json);
 	}
 
-	private Information jsonInfoOrEmpty(final Response response)
-	{
-		if (response.getStatus() == 404)
-		{
-			return Informations.empty();
-		}
-		else
-		{
-			return jsonInfo(response);
-		}
-	}
-
 	@Override
 	public void deleteResource(final String resourceType, final String resourceId)
 	{
@@ -208,32 +196,46 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 	}
 
 	@Override
-	public void createDocRoot(final String syntaxId, final String rootNodeId)
+	public void setDocRoot(final String syntaxId, final String rootNodeId)
 	{
 		final Entity<String> json = jb().with("children", ImmutableList.of(rootNodeId)).toEntity();
-		final Response response = target("syntax", syntaxId, "doc", "root").request().put(json);
+		final Response response = target("syntax", syntaxId, "doc", "root")
+				.request()
+				.header("X-Allow-Replace", "true")
+				.put(json);
 		expectNoContent(response);
 	}
 
 	@Override
-	public Information describeDocRoot(final String syntaxId)
+	public Information docRootNode(final String syntaxId)
 	{
 		final Response response = target("syntax", syntaxId, "doc", "root").request().get();
-		return jsonInfoOrEmpty(response);
+		if (response.getStatus() == 404)
+		{
+			return Informations.empty();
+		}
+		return jsonInfo(response).field("children").singleOrEmpty();
 	}
 
 	@Override
-	public Information describeDocWhitespace(final String syntaxId)
+	public Information docDelimNode(final String syntaxId)
 	{
 		final Response response = target("syntax", syntaxId, "doc", "whitespace").request().get();
-		return jsonInfoOrEmpty(response);
+		if (response.getStatus() == 404)
+		{
+			return Informations.empty();
+		}
+		return jsonInfo(response).field("children").singleOrEmpty();
 	}
 
 	@Override
-	public void createDocWhitespace(final String syntaxId, final List<String> whitespaceNodeIds)
+	public void setDocDelim(final String syntaxId, final String nodeId)
 	{
-		final Entity<String> json = jb().with("children", whitespaceNodeIds).toEntity();
-		final Response response = target("syntax", syntaxId, "doc", "whitespace").request().put(json);
+		final Entity<String> json = jb().with("children", ImmutableList.of(nodeId)).toEntity();
+		final Response response = target("syntax", syntaxId, "doc", "whitespace")
+				.request()
+				.header("X-Allow-Replace", "true")
+				.put(json);
 		expectNoContent(response);
 	}
 

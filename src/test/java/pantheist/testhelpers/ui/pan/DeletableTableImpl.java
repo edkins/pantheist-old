@@ -2,8 +2,12 @@ package pantheist.testhelpers.ui.pan;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import pantheist.testhelpers.ui.generic.InterpretedTable;
+import java.util.List;
+import java.util.Optional;
+
+import pantheist.common.util.MutableOptional;
 import pantheist.testhelpers.ui.generic.ContainerWithText;
+import pantheist.testhelpers.ui.generic.InterpretedTable;
 
 final class DeletableTableImpl implements DeletableTable
 {
@@ -36,5 +40,25 @@ final class DeletableTableImpl implements DeletableTable
 	public void deleteRow(final String rowIdentifier)
 	{
 		table.row(rowIdentifier).inputButton().withValue("Del").click();
+	}
+
+	@Override
+	public List<String> rowIdentifiers()
+	{
+		return table.rowIdentifiers();
+	}
+
+	@Override
+	public Optional<String> findCheckedRow(final String columnIdentifier)
+	{
+		final MutableOptional<String> result = MutableOptional.empty();
+		for (final String rowId : rowIdentifiers())
+		{
+			if (cell(rowId, columnIdentifier).inputRadio().choose().isChecked())
+			{
+				result.add(rowId);
+			}
+		}
+		return result.value();
 	}
 }

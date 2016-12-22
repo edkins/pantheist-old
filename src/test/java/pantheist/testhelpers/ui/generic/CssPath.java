@@ -28,7 +28,7 @@ import pantheist.testhelpers.ui.except.MultipleElementException;
  * not all of which may necessarily be relevant.
  */
 public class CssPath
-		implements ClickableText, ContainerWithText, TextEntry, ElementCollection, Menu, ProtoTable,
+		implements ClickableText, ContainerWithText, TextEntry, ElementCollection, Menu, ProtoTable, Checkable,
 		TableContainer<CssPath>
 {
 	private static final Logger LOGGER = LogManager.getLogger(CssPath.class);
@@ -355,6 +355,26 @@ public class CssPath
 	public ElementFinder<? extends TextEntry> textarea()
 	{
 		return finder("textarea").tweak(Tweaks.TEXTAREA);
+	}
+
+	@Override
+	public ElementFinder<? extends Checkable> inputRadio()
+	{
+		return finder("input").withAttrib("type", "radio");
+	}
+
+	@Override
+	public boolean isChecked()
+	{
+		final String value = visibleElement().getAttribute("checked");
+		return value != null && !value.isEmpty();
+	}
+
+	@Override
+	public ElementFinder<? extends ContainerWithText> column(final int columnIndex)
+	{
+		// The .choose() in the middle doesn't seem quite valid here, but whatever.
+		return childrenOfType("tr").choose().childrenOfType("td").nthChild(columnIndex);
 	}
 
 }

@@ -21,6 +21,16 @@ public interface Information
 	Information field(String name);
 
 	/**
+	 * Collapses list down into a singleton. Returns empty if it's empty or
+	 * missing.
+	 *
+	 * @return the single element or nothing.
+	 * @throws IllegalStateException
+	 *             if it contains two or more elements, or is not a list.
+	 */
+	Information singleOrEmpty();
+
+	/**
 	 * Assert that the information is equal to the given (nonempty) string
 	 * value.
 	 *

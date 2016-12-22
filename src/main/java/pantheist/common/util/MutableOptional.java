@@ -57,4 +57,9 @@ public class MutableOptional<T>
 		return new MutableOptional<>(Optional.empty());
 	}
 
+	public Optional<T> value()
+	{
+		return value;
+	}
+
 }

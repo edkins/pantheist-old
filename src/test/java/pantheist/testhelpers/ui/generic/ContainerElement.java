@@ -66,6 +66,13 @@ public interface ContainerElement extends VisualElement
 	ElementFinder<? extends ClickableText> inputButton();
 
 	/**
+	 * Find an html 'input' element with type="radio".
+	 *
+	 * @return element finder.
+	 */
+	ElementFinder<? extends Checkable> inputRadio();
+
+	/**
 	 * Find an html 'select' element
 	 *
 	 * @return element finder.

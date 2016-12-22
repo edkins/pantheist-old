@@ -35,4 +35,10 @@ final class EmptyInformation implements Information
 		// ok
 	}
 
+	@Override
+	public Information singleOrEmpty()
+	{
+		return this;
+	}
+
 }

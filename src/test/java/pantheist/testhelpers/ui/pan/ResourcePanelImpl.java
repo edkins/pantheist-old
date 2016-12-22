@@ -61,12 +61,6 @@ final class ResourcePanelImpl implements ResourcePanel
 		return el.inputText().withId("createComponentId");
 	}
 
-	@Override
-	public DeletableTable syntaxDoc()
-	{
-		return interp(el.table().withId("component-table-doc"));
-	}
-
 	private DeletableTable interp(final ProtoTable table)
 	{
 		return new DeletableTableImpl(table.interpret(Column.identifiedBy("id"), Row.THEAD_FIRST));
@@ -82,12 +76,6 @@ final class ResourcePanelImpl implements ResourcePanel
 	public TextEntry syntaxCreateExceptions()
 	{
 		return el.inputText().withId("createComponentExceptions");
-	}
-
-	@Override
-	public TextEntry syntaxDocNodeList()
-	{
-		return syntaxCreateDetail();
 	}
 
 	@Override

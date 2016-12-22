@@ -24,17 +24,17 @@ public interface SyntaxActions
 
 	void createChoiceNode(String syntaxId, String nodeId, List<String> children);
 
-	void createDocRoot(String syntaxId, String rootNodeId);
+	void setDocRoot(String syntaxId, String nodeId);
 
-	void createDocWhitespace(String syntaxId, List<String> whitespaceNodeIds);
+	void setDocDelim(String syntaxId, String nodeId);
 
 	void deleteNode(String syntaxId, String nodeId);
 
 	Information describeNode(String syntaxId, String nodeId);
 
-	Information describeDocRoot(String syntaxId);
+	Information docRootNode(String syntaxId);
 
-	Information describeDocWhitespace(String syntaxId);
+	Information docDelimNode(String syntaxId);
 
 	void assertNodeIsGone(String syntaxId, String nodeId);
 

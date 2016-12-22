@@ -38,8 +38,6 @@ public abstract class SyntaxResourceTest
 
 	private static final String SYNTAX_ID = "cool-syntax";
 
-	private static final String NONEXISTENT_NODE = "some-node-id-which-does-not-exist-yet";
-
 	@Rule
 	public final MainRule sessionRule;
 
@@ -127,13 +125,29 @@ public abstract class SyntaxResourceTest
 	}
 
 	@Test
-	public void syntax_createDocRoot_needNotExistYet() throws Exception
+	public void syntax_createDocRoot() throws Exception
 	{
 		act.createResource(SYNTAX, SYNTAX_ID);
-		act.syntax().describeDocRoot(SYNTAX_ID).assertEmpty();
-		act.syntax().createDocRoot(SYNTAX_ID, NONEXISTENT_NODE);
-		final Information docRoot = act.syntax().describeDocRoot(SYNTAX_ID);
-		docRoot.field("children").assertStringList(NONEXISTENT_NODE);
+		act.syntax().docRootNode(SYNTAX_ID).assertEmpty();
+		act.syntax().createLiteralToken(SYNTAX_ID, LITERAL_TOKEN);
+		act.syntax().setDocRoot(SYNTAX_ID, LITERAL_TOKEN);
+		act.syntax().docRootNode(SYNTAX_ID).assertString(LITERAL_TOKEN);
+	}
+
+	@Test
+	public void syntax_changeDocDelim_and_changeDocRoot() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createLiteralToken(SYNTAX_ID, "-");
+		act.syntax().createLiteralToken(SYNTAX_ID, "_");
+		act.syntax().createLiteralToken(SYNTAX_ID, "x");
+		act.syntax().setDocDelim(SYNTAX_ID, "-");
+		act.syntax().setDocDelim(SYNTAX_ID, "_");
+		act.syntax().setDocRoot(SYNTAX_ID, "x");
+		act.syntax().createOneOrMoreNodeSeparated(SYNTAX_ID, "xs", "x");
+		act.syntax().setDocRoot(SYNTAX_ID, "xs");
+		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "x_x");
+		assertSyntaxTree(result, "xs{x x}");
 	}
 
 	@Test
@@ -150,8 +164,8 @@ public abstract class SyntaxResourceTest
 		act.syntax().createOneOrMoreNodeSeparated(SYNTAX_ID, "colourFruits", "colourFruit");
 
 		act.syntax().createSingleCharacterMatcher(SYNTAX_ID, "space", ImmutableList.of("space"), ImmutableList.of());
-		act.syntax().createDocWhitespace(SYNTAX_ID, ImmutableList.of("space"));
-		act.syntax().createDocRoot(SYNTAX_ID, "colourFruits");
+		act.syntax().setDocDelim(SYNTAX_ID, "space");
+		act.syntax().setDocRoot(SYNTAX_ID, "colourFruits");
 		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "orange apple purple orange");
 		assertSyntaxTree(result, "colourFruits{colourFruit{orange apple} colourFruit{purple orange}}");
 	}
@@ -163,7 +177,7 @@ public abstract class SyntaxResourceTest
 		act.syntax().createLiteralToken(SYNTAX_ID, "*");
 		act.syntax().createZeroOrMoreNodeSeparated(SYNTAX_ID, "stars", "*");
 
-		act.syntax().createDocRoot(SYNTAX_ID, "stars");
+		act.syntax().setDocRoot(SYNTAX_ID, "stars");
 		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "");
 		assertSyntaxTree(result, "stars{}");
 	}
@@ -175,7 +189,7 @@ public abstract class SyntaxResourceTest
 		act.syntax().createLiteralToken(SYNTAX_ID, "*");
 		act.syntax().createZeroOrMoreNodeSeparated(SYNTAX_ID, "stars", "*");
 
-		act.syntax().createDocRoot(SYNTAX_ID, "stars");
+		act.syntax().setDocRoot(SYNTAX_ID, "stars");
 		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "****");
 		assertSyntaxTree(result, "stars{* * * *}");
 	}
@@ -198,7 +212,7 @@ public abstract class SyntaxResourceTest
 				ImmutableList.of("safe", "space", ESCAPED_QUOTE, ESCAPED_BACKSLASH, BACKSLASH_N, BACKSLASH_T));
 		act.syntax().createZeroOrMoreNodeGlued(SYNTAX_ID, "chars", "char");
 		act.syntax().createSequenceNodeGlued(SYNTAX_ID, "string", ImmutableList.of(QUOTE, "chars", QUOTE));
-		act.syntax().createDocRoot(SYNTAX_ID, "string");
+		act.syntax().setDocRoot(SYNTAX_ID, "string");
 		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, res("/quoted-string.txt"));
 
 		final String expected = String.join(" ", res("/quoted-string-ast.txt").split("\n"));

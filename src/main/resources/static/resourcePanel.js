@@ -171,12 +171,13 @@ resourcePanel = {
 			return;
 		}
 		var data = resourcePanel.componentCreatorData(componentId);
-		services.createComponent(
+		services.putComponent(
 			resourcePanel.resourceType(),
 			resourcePanel.resourceId(),
 			data.componentType,
 			componentId,
-			data.request
+			data.request,
+			false
 		).then( resourcePanel.refreshAll )
 		.catch( resourcePanel.showCreateFailureMessage );
 	},
@@ -195,18 +196,44 @@ resourcePanel = {
 	{
 		switch(componentType)
 		{
+		case 'node':
+			return ['','id','type','value','children','exceptions','root','delim'];
+		case 'doc':
+			return undefined;
+		default:
+			console.log('bad componentType ' + componentType);
+		}
+	},
+	
+	componentTableItems: function(componentType,x,globalStuff)
+	{
+		switch(componentType)
+		{
 		case 'node': return [
-				['type',x=>x],
-				['value',x => x==null ? '' : x],
-				['children',x => x.length===0 ? '' : JSON.stringify(x)],
-				['exceptions',x => x.length===0 ? '' : JSON.stringify(x)]
-			];
-		case 'doc': return [
-				['children',JSON.stringify]
+			create.button('Del', resourcePanel.clickDeleteComponent, {'component-type':componentType,'component-id':x.id}),
+			x.id,
+			x.data.type,
+			create.maybe_string(x.data.value),
+			create.maybe_json(x.data.children),
+			create.maybe_json(x.data.exceptions),
+			create.radio('root', x.id, globalStuff.root, resourcePanel.clickRoot),
+			create.radio('delim', x.id, globalStuff.delim, resourcePanel.clickDelim)
 			];
 		default:
 			console.log('bad componentType ' + componentType);
 		}
+	},
+	
+	clickRoot: function(event)
+	{
+		var nodeId = $(event.target).val();
+		services.putComponent('syntax',resourcePanel.resourceId(),'doc','root',{children:[nodeId]},true);
+	},
+	
+	clickDelim: function(event)
+	{
+		var nodeId = $(event.target).val();
+		services.putComponent('syntax',resourcePanel.resourceId(),'doc','whitespace',{children:[nodeId]},true);
 	},
 	
 	clickDeleteComponent: function(event)
@@ -220,74 +247,58 @@ resourcePanel = {
 		).then( actions.refreshComponents );
 	},
 	
+	getGlobalStuff(response) {
+		var doc = obj.list(response).find('componentType','doc').at('components');
+		return {
+			root:
+				doc.find('id','root')
+					.at('data')
+					.at('children')
+					.singleOrNull(),
+			whitespace:
+				doc.find('id','whitespace')
+					.at('data')
+					.at('children')
+					.singleOrNull()
+		};
+	},
+	
 	showComponents: function(response)
 	{
 		$('#resourcePanel #components').text(JSON.stringify(response));
 		$('#resourcePanel #components').empty();
 		
+		var globalStuff = resourcePanel.getGlobalStuff(response);
+		
+		var panel = $('#resourcePanel #components');
 		for (var i = 0; i < response.length; i++)
 		{
 			var obj = response[i];
-			var h2 = $('<h2>');
-			h2.text(obj.componentType);
-			$('#resourcePanel #components').append(h2);
 			
 			var headings = resourcePanel.componentTableHeadings(obj.componentType);
 			
-			var table = $('<table>');
-			table.attr('id','component-table-'+obj.componentType);
-			var thead = $('<thead>');
-			var thr = $('<tr>');
-			thr.append($('<th>'));
-			var th_id = $('<th>');
-			th_id.text('id');
-			thr.append(th_id);
-			for (var k = 0; k < headings.length; k++)
+			if (headings == undefined)
 			{
-				var th = $('<th>');
-				th.text(headings[k][0]);
-				thr.append(th);
+				continue;
 			}
-			thead.append(thr);
-			table.append(thead);
 			
-			var tbody = $('<tbody>');
+			panel.append(create.h2(obj.componentType));
 
+			var table = create.table(headings);
+			table.attr('id','component-table-'+obj.componentType);
+			
 			for (var j = 0; j < obj.components.length; j++)
 			{
 				var obj2 = obj.components[j];
-				var tr = $('<tr>');
-				var td_del = $('<td>');
-				var inp_del = $('<input>');
-				inp_del.attr('type','button');
-				inp_del.attr('value','Del');
-				inp_del.data('componentType',obj.componentType);
-				inp_del.data('componentId',obj2.id);
-				inp_del.click(resourcePanel.clickDeleteComponent);
-				td_del.append(inp_del);
-				tr.append(td_del);
-				
-				var td_id = $('<td>');
-				td_id.text(obj2.id);
-				tr.append(td_id);
-				for (var k = 0; k < headings.length; k++)
-				{
-					var prop = headings[k][0];
-					var fn = headings[k][1];
-					var td = $('<td>');
-					td.text(fn(obj2.data[prop]));
-					tr.append(td);
-				}
-				tbody.append(tr);
+				items = resourcePanel.componentTableItems(obj.componentType,obj2,globalStuff);
+				table.addRow(items);
 			}
-			table.append(tbody);
-			$('#resourcePanel #components').append(table);
+			panel.append(table);
 		}
 	},
 	
 	clickTrySyntax: function(event)
 	{
-	$('#resourcePanel #createFailureMessage').text('Clicked on try.')
 		var text = $('#syntaxResourceDiv #text-to-try').val();
 		services.trySyntax(resourcePanel.resourceId(),text)
 			.then( report => $('#syntaxResourceDiv #whatHappened').text( report.whatHappened ) )

@@ -76,19 +76,22 @@ public interface GenericBackend
 			throws NotFoundException;
 
 	/**
-	 * Create a component. The type of data must agree with componentType.
+	 * Create or replace a component. The type of data must agree with
+	 * componentType.
 	 *
 	 * @param resourceType
 	 * @param resourceId
 	 * @param componentType
 	 * @param componentId
 	 * @param data
+	 * @param allowReplace
 	 * @throws NotFoundException
 	 *             if the resource is not found
 	 * @throws AlreadyPresentException
-	 *             if the component already exists
+	 *             if the component already exists, and allowReplace is false
 	 */
-	void createComponent(String resourceType, String resourceId, String componentType, String componentId, Object data)
+	void putComponent(String resourceType, String resourceId, String componentType, String componentId, Object data,
+			boolean allowReplace)
 			throws NotFoundException, AlreadyPresentException;
 
 	/**

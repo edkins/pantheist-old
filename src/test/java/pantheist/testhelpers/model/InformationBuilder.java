@@ -11,7 +11,6 @@ import pantheist.common.util.Make;
 
 public class InformationBuilder implements Information
 {
-	// State
 	private final ImmutableMap<String, Information> map;
 
 	private InformationBuilder(final ImmutableMap<String, Information> map)
@@ -59,5 +58,11 @@ public class InformationBuilder implements Information
 	public void assertEmpty()
 	{
 		assertTrue("Map is not empty", map.isEmpty());
+	}
+
+	@Override
+	public Information singleOrEmpty()
+	{
+		throw new IllegalStateException("Is a map not a list");
 	}
 }

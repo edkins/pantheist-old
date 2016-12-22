@@ -1,5 +1,7 @@
 package pantheist.testhelpers.ui.generic;
 
+import java.util.List;
+
 /**
  * Represents an element containing tabular data.
  *
@@ -41,4 +43,23 @@ public interface InterpretedTable
 	 * @return
 	 */
 	ContainerElement row(String rowIdentifier);
+
+	/**
+	 * Return an ElementFinder for the given column.
+	 *
+	 * The column doesn't have a corresponding html element, so the current
+	 * implementation would make it tricky to return a ContainerElement here.
+	 * Instead it's assumed you're searching for all the td's.
+	 *
+	 * @param columnIdentifier
+	 *            column identifier
+	 * @return td element finder
+	 */
+	ElementFinder<? extends ContainerWithText> column(String columnIdentifier);
+
+	/**
+	 * @return a list of row identifiers, in the order that they appear in the
+	 *         table.
+	 */
+	List<String> rowIdentifiers();
 }

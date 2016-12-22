@@ -22,13 +22,9 @@ public interface ResourcePanel
 
 	DeletableTable syntaxNodes();
 
-	DeletableTable syntaxDoc();
-
 	TextEntry syntaxCreateDetail();
 
 	TextEntry syntaxCreateExceptions();
-
-	TextEntry syntaxDocNodeList();
 
 	TextEntry trySyntaxText();
 

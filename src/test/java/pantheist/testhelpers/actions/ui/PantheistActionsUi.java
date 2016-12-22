@@ -177,52 +177,31 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	}
 
 	@Override
-	public void createDocRoot(final String syntaxId, final String rootNodeId)
+	public void setDocRoot(final String syntaxId, final String nodeId)
 	{
-		checkNoSpaces(rootNodeId);
 		wantResource("syntax", syntaxId);
-		rp.syntaxCreateType().selectByText("Document node");
-		rp.syntaxCreateName().fillOut("root");
-		rp.syntaxDocNodeList().fillOut(rootNodeId);
-		rp.syntaxCreateButton().click();
+		rp.syntaxNodes().cell(nodeId, "root").inputRadio().choose().click();
 	}
 
 	@Override
-	public void createDocWhitespace(final String syntaxId, final List<String> whitespaceNodeIds)
+	public void setDocDelim(final String syntaxId, final String nodeId)
 	{
 		wantResource("syntax", syntaxId);
-		rp.syntaxCreateType().selectByText("Document node");
-		rp.syntaxCreateName().fillOut("whitespace");
-		rp.syntaxDocNodeList().fillOut(spaceSeparated(whitespaceNodeIds));
-		rp.syntaxCreateButton().click();
+		rp.syntaxNodes().cell(nodeId, "delim").inputRadio().choose().click();
 	}
 
 	@Override
-	public Information describeDocRoot(final String syntaxId)
+	public Information docRootNode(final String syntaxId)
 	{
 		wantResource("syntax", syntaxId);
-		return describeDocThing("root");
+		return Informations.optionalString(rp.syntaxNodes().findCheckedRow("root"));
 	}
 
 	@Override
-	public Information describeDocWhitespace(final String syntaxId)
+	public Information docDelimNode(final String syntaxId)
 	{
 		wantResource("syntax", syntaxId);
-		return describeDocThing("whitespace");
-	}
-
-	private Information describeDocThing(final String item)
-	{
-		if (rp.syntaxDoc().hasRow(item))
-		{
-			final Information children = rp.syntaxDoc().cell(item, "children").interpretAsJson();
-			return InformationBuilder.create()
-					.with("children", children);
-		}
-		else
-		{
-			return Informations.empty();
-		}
+		return Informations.optionalString(rp.syntaxNodes().findCheckedRow("delim"));
 	}
 
 	@Override

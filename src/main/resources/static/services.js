@@ -105,14 +105,20 @@ services = {
 			}));
 	},
 	
-	createComponent: function(resourceType,resourceId,componentType,componentId,request)
+	putComponent: function(resourceType,resourceId,componentType,componentId,request,allowReplace)
 	{
 		var path = services.componentPath(resourceType,resourceId,componentType,componentId);
+		var headers = {};
+		if (allowReplace)
+		{
+			headers['X-Allow-Replace'] = 'true';
+		}
 		return Promise.resolve($.ajax( path,
 			{
 				method: 'PUT',
 				contentType: 'application/json',
-				data: JSON.stringify(request)
+				data: JSON.stringify(request),
+				headers: headers
 			}));
 	},
 

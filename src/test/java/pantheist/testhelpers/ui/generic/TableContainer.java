@@ -17,4 +17,15 @@ interface TableContainer<T> extends ContainerElement
 	T child(int index);
 
 	int childCount();
+
+	/**
+	 * See {@link InterpretedTable#column}
+	 *
+	 * This basically does the same thing but identified by index instead of by
+	 * heading.
+	 *
+	 * @param columnIndex
+	 * @return
+	 */
+	ElementFinder<? extends ContainerWithText> column(int columnIndex);
 }
