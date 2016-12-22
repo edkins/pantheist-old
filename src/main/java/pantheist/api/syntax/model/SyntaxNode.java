@@ -34,8 +34,7 @@ public interface SyntaxNode
 	SyntaxNodeType type();
 
 	/**
-	 * For literal tokens, this is the value to be matched. For regex tokens,
-	 * this is the regex. The regex for "regex" tokens.
+	 * For literal tokens, this is the value to be matched.
 	 *
 	 * For other node types this is unused and may be null.
 	 *
@@ -48,10 +47,21 @@ public interface SyntaxNode
 	/**
 	 * Identifiers for child nodes.
 	 *
-	 * An empty list will be returned for types "literal" or "regex"
+	 * An empty list will be returned for type "literal"
 	 *
 	 * @return List of node id's
 	 */
 	@JsonProperty("children")
 	List<String> children();
+
+	/**
+	 * Exceptions to this rule.
+	 *
+	 * An empty list will be returned for everything except type
+	 * "single_character"
+	 *
+	 * @return List of node id's
+	 */
+	@JsonProperty("exceptions")
+	List<String> exceptions();
 }

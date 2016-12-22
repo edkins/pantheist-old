@@ -2,6 +2,11 @@ package pantheist.tests.syntax;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,6 +20,18 @@ import pantheist.testhelpers.session.MainRule;
 
 public abstract class SyntaxResourceTest
 {
+	private static final String BACKSLASH_T = "\\t";
+
+	private static final String BACKSLASH_N = "\\n";
+
+	private static final String BACKSLASH = "\\";
+
+	private static final String QUOTE = "\"";
+
+	private static final String ESCAPED_QUOTE = "\\\"";
+
+	private static final String ESCAPED_BACKSLASH = "\\\\";
+
 	private static final String LITERAL_TOKEN = "tok";
 
 	private static final String SYNTAX = "syntax";
@@ -78,14 +95,14 @@ public abstract class SyntaxResourceTest
 		act.createResource(SYNTAX, "http://");
 		act.createResource(SYNTAX, "?");
 		act.createResource(SYNTAX, "'");
-		act.createResource(SYNTAX, "\"");
-		act.createResource(SYNTAX, "\\");
-		act.createResource(SYNTAX, "\\\\");
+		act.createResource(SYNTAX, QUOTE);
+		act.createResource(SYNTAX, BACKSLASH);
+		act.createResource(SYNTAX, ESCAPED_BACKSLASH);
 		act.createResource(SYNTAX, "<br>");
 		act.createResource(SYNTAX, "#");
 		assertEquals(
-				ImmutableList.of(" ", "\"", "#", "%", "%20", "'",
-						"+", ".", "..", "...", "/", "<br>", "?", "\\", "\\\\", "a..", "http://"),
+				ImmutableList.of(" ", QUOTE, "#", "%", "%20", "'",
+						"+", ".", "..", "...", "/", "<br>", "?", BACKSLASH, ESCAPED_BACKSLASH, "a..", "http://"),
 				act.listResourceIdsOfType(SYNTAX));
 	}
 
@@ -129,10 +146,10 @@ public abstract class SyntaxResourceTest
 		act.syntax().createLiteralToken(SYNTAX_ID, "purple");
 		act.syntax().createChoiceNode(SYNTAX_ID, "fruit", ImmutableList.of("apple", "pear", "orange"));
 		act.syntax().createChoiceNode(SYNTAX_ID, "colour", ImmutableList.of("purple", "orange"));
-		act.syntax().createSequenceNode(SYNTAX_ID, "colourFruit", ImmutableList.of("colour", "fruit"));
-		act.syntax().createOneOrMoreNode(SYNTAX_ID, "colourFruits", "colourFruit");
+		act.syntax().createSequenceNodeSeparated(SYNTAX_ID, "colourFruit", ImmutableList.of("colour", "fruit"));
+		act.syntax().createOneOrMoreNodeSeparated(SYNTAX_ID, "colourFruits", "colourFruit");
 
-		act.syntax().createRegexToken(SYNTAX_ID, "space", " ");
+		act.syntax().createSingleCharacterMatcher(SYNTAX_ID, "space", ImmutableList.of("space"), ImmutableList.of());
 		act.syntax().createDocWhitespace(SYNTAX_ID, ImmutableList.of("space"));
 		act.syntax().createDocRoot(SYNTAX_ID, "colourFruits");
 		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "orange apple purple orange");
@@ -144,7 +161,7 @@ public abstract class SyntaxResourceTest
 	{
 		act.createResource(SYNTAX, SYNTAX_ID);
 		act.syntax().createLiteralToken(SYNTAX_ID, "*");
-		act.syntax().createZeroOrMoreNode(SYNTAX_ID, "stars", "*");
+		act.syntax().createZeroOrMoreNodeSeparated(SYNTAX_ID, "stars", "*");
 
 		act.syntax().createDocRoot(SYNTAX_ID, "stars");
 		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "");
@@ -156,11 +173,44 @@ public abstract class SyntaxResourceTest
 	{
 		act.createResource(SYNTAX, SYNTAX_ID);
 		act.syntax().createLiteralToken(SYNTAX_ID, "*");
-		act.syntax().createZeroOrMoreNode(SYNTAX_ID, "stars", "*");
+		act.syntax().createZeroOrMoreNodeSeparated(SYNTAX_ID, "stars", "*");
 
 		act.syntax().createDocRoot(SYNTAX_ID, "stars");
 		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "****");
 		assertSyntaxTree(result, "stars{* * * *}");
+	}
+
+	@Test
+	public void grammar_quotedString_canParse() throws Exception
+	{
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createLiteralToken(SYNTAX_ID, QUOTE);
+		act.syntax().createLiteralToken(SYNTAX_ID, ESCAPED_BACKSLASH);
+		act.syntax().createLiteralToken(SYNTAX_ID, ESCAPED_QUOTE);
+		act.syntax().createLiteralToken(SYNTAX_ID, BACKSLASH_N);
+		act.syntax().createLiteralToken(SYNTAX_ID, BACKSLASH_T);
+		act.syntax().createSingleCharacterMatcher(SYNTAX_ID, "space",
+				ImmutableList.of("space"), ImmutableList.of());
+		act.syntax().createSingleCharacterMatcher(SYNTAX_ID, "safe",
+				ImmutableList.of("visible_ascii"),
+				ImmutableList.of(QUOTE, BACKSLASH));
+		act.syntax().createChoiceNode(SYNTAX_ID, "char",
+				ImmutableList.of("safe", "space", ESCAPED_QUOTE, ESCAPED_BACKSLASH, BACKSLASH_N, BACKSLASH_T));
+		act.syntax().createZeroOrMoreNodeGlued(SYNTAX_ID, "chars", "char");
+		act.syntax().createSequenceNodeGlued(SYNTAX_ID, "string", ImmutableList.of(QUOTE, "chars", QUOTE));
+		act.syntax().createDocRoot(SYNTAX_ID, "string");
+		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, res("/quoted-string.txt"));
+
+		final String expected = String.join(" ", res("/quoted-string-ast.txt").split("\n"));
+		assertSyntaxTree(result, expected);
+	}
+
+	private String res(final String resourcePath) throws IOException
+	{
+		try (InputStream inputStream = SyntaxResourceTest.class.getResourceAsStream(resourcePath))
+		{
+			return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+		}
 	}
 
 	private void assertSyntaxTree(final Information result, final String treeText)

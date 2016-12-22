@@ -15,7 +15,6 @@ import org.openqa.selenium.remote.service.DriverCommandExecutor;
 import com.google.common.collect.ImmutableMap;
 
 import pantheist.common.util.MutableOptional;
-import pantheist.testhelpers.session.TestMode;
 
 final class FirefoxRule implements ApiRule
 {
@@ -23,12 +22,15 @@ final class FirefoxRule implements ApiRule
 
 	private final boolean visible;
 
+	private final boolean screenshotOnFailure;
+
 	// State
 	private final MutableOptional<WebDriver> webDriver;
 
-	FirefoxRule(final boolean visible)
+	FirefoxRule(final boolean visible, final boolean screenshotOnFailure)
 	{
 		this.visible = visible;
+		this.screenshotOnFailure = screenshotOnFailure;
 		this.webDriver = MutableOptional.empty();
 	}
 
@@ -95,16 +97,15 @@ final class FirefoxRule implements ApiRule
 	}
 
 	@Override
-	public TestMode mode()
+	public boolean useSelenium()
 	{
-		if (visible)
-		{
-			return TestMode.UI_VISIBLE;
-		}
-		else
-		{
-			return TestMode.UI_INVISIBLE;
-		}
+		return true;
+	}
+
+	@Override
+	public boolean screenshotOnFailure()
+	{
+		return screenshotOnFailure;
 	}
 
 }

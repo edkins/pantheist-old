@@ -57,15 +57,22 @@
 				
 				<p>
 				Create:<br>
-				<select id="componentCreatorType" onchange="resourcePanel.refreshComponentCreator()">
+				<select id="createComponentType" onchange="resourcePanel.refreshComponentCreator()">
 					<optgroup id="syntax/token" label="Token">
 						<option value="syntax-node-literal">Literal token</option>
-						<option value="syntax-node-regex">Regex token</option>
+						<option value="syntax-node-single_character">Single character matcher</option>
 					</optgroup>
-					<optgroup id="syntax/node" label="Node">
-						<option value="syntax-node-zero_or_more">Zero or more tokens</option>
-						<option value="syntax-node-one_or_more">One or more tokens</option>
-						<option value="syntax-node-sequence">Sequence of tokens</option>
+					<optgroup id="syntax/node" label="Sequence (glued together)">
+						<option value="syntax-node-glued_zero_or_more">Zero or more tokens (glued)</option>
+						<option value="syntax-node-glued_one_or_more">One or more tokens (glued)</option>
+						<option value="syntax-node-glued_sequence">Sequence of tokens (glued)</option>
+					</optgroup>
+					<optgroup id="syntax/node" label="Sequence (separated by whitespace)">
+						<option value="syntax-node-zero_or_more">Zero or more tokens (separated)</option>
+						<option value="syntax-node-one_or_more">One or more tokens (separated)</option>
+						<option value="syntax-node-sequence">Sequence of tokens (separated)</option>
+					</optgroup>
+					<optgroup id="syntax/node" label="Choice">
 						<option value="syntax-node-choice">Choice between tokens</option>
 					</optgroup>
 					<optgroup id="syntax/node" label="Document">
@@ -78,28 +85,14 @@
 				Name: <input type="text" id="createComponentId">
 				</p>
 				
-				<p class="component-creator" id="syntax-node-literal">
-				In the case of literal tokens, the name is also the sequence of characters to match.
+				<p class="component-creator" id="createComponentHelpMessage"></p>
+				<p>
+					<input type="text" id="createComponentDetail">
 				</p>
-				<p class="component-creator" id="syntax-node-regex">
-				Regex: <input type="text" autocomplete="off">
+				<p id="createComponentExceptionsSection">
+					Exceptions: <input type="text" id="createComponentExceptions">
 				</p>
-				<p class="component-creator" id="syntax-node-zero_or_more">
-				Occurrences of this node consist of zero or more occurrences of: <input type="text" autocomplete="off">
-				</p>
-				<p class="component-creator" id="syntax-node-one_or_more">
-				Occurrences of this node consist of one or more occurrences of: <input type="text" autocomplete="off">
-				</p>
-				<p class="component-creator" id="syntax-node-sequence">
-				Enter a space-separated sequence of nodes: <input type="text" autocomplete="off">
-				</p>
-				<p class="component-creator" id="syntax-node-choice">
-				Enter a space-separated sequence of nodes to choose from: <input type="text" autocomplete="off">
-				</p>
-				<p class="component-creator" id="syntax-doc">
-				Enter root or whitespace node list: <input type="text" autocomplete="off">
-				</p>
-				
+								
 				<p>
 				<input type="button" value="Create" onclick="resourcePanel.clickCreateComponent(event)">
 				<span id="createFailureMessage"></span>
@@ -119,6 +112,39 @@
 					<p id="whatHappened">
 					</p>
 				</div>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
+				<p>
+				&nbsp;
+				</p>
 			</div>
 		</div>
 	</div>

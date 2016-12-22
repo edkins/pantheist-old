@@ -226,44 +226,46 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	}
 
 	@Override
-	public void createRegexToken(final String syntaxId, final String nodeId, final String regex)
+	public void createSingleCharacterMatcher(final String syntaxId, final String nodeId,
+			final List<String> options, final List<String> exceptions)
 	{
 		wantResource("syntax", syntaxId);
-		rp.syntaxCreateType().selectByText("Regex token");
+		rp.syntaxCreateType().selectByText("Single character matcher");
 		rp.syntaxCreateName().fillOut(nodeId);
-		rp.syntaxNodeRegex().fillOut(regex);
+		rp.syntaxCreateDetail().fillOut(spaceSeparated(options));
+		rp.syntaxCreateExceptions().fillOut(spaceSeparated(exceptions));
 		rp.syntaxCreateButton().click();
 	}
 
 	@Override
-	public void createZeroOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	public void createZeroOrMoreNodeSeparated(final String syntaxId, final String nodeId, final String child)
 	{
 		checkNoSpaces(child);
 		wantResource("syntax", syntaxId);
-		rp.syntaxCreateType().selectByText("Zero or more tokens");
+		rp.syntaxCreateType().selectByText("Zero or more tokens (separated)");
 		rp.syntaxCreateName().fillOut(nodeId);
-		rp.syntaxNodeZeroOrMore().fillOut(child);
+		rp.syntaxCreateDetail().fillOut(child);
 		rp.syntaxCreateButton().click();
 	}
 
 	@Override
-	public void createOneOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	public void createOneOrMoreNodeSeparated(final String syntaxId, final String nodeId, final String child)
 	{
 		checkNoSpaces(child);
 		wantResource("syntax", syntaxId);
-		rp.syntaxCreateType().selectByText("One or more tokens");
+		rp.syntaxCreateType().selectByText("One or more tokens (separated)");
 		rp.syntaxCreateName().fillOut(nodeId);
-		rp.syntaxNodeOneOrMore().fillOut(child);
+		rp.syntaxCreateDetail().fillOut(child);
 		rp.syntaxCreateButton().click();
 	}
 
 	@Override
-	public void createSequenceNode(final String syntaxId, final String nodeId, final List<String> children)
+	public void createSequenceNodeSeparated(final String syntaxId, final String nodeId, final List<String> children)
 	{
 		wantResource("syntax", syntaxId);
-		rp.syntaxCreateType().selectByText("Sequence of tokens");
+		rp.syntaxCreateType().selectByText("Sequence of tokens (separated)");
 		rp.syntaxCreateName().fillOut(nodeId);
-		rp.syntaxNodeSequence().fillOut(spaceSeparated(children));
+		rp.syntaxCreateDetail().fillOut(spaceSeparated(children));
 		rp.syntaxCreateButton().click();
 	}
 
@@ -273,7 +275,7 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 		wantResource("syntax", syntaxId);
 		rp.syntaxCreateType().selectByText("Choice between tokens");
 		rp.syntaxCreateName().fillOut(nodeId);
-		rp.syntaxNodeChoice().fillOut(spaceSeparated(children));
+		rp.syntaxCreateDetail().fillOut(spaceSeparated(children));
 		rp.syntaxCreateButton().click();
 	}
 
@@ -281,9 +283,44 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	public Information tryOutSyntax(final String syntaxId, final String document)
 	{
 		wantResource("syntax", syntaxId);
+		rp.allowTimeToStabilize();
 		rp.trySyntaxText().fillOut(document);
+		rp.allowTimeToStabilize();
 		rp.trySyntaxButton().click();
+		rp.allowTimeToStabilize();
 		return rp.trySyntaxResult().interpretDirectly();
+	}
+
+	@Override
+	public void createZeroOrMoreNodeGlued(final String syntaxId, final String nodeId, final String child)
+	{
+		checkNoSpaces(child);
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Zero or more tokens (glued)");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxCreateDetail().fillOut(child);
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createOneOrMoreNodeGlued(final String syntaxId, final String nodeId, final String child)
+	{
+		checkNoSpaces(child);
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("One or more tokens (glued)");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxCreateDetail().fillOut(child);
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createSequenceNodeGlued(final String syntaxId, final String nodeId, final List<String> children)
+	{
+		wantResource("syntax", syntaxId);
+		rp.syntaxCreateType().selectByText("Sequence of tokens (glued)");
+		rp.syntaxCreateName().fillOut(nodeId);
+		rp.syntaxCreateDetail().fillOut(spaceSeparated(children));
+		rp.syntaxCreateButton().click();
 	}
 
 }

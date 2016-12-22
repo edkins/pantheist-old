@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -20,9 +18,11 @@ import org.codehaus.jparsec.Scanners;
 import org.codehaus.jparsec.Token;
 import org.codehaus.jparsec.TokenMap;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import pantheist.api.syntax.model.SingleCharMatchers;
 import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxDocProperty;
 import pantheist.api.syntax.model.SyntaxNode;
@@ -66,10 +66,10 @@ final class ParserEngineImpl implements ParserEngine
 		@Override
 		public Artifact map(final Token token)
 		{
-			checkNotNullOrEmpty((String) token.value());
-			if (nodeId.equals(token.value()))
+			final Artifact artifact = (Artifact) token.value();
+			if (nodeId.equals(artifact.nodeId()))
 			{
-				return TokenArtifact.of(nodeId);
+				return artifact;
 			}
 			else
 			{
@@ -90,7 +90,7 @@ final class ParserEngineImpl implements ParserEngine
 
 		// State
 		private final Map<String, Parser<Artifact>> visitedTokens;
-		private final List<Parser<String>> listOfTokenParsers;
+		private final List<Parser<Artifact>> listOfTokenParsers;
 
 		JparsecThing(final Syntax syntax)
 		{
@@ -126,33 +126,49 @@ final class ParserEngineImpl implements ParserEngine
 
 			final SyntaxNode sn = lookup(nodeId);
 
-			Parser<String> tokenizer = null;
+			Parser<Artifact> tokenizer = null;
 			Parser<Artifact> parser = null;
-
-			final List<Parser<Artifact>> childParsers = Lists.transform(sn.children(), id -> recurse(id, level));
 
 			switch (sn.type()) {
 			case literal:
-				tokenizer = Scanners.string(sn.value()).retn(nodeId);
+				tokenizer = Scanners.string(sn.value()).retn(TokenArtifact.of(nodeId));
 				break;
-			case regex:
-				tokenizer = Scanners.pattern(new RegexPattern(sn.value()), nodeId).retn(nodeId);
+			case single_character:
+				tokenizer = singleCharacterMatcher(sn.children(), sn.exceptions())
+						.source()
+						.map(SingleCharacterArtifact.with(nodeId));
+				break;
+			case glued_zero_or_more:
+				tokenizer = childParser(ParseLevel.CHARACTER, sn)
+						.many()
+						.map(children -> SequenceArtifact.of(nodeId, children));
+				break;
+			case glued_one_or_more:
+				tokenizer = childParser(ParseLevel.CHARACTER, sn)
+						.many1()
+						.map(children -> SequenceArtifact.of(nodeId, children));
+				break;
+			case glued_sequence:
+				tokenizer = seq(nodeId, childParsers(ParseLevel.CHARACTER, sn));
 				break;
 			case zero_or_more:
-				parser = OtherPreconditions.singletonValue(childParsers)
+				checkParserLevel(level);
+				parser = childParser(level, sn)
 						.many()
 						.map(children -> SequenceArtifact.of(nodeId, children));
 				break;
 			case one_or_more:
-				parser = OtherPreconditions.singletonValue(childParsers)
+				checkParserLevel(level);
+				parser = childParser(level, sn)
 						.many1()
 						.map(children -> SequenceArtifact.of(nodeId, children));
 				break;
 			case sequence:
-				parser = seq(nodeId, childParsers);
+				checkParserLevel(level);
+				parser = seq(nodeId, childParsers(level, sn));
 				break;
 			case choice:
-				parser = Parsers.or(childParsers);
+				parser = Parsers.or(childParsers(level, sn));
 				break;
 			default:
 				throw new UnsupportedOperationException("Unsupported syntax node type: " + sn.type());
@@ -163,7 +179,7 @@ final class ParserEngineImpl implements ParserEngine
 				if (parser == null)
 				{
 					checkNotNull(tokenizer);
-					parser = tokenizer.map(TokenArtifact::of);
+					parser = tokenizer;
 				}
 				break;
 			case TOKEN:
@@ -178,6 +194,33 @@ final class ParserEngineImpl implements ParserEngine
 			checkNotNull(parser);
 			reference.set(parser);
 			return parser;
+		}
+
+		private void checkParserLevel(final ParseLevel level)
+		{
+			if (!level.equals(ParseLevel.TOKEN))
+			{
+				throw new IllegalStateException("Separated sequence cannot be contained inside glued sequence");
+			}
+		}
+
+		private List<Parser<Artifact>> childParsers(final ParseLevel level, final SyntaxNode sn)
+		{
+			final List<Parser<Artifact>> childParsers = Lists.transform(sn.children(), id -> recurse(id, level));
+			return childParsers;
+		}
+
+		private Parser<Artifact> childParser(final ParseLevel level, final SyntaxNode sn)
+		{
+			return OtherPreconditions.singletonValue(childParsers(level, sn));
+		}
+
+		private Parser<Void> singleCharacterMatcher(final List<String> options, final List<String> exceptions)
+		{
+			final List<CharMatcher> matchers = Lists.transform(options, SingleCharMatchers::fromString);
+			final List<CharMatcher> exceptionMatchers = Lists.transform(exceptions, SingleCharMatchers::fromString);
+			return Scanners.isChar(c -> matchers.stream().anyMatch(m -> m.matches(c))
+					&& !exceptionMatchers.stream().anyMatch(m -> m.matches(c)));
 		}
 
 		private Parser<Artifact> seq(final String nodeId, final List<Parser<Artifact>> parsers)
@@ -203,7 +246,7 @@ final class ParserEngineImpl implements ParserEngine
 		Parser<?> asJparsec()
 		{
 			final Parser<Artifact> tokenLevelRoot = recurse(rootNodeId(), ParseLevel.TOKEN);
-			final Parser<String> tokenizer = Parsers.or(listOfTokenParsers);
+			final Parser<Artifact> tokenizer = Parsers.or(listOfTokenParsers);
 
 			visitedTokens.clear();
 			listOfTokenParsers.clear();
@@ -229,33 +272,44 @@ final class ParserEngineImpl implements ParserEngine
 		}
 	}
 
-	private static class RegexPattern extends org.codehaus.jparsec.pattern.Pattern
+	private static interface Artifact
 	{
-		private final Pattern pattern;
+		public String nodeId();
+	}
 
-		RegexPattern(final String regex)
+	private static class SingleCharacterArtifact implements Artifact
+	{
+		final String nodeId;
+		private final char ch;
+
+		private SingleCharacterArtifact(final String nodeId, final char ch)
 		{
-			this.pattern = Pattern.compile(regex);
+			this.nodeId = checkNotNullOrEmpty(nodeId);
+			this.ch = ch;
+		}
+
+		static org.codehaus.jparsec.functors.Map<String, Artifact> with(final String nodeId)
+		{
+			return str -> {
+				if (str.length() != 1)
+				{
+					throw new IllegalStateException("Expecting single character to have been matched");
+				}
+				return new SingleCharacterArtifact(nodeId, str.charAt(0));
+			};
 		}
 
 		@Override
-		public int match(final CharSequence src, final int begin, final int end)
+		public String toString()
 		{
-			final Matcher matcher = pattern.matcher(src.subSequence(begin, end));
-			if (matcher.lookingAt())
-			{
-				return matcher.end();
-			}
-			else
-			{
-				return MISMATCH;
-			}
+			return nodeId + "{" + ch + "}";
 		}
 
-	}
-
-	private static interface Artifact
-	{
+		@Override
+		public String nodeId()
+		{
+			return nodeId;
+		}
 	}
 
 	private static class TokenArtifact implements Artifact
@@ -274,6 +328,12 @@ final class ParserEngineImpl implements ParserEngine
 
 		@Override
 		public String toString()
+		{
+			return nodeId;
+		}
+
+		@Override
+		public String nodeId()
 		{
 			return nodeId;
 		}
@@ -311,6 +371,12 @@ final class ParserEngineImpl implements ParserEngine
 				sb.append(child);
 			}
 			return sb.append("}").toString();
+		}
+
+		@Override
+		public String nodeId()
+		{
+			return nodeId;
 		}
 	}
 

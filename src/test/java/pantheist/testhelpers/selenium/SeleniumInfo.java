@@ -2,8 +2,6 @@ package pantheist.testhelpers.selenium;
 
 import org.openqa.selenium.WebDriver;
 
-import pantheist.testhelpers.session.TestMode;
-
 public interface SeleniumInfo
 {
 	/**
@@ -13,5 +11,7 @@ public interface SeleniumInfo
 	 */
 	WebDriver webDriver();
 
-	TestMode mode();
+	boolean useSelenium();
+
+	boolean screenshotOnFailure();
 }

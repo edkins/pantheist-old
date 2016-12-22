@@ -238,15 +238,19 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 	}
 
 	@Override
-	public void createRegexToken(final String syntaxId, final String nodeId, final String value)
+	public void createSingleCharacterMatcher(final String syntaxId, final String nodeId,
+			final List<String> options, final List<String> exceptions)
 	{
-		final Entity<String> json = jb().with("type", "regex").with("value", value).toEntity();
+		final Entity<String> json = jb()
+				.with("type", "single_character")
+				.with("children", options)
+				.with("exceptions", exceptions).toEntity();
 		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
 		expectNoContent(response);
 	}
 
 	@Override
-	public void createZeroOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	public void createZeroOrMoreNodeSeparated(final String syntaxId, final String nodeId, final String child)
 	{
 		final Entity<String> json = jb()
 				.with("type", "zero_or_more")
@@ -257,7 +261,7 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 	}
 
 	@Override
-	public void createOneOrMoreNode(final String syntaxId, final String nodeId, final String child)
+	public void createOneOrMoreNodeSeparated(final String syntaxId, final String nodeId, final String child)
 	{
 		final Entity<String> json = jb()
 				.with("type", "one_or_more")
@@ -268,7 +272,7 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 	}
 
 	@Override
-	public void createSequenceNode(final String syntaxId, final String nodeId, final List<String> children)
+	public void createSequenceNodeSeparated(final String syntaxId, final String nodeId, final List<String> children)
 	{
 		final Entity<String> json = jb()
 				.with("type", "sequence")
@@ -294,6 +298,39 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 	{
 		final Response response = target("syntax", syntaxId).path("try").request().post(Entity.text(document));
 		return jsonInfo(response).field("whatHappened");
+	}
+
+	@Override
+	public void createZeroOrMoreNodeGlued(final String syntaxId, final String nodeId, final String child)
+	{
+		final Entity<String> json = jb()
+				.with("type", "glued_zero_or_more")
+				.with("children", ImmutableList.of(child))
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public void createOneOrMoreNodeGlued(final String syntaxId, final String nodeId, final String child)
+	{
+		final Entity<String> json = jb()
+				.with("type", "glued_one_or_more")
+				.with("children", ImmutableList.of(child))
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
+	}
+
+	@Override
+	public void createSequenceNodeGlued(final String syntaxId, final String nodeId, final List<String> children)
+	{
+		final Entity<String> json = jb()
+				.with("type", "glued_sequence")
+				.with("children", children)
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "node", nodeId).request().put(json);
+		expectNoContent(response);
 	}
 
 }

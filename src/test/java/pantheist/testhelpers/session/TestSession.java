@@ -7,9 +7,10 @@ import org.openqa.selenium.WebDriver;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pantheist.testhelpers.selenium.SeleniumInfo;
 import pantheist.testhelpers.ui.pan.PantheistUi;
 
-public interface TestSession
+public interface TestSession extends SeleniumInfo
 {
 	void clear();
 
@@ -25,7 +26,7 @@ public interface TestSession
 
 	File dataDir();
 
-	ObjectMapper objectMapper();
+	File dumpFile(String prefix, String ext);
 
-	TestMode mode();
+	ObjectMapper objectMapper();
 }

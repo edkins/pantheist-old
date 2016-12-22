@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static pantheist.common.except.OtherPreconditions.checkNotNullOrEmpty;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
@@ -18,25 +17,72 @@ final class SyntaxNodeImpl implements SyntaxNode
 	@Nullable
 	private final String value;
 	private final List<String> children;
+	private final List<String> exceptions;
 
 	SyntaxNodeImpl(@JsonProperty("type") final SyntaxNodeType type,
 			@JsonProperty("value") final String value,
-			@JsonProperty("children") final List<String> children)
+			@JsonProperty("children") final List<String> children,
+			@JsonProperty("exceptions") final List<String> exceptions)
 	{
 		this.type = checkNotNull(type);
 		this.value = maybeNotNull(type, value);
-		this.children = checkChildCount(type, children);
+		this.children = checkChildren(type, children);
+		this.exceptions = checkExceptions(type, exceptions);
+	}
+
+	private static List<String> checkExceptions(final SyntaxNodeType type, final List<String> exceptions)
+	{
+		final List<String> result = checkExceptionCount(type, exceptions);
+		for (final String child : result)
+		{
+			checkChild(type, child);
+		}
+		return result;
+	}
+
+	private static List<String> checkChildren(final SyntaxNodeType type, final List<String> children)
+	{
+		final List<String> result = checkChildCount(type, children);
+		for (final String child : result)
+		{
+			checkChild(type, child);
+		}
+		return result;
+	}
+
+	private static void checkChild(final SyntaxNodeType type, final String child)
+	{
+		checkNotNullOrEmpty(child);
+		switch (type) {
+		case single_character:
+			SingleCharMatchers.fromString(child);
+		default:
+			// nothing to check
+		}
+	}
+
+	private static List<String> checkExceptionCount(final SyntaxNodeType type, final List<String> exceptions)
+	{
+		switch (type) {
+		case single_character:
+			return OtherPreconditions.emptyIfNull(exceptions);
+		default:
+			return OtherPreconditions.nullOrEmptyList(exceptions);
+		}
 	}
 
 	private static List<String> checkChildCount(final SyntaxNodeType type, final List<String> children)
 	{
 		switch (type) {
 		case literal:
-		case regex:
 			return OtherPreconditions.nullOrEmptyList(children);
+		case glued_zero_or_more:
+		case glued_one_or_more:
 		case zero_or_more:
 		case one_or_more:
 			return OtherPreconditions.copyOfSingleton(children);
+		case single_character:
+		case glued_sequence:
 		case sequence:
 		case choice:
 			return OtherPreconditions.copyOfOneOrMore(children);
@@ -50,10 +96,10 @@ final class SyntaxNodeImpl implements SyntaxNode
 		switch (type) {
 		case literal:
 			return checkNotNullOrEmpty(value);
-		case regex:
-			checkNotNullOrEmpty(value);
-			Pattern.compile(value);
-			return value;
+		case single_character:
+		case glued_zero_or_more:
+		case glued_one_or_more:
+		case glued_sequence:
 		case zero_or_more:
 		case one_or_more:
 		case sequence:
@@ -84,6 +130,12 @@ final class SyntaxNodeImpl implements SyntaxNode
 	public String value()
 	{
 		return value;
+	}
+
+	@Override
+	public List<String> exceptions()
+	{
+		return exceptions;
 	}
 
 }

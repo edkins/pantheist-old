@@ -24,15 +24,9 @@ public interface ResourcePanel
 
 	DeletableTable syntaxDoc();
 
-	TextEntry syntaxNodeRegex();
+	TextEntry syntaxCreateDetail();
 
-	TextEntry syntaxNodeZeroOrMore();
-
-	TextEntry syntaxNodeOneOrMore();
-
-	TextEntry syntaxNodeSequence();
-
-	TextEntry syntaxNodeChoice();
+	TextEntry syntaxCreateExceptions();
 
 	TextEntry syntaxDocNodeList();
 
@@ -41,4 +35,6 @@ public interface ResourcePanel
 	ClickableText trySyntaxButton();
 
 	Textual trySyntaxResult();
+
+	void allowTimeToStabilize();
 }

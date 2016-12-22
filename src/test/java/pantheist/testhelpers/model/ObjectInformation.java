@@ -50,7 +50,7 @@ final class ObjectInformation implements Information
 	public void assertString(final String expectedValue)
 	{
 		checkNotNullOrEmpty(expectedValue);
-		assertEquals(expectedValue, value);
+		assertThat(value, is(expectedValue));
 	}
 
 	@Override

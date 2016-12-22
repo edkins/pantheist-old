@@ -166,6 +166,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	{
 		try
 		{
+			LOGGER.info("PUT /syntax/{}/{}/{} {}", syntaxId, t, componentId, requestJson);
 			final Object data = httpHelper.parseRequest(
 					requestJson,
 					backend.desiredComponentType("syntax", syntaxId, t, componentId));
@@ -200,6 +201,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	{
 		try
 		{
+			LOGGER.info("DELETE /syntax/{}/{}/{}", syntaxId, t, componentId);
 			backend.deleteComponent("syntax", syntaxId, t, componentId);
 			return Response.noContent().build();
 		}
@@ -222,6 +224,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 	{
 		try
 		{
+			LOGGER.info("POST /syntax/{}/try {}", syntaxId, text);
 			final TryOutTextReport report = syntaxBackend.tryOutText(syntaxId, text);
 			return httpHelper.jsonResponse(report);
 		}

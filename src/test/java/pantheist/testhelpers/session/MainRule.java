@@ -14,6 +14,7 @@ import pantheist.testhelpers.app.AppRule;
 import pantheist.testhelpers.app.TempDirRule;
 import pantheist.testhelpers.app.WaitForServerRule;
 import pantheist.testhelpers.selenium.NavigateToHomeRule;
+import pantheist.testhelpers.selenium.ScreenshotRule;
 import pantheist.testhelpers.selenium.SeleniumInfo;
 import pantheist.testhelpers.ui.pan.PantheistUi;
 
@@ -34,18 +35,33 @@ public class MainRule implements TestRule
 				.around(TempDirRule.forTest(session))
 				.around(AppRule.forTest(session))
 				.around(WaitForServerRule.forTest(session))
-				.around(navigateToHomeRule());
+				.around(navigateToHomeRule())
+				.around(screenshotRule());
 	}
 
 	private TestRule navigateToHomeRule()
 	{
-		switch (session.mode()) {
-		case UI_VISIBLE:
-		case UI_INVISIBLE:
+		if (session.useSelenium())
+		{
 			return NavigateToHomeRule.forTest(session);
-		default:
+		}
+		else
+		{
 			return new NoRule();
 		}
+	}
+
+	private TestRule screenshotRule()
+	{
+		if (session.screenshotOnFailure())
+		{
+			return ScreenshotRule.forTest(session);
+		}
+		else
+		{
+			return new NoRule();
+		}
+
 	}
 
 	public static MainRule forNewTest(final SeleniumInfo seleniumInfo)
@@ -56,11 +72,12 @@ public class MainRule implements TestRule
 
 	public PantheistActions actions()
 	{
-		switch (session.mode()) {
-		case UI_VISIBLE:
-		case UI_INVISIBLE:
+		if (session.useSelenium())
+		{
 			return PantheistActionsUi.from(session.ui());
-		default:
+		}
+		else
+		{
 			return PantheistActionsApi.from(session.pantheistUrl(), session.objectMapper());
 		}
 	}

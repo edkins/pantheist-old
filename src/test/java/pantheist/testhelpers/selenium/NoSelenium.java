@@ -4,8 +4,6 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.openqa.selenium.WebDriver;
 
-import pantheist.testhelpers.session.TestMode;
-
 final class NoSelenium implements ApiRule
 {
 	NoSelenium()
@@ -20,14 +18,20 @@ final class NoSelenium implements ApiRule
 	}
 
 	@Override
-	public TestMode mode()
-	{
-		return TestMode.API;
-	}
-
-	@Override
 	public Statement apply(final Statement base, final Description description)
 	{
 		return base;
+	}
+
+	@Override
+	public boolean useSelenium()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean screenshotOnFailure()
+	{
+		return false;
 	}
 }

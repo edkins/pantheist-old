@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.openqa.selenium.WebDriver;
 
@@ -96,9 +98,22 @@ public final class TestSessionImpl implements TestSession
 	}
 
 	@Override
-	public TestMode mode()
+	public File dumpFile(final String prefix, final String ext)
 	{
-		return seleniumInfo.mode();
+		final String date = new SimpleDateFormat("yyyy-MM-dd--HH-mm-ss").format(new Date());
+		return new File("dump/" + prefix + "-" + date + "." + ext);
+	}
+
+	@Override
+	public boolean useSelenium()
+	{
+		return seleniumInfo.useSelenium();
+	}
+
+	@Override
+	public boolean screenshotOnFailure()
+	{
+		return seleniumInfo.screenshotOnFailure();
 	}
 
 }

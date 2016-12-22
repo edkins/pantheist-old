@@ -23,7 +23,7 @@ resourcePanel = {
 		$('#resourcePanel #resourceId').val(resourceId);
 		$('#resourcePanel #typeName').text(resourceType);
 		$('#resourcePanel #name').text(name);
-		$('#resourcePanel #componentCreatorType').val('syntax-node-literal');
+		$('#resourcePanel #createComponentType').val('syntax-node-literal');
 		resourcePanel.refreshAll();
 	},
 	
@@ -34,15 +34,67 @@ resourcePanel = {
 		actions.refreshComponents();
 		$('#resourcePanel input[type=text]').val('');
 		$('#syntaxResourceDiv #whatHappened').text('');
+		$('#resourcePanel #createFailureMessage').text('');
+		$('#text-to-try').val('');
+	},
+	
+	messageForCreate(creatorId)
+	{
+		switch(creatorId)
+		{
+			case 'syntax-node-literal':
+				return 'In the case of literal tokens, the name is also the sequence of characters to match.';
+			case 'syntax-node-single_character':
+				return 'Enter space-separated list of characters to match, or special values: space newline tab digit latin_lower latin_upper visible_ascii:';
+			case 'syntax-node-glued_zero_or_more':
+			case 'syntax-node-zero_or_more':
+				return 'Occurrences of this node consist of zero or more occurrences of:';
+			case 'syntax-node-glued_one_or_more':
+			case 'syntax-node-one_or_more':
+				return 'Occurrences of this node consist of one or more occurrences of:';
+			case 'syntax-node-glued_sequence':
+			case 'syntax-node-sequence':
+				return 'Enter a space-separated sequence of nodes that will be matched in order:';
+			case 'syntax-node-choice':
+				return 'Enter a space-separated sequence of nodes to choose from:';
+			case 'syntax-doc':
+				return 'Enter root or whitespace node list:';
+			default:
+				throw ('Unrecognized type: '+creatorId);
+		}
+	},
+	
+	detailBoxVisibility(creatorId)
+	{
+		switch(creatorId)
+		{
+			case 'syntax-node-literal':
+				return 'hidden';
+			default:
+				return 'visible';
+		}
+	},
+	
+	exceptionsBoxVisibility(creatorId)
+	{
+		switch(creatorId)
+		{
+			case 'syntax-node-single_character':
+				return 'visible';
+			default:
+				return 'hidden';
+		}
 	},
 	
 	refreshComponentCreator: function()
 	{
-		var componentType = $('#resourcePanel #componentCreatorType').val();
-		$('#resourcePanel .component-creator').css('display','none');
-		$('#resourcePanel #' + componentType).css('display','block');
-		$('#resourcePanel #' + componentType + ' input').val('');
-		$('#resourcePanel #createFailureMessage').text('');
+		var creatorId = $('#resourcePanel #createComponentType').val();
+		
+		$('#resourcePanel #createComponentHelpMessage').text(resourcePanel.messageForCreate(creatorId));
+		$('#resourcePanel #createComponentDetail').val('');
+		$('#resourcePanel #createComponentDetail').css('visibility',resourcePanel.detailBoxVisibility(creatorId));
+		$('#resourcePanel #createComponentExceptions').val('');
+		$('#resourcePanel #createComponentExceptionsSection').css('visibility',resourcePanel.exceptionsBoxVisibility(creatorId));
 	},
 	
 	showCreateFailureMessage: function()
@@ -50,65 +102,59 @@ resourcePanel = {
 		$('#resourcePanel #createFailureMessage').text('Failed.');
 	},
 	
+	split: function(str)
+	{
+		if (str == undefined || str == '')
+		{
+			return [];
+		}
+		return str.split(' ');
+	},
+	
 	componentCreatorData: function(componentId)
 	{
-		var creatorId = $('#resourcePanel #componentCreatorType').val();
-		var p = $('#resourcePanel #' + creatorId);
+		var creatorId = $('#resourcePanel #createComponentType').val();
+		var splitDetail = resourcePanel.split($('#resourcePanel #createComponentDetail').val());
+		var splitExceptions = resourcePanel.split($('#resourcePanel #createComponentExceptions').val());
+		var lastPart = creatorId.substring(creatorId.lastIndexOf('-')+1);
 		switch( creatorId )
 		{
 		case 'syntax-node-literal':
 			return {
 				componentType: 'node',
 				request: {
-					type: 'literal',
+					type: lastPart,
 					value: componentId
 				}
 			};
-		case 'syntax-node-regex':
+		case 'syntax-node-single_character':
 			return {
 				componentType: 'node',
 				request: {
-					type: 'regex',
-					value: $('input',p).val()
+					type: lastPart,
+					children: splitDetail,
+					exceptions: splitExceptions
 				}
 			};
+		case 'syntax-node-glued_zero_or_more':
+		case 'syntax-node-glued_one_or_more':
+		case 'syntax-node-glued_sequence':
 		case 'syntax-node-zero_or_more':
-			return {
-				componentType: 'node',
-				request: {
-					type: 'zero_or_more',
-					children: [$('input',p).val()]
-				}
-			};
 		case 'syntax-node-one_or_more':
-			return {
-				componentType: 'node',
-				request: {
-					type: 'one_or_more',
-					children: [$('input',p).val()]
-				}
-			};
 		case 'syntax-node-sequence':
-			return {
-				componentType: 'node',
-				request: {
-					type: 'sequence',
-					children: $('input',p).val().split(' ')
-				}
-			};
 		case 'syntax-node-choice':
 			return {
 				componentType: 'node',
 				request: {
-					type: 'choice',
-					children: $('input',p).val().split(' ')
+					type: lastPart,
+					children: splitDetail
 				}
 			};
 		case 'syntax-doc':
 			return {
 				componentType: 'doc',
 				request: {
-					children: $('input',p).val().split(' ')
+					children: splitDetail
 				}
 			};
 		default:
@@ -152,7 +198,8 @@ resourcePanel = {
 		case 'node': return [
 				['type',x=>x],
 				['value',x => x==null ? '' : x],
-				['children',x => x.length===0 ? '' : JSON.stringify(x)]
+				['children',x => x.length===0 ? '' : JSON.stringify(x)],
+				['exceptions',x => x.length===0 ? '' : JSON.stringify(x)]
 			];
 		case 'doc': return [
 				['children',JSON.stringify]
@@ -240,6 +287,7 @@ resourcePanel = {
 	
 	clickTrySyntax: function(event)
 	{
+	$('#resourcePanel #createFailureMessage').text('Clicked on try.')
 		var text = $('#syntaxResourceDiv #text-to-try').val();
 		services.trySyntax(resourcePanel.resourceId(),text)
 			.then( report => $('#syntaxResourceDiv #whatHappened').text( report.whatHappened ) )

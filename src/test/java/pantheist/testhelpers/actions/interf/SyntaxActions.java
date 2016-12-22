@@ -8,13 +8,19 @@ public interface SyntaxActions
 {
 	void createLiteralToken(String syntaxId, String value);
 
-	void createRegexToken(String syntaxId, String nodeId, String regex);
+	void createSingleCharacterMatcher(String syntaxId, String nodeId, List<String> options, List<String> exception);
 
-	void createZeroOrMoreNode(String syntaxId, String nodeId, String child);
+	void createZeroOrMoreNodeGlued(String syntaxId, String nodeId, String child);
 
-	void createOneOrMoreNode(String syntaxId, String nodeId, String child);
+	void createOneOrMoreNodeGlued(String syntaxId, String nodeId, String child);
 
-	void createSequenceNode(String syntaxId, String nodeId, List<String> children);
+	void createSequenceNodeGlued(String syntaxId, String nodeId, List<String> children);
+
+	void createZeroOrMoreNodeSeparated(String syntaxId, String nodeId, String child);
+
+	void createOneOrMoreNodeSeparated(String syntaxId, String nodeId, String child);
+
+	void createSequenceNodeSeparated(String syntaxId, String nodeId, List<String> children);
 
 	void createChoiceNode(String syntaxId, String nodeId, List<String> children);
 

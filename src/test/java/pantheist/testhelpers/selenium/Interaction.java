@@ -14,11 +14,16 @@ public class Interaction
 
 	public static ApiRule hidden()
 	{
-		return new FirefoxRule(false);
+		return new FirefoxRule(false, false);
+	}
+
+	public static ApiRule screenshotOnFailure()
+	{
+		return new FirefoxRule(false, true);
 	}
 
 	public static ApiRule visible()
 	{
-		return new FirefoxRule(true);
+		return new FirefoxRule(true, false);
 	}
 }

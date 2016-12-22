@@ -40,7 +40,7 @@ final class ResourcePanelImpl implements ResourcePanel
 	@Override
 	public Menu syntaxCreateType()
 	{
-		return el.select().withId("componentCreatorType");
+		return el.select().withId("createComponentType");
 	}
 
 	@Override
@@ -73,39 +73,21 @@ final class ResourcePanelImpl implements ResourcePanel
 	}
 
 	@Override
+	public TextEntry syntaxCreateDetail()
+	{
+		return el.inputText().withId("createComponentDetail");
+	}
+
+	@Override
+	public TextEntry syntaxCreateExceptions()
+	{
+		return el.inputText().withId("createComponentExceptions");
+	}
+
+	@Override
 	public TextEntry syntaxDocNodeList()
 	{
-		return el.p().withId("syntax-doc").inputText().choose();
-	}
-
-	@Override
-	public TextEntry syntaxNodeRegex()
-	{
-		return el.p().withId("syntax-node-regex").inputText().choose();
-	}
-
-	@Override
-	public TextEntry syntaxNodeZeroOrMore()
-	{
-		return el.p().withId("syntax-node-zero_or_more").inputText().choose();
-	}
-
-	@Override
-	public TextEntry syntaxNodeOneOrMore()
-	{
-		return el.p().withId("syntax-node-one_or_more").inputText().choose();
-	}
-
-	@Override
-	public TextEntry syntaxNodeSequence()
-	{
-		return el.p().withId("syntax-node-sequence").inputText().choose();
-	}
-
-	@Override
-	public TextEntry syntaxNodeChoice()
-	{
-		return el.p().withId("syntax-node-choice").inputText().choose();
+		return syntaxCreateDetail();
 	}
 
 	@Override
@@ -121,9 +103,14 @@ final class ResourcePanelImpl implements ResourcePanel
 	}
 
 	@Override
-	public Textual trySyntaxResult()
+	public void allowTimeToStabilize()
 	{
 		el.allowTimeToStabilize();
+	}
+
+	@Override
+	public Textual trySyntaxResult()
+	{
 		return el.p().withId("whatHappened");
 	}
 
