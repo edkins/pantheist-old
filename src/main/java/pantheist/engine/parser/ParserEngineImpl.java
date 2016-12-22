@@ -106,8 +106,8 @@ final class ParserEngineImpl implements ParserEngine
 
 		String rootNodeId()
 		{
-			final SyntaxDocProperty root = checkNotNull(syntax.doc().root());
-			if (root.children().size() == 1)
+			final SyntaxDocProperty root = syntax.doc().root();
+			if (root != null && root.children().size() == 1)
 			{
 				return OtherPreconditions.singletonValue(root.children());
 			}
@@ -124,7 +124,18 @@ final class ParserEngineImpl implements ParserEngine
 			{
 				return Optional.empty();
 			}
-			return Optional.of(ws.children());
+			final List<String> result = ws.children().stream().filter(this::nodeIdExists)
+					.collect(Collectors.toList());
+			if (result.isEmpty())
+			{
+				return Optional.empty();
+			}
+			return Optional.of(result);
+		}
+
+		private boolean nodeIdExists(final String nodeId)
+		{
+			return syntax.node().containsKey(nodeId);
 		}
 
 		List<Entry<String, SyntaxOperator>> operators(final String nodeId)
