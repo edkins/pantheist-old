@@ -15,6 +15,7 @@ import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxModelFactory;
 import pantheist.api.syntax.model.TryOutTextReport;
 import pantheist.common.except.NotFoundException;
+import pantheist.engine.parser.BadGrammarException;
 import pantheist.engine.parser.ParserEngine;
 
 final class SyntaxBackendImpl implements SyntaxBackend
@@ -44,13 +45,18 @@ final class SyntaxBackendImpl implements SyntaxBackend
 	@Override
 	public TryOutTextReport tryOutText(final String syntaxId, final String text) throws NotFoundException
 	{
-		final Parser<?> parser = engine.jparsecForSyntax(fetchSyntax(syntaxId));
-
 		try
 		{
+			final Parser<?> parser = engine.jparsecForSyntax(fetchSyntax(syntaxId));
+
 			final Object result = parser.parse(text);
 
 			return modelFactory.tryOutTextReport("It returned an object " + result);
+		}
+		catch (final BadGrammarException e)
+		{
+			LOGGER.catching(e);
+			return modelFactory.tryOutTextReport(e.getMessage());
 		}
 		catch (final ParserException e)
 		{

@@ -1,4 +1,5 @@
-resourceTypePanel = {
+'use strict';
+var resourceTypePanel = {
 	showFailureMessage: function()
 	{
 		$('#resourceTypePanel #failureMessage').text('Failed.');

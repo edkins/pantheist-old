@@ -16,7 +16,7 @@ import pantheist.testhelpers.session.MainRule;
 public class SyntaxUiTest extends SyntaxResourceTest
 {
 	@ClassRule
-	public static final ApiRule apiRule = Interaction.visible();
+	public static final ApiRule apiRule = Interaction.hidden();
 
 	@Rule
 	public MainRule sessionRule = MainRule.forNewTest(apiRule);

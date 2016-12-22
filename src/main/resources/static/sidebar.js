@@ -1,3 +1,4 @@
+'use strict';
 var sidebar = {
 
 	resourceTypeClick: function(event)

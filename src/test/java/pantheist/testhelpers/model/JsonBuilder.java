@@ -42,6 +42,17 @@ public class JsonBuilder
 		return this;
 	}
 
+	public JsonBuilder with(final String key, final long value)
+	{
+		checkNotNullOrEmpty(key);
+		if (obj.containsKey(key))
+		{
+			throw new IllegalStateException("Already contains key " + key);
+		}
+		obj.put(key, value);
+		return this;
+	}
+
 	public JsonBuilder with(final String key, final List<String> value)
 	{
 		checkNotNullOrEmpty(key);

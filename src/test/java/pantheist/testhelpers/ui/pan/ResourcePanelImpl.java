@@ -73,9 +73,9 @@ final class ResourcePanelImpl implements ResourcePanel
 	}
 
 	@Override
-	public TextEntry syntaxCreateExceptions()
+	public TextEntry syntaxCreateFurtherDetail()
 	{
-		return el.inputText().withId("createComponentExceptions");
+		return el.inputText().withId("createComponentDetail2");
 	}
 
 	@Override

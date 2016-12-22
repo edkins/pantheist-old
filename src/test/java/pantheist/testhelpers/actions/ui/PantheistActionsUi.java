@@ -212,15 +212,15 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 		rp.syntaxCreateType().selectByText("Single character matcher");
 		rp.syntaxCreateName().fillOut(nodeId);
 		rp.syntaxCreateDetail().fillOut(spaceSeparated(options));
-		rp.syntaxCreateExceptions().fillOut(spaceSeparated(exceptions));
+		rp.syntaxCreateFurtherDetail().fillOut(spaceSeparated(exceptions));
 		rp.syntaxCreateButton().click();
 	}
 
 	@Override
 	public void createZeroOrMoreNodeSeparated(final String syntaxId, final String nodeId, final String child)
 	{
-		checkNoSpaces(child);
 		wantResource("syntax", syntaxId);
+		checkNoSpaces(child);
 		rp.syntaxCreateType().selectByText("Zero or more tokens (separated)");
 		rp.syntaxCreateName().fillOut(nodeId);
 		rp.syntaxCreateDetail().fillOut(child);
@@ -230,8 +230,8 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	@Override
 	public void createOneOrMoreNodeSeparated(final String syntaxId, final String nodeId, final String child)
 	{
-		checkNoSpaces(child);
 		wantResource("syntax", syntaxId);
+		checkNoSpaces(child);
 		rp.syntaxCreateType().selectByText("One or more tokens (separated)");
 		rp.syntaxCreateName().fillOut(nodeId);
 		rp.syntaxCreateDetail().fillOut(child);
@@ -273,8 +273,8 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	@Override
 	public void createZeroOrMoreNodeGlued(final String syntaxId, final String nodeId, final String child)
 	{
-		checkNoSpaces(child);
 		wantResource("syntax", syntaxId);
+		checkNoSpaces(child);
 		rp.syntaxCreateType().selectByText("Zero or more tokens (glued)");
 		rp.syntaxCreateName().fillOut(nodeId);
 		rp.syntaxCreateDetail().fillOut(child);
@@ -284,8 +284,8 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 	@Override
 	public void createOneOrMoreNodeGlued(final String syntaxId, final String nodeId, final String child)
 	{
-		checkNoSpaces(child);
 		wantResource("syntax", syntaxId);
+		checkNoSpaces(child);
 		rp.syntaxCreateType().selectByText("One or more tokens (glued)");
 		rp.syntaxCreateName().fillOut(nodeId);
 		rp.syntaxCreateDetail().fillOut(child);
@@ -299,6 +299,21 @@ public class PantheistActionsUi implements PantheistActions, SyntaxActions
 		rp.syntaxCreateType().selectByText("Sequence of tokens (glued)");
 		rp.syntaxCreateName().fillOut(nodeId);
 		rp.syntaxCreateDetail().fillOut(spaceSeparated(children));
+		rp.syntaxCreateButton().click();
+	}
+
+	@Override
+	public void createInfixlOperator(final String syntaxId,
+			final String operator,
+			final int level,
+			final String containedIn)
+	{
+		wantResource("syntax", syntaxId);
+		checkNoSpaces(containedIn);
+		rp.syntaxCreateType().selectByText("Left-associative infix operator");
+		rp.syntaxCreateName().fillOut(operator);
+		rp.syntaxCreateDetail().fillOut(String.valueOf(level));
+		rp.syntaxCreateFurtherDetail().fillOut(containedIn);
 		rp.syntaxCreateButton().click();
 	}
 

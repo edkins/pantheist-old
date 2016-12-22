@@ -54,6 +54,19 @@ public abstract class SyntaxResourceTest
 		act = sessionRule.actions();
 	}
 
+	private String res(final String resourcePath) throws IOException
+	{
+		try (InputStream inputStream = SyntaxResourceTest.class.getResourceAsStream(resourcePath))
+		{
+			return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+		}
+	}
+
+	private void assertSyntaxTree(final Information result, final String treeText)
+	{
+		result.assertString("It returned an object " + treeText);
+	}
+
 	@Test
 	public void syntax_canBeCreated() throws Exception
 	{
@@ -151,7 +164,7 @@ public abstract class SyntaxResourceTest
 	}
 
 	@Test
-	public void grammar_toyExampleWithFruit_canParse() throws Exception
+	public void grammar_fruitExample_canParse() throws Exception
 	{
 		act.createResource(SYNTAX, SYNTAX_ID);
 		act.syntax().createLiteralToken(SYNTAX_ID, "apple");
@@ -219,16 +232,18 @@ public abstract class SyntaxResourceTest
 		assertSyntaxTree(result, expected);
 	}
 
-	private String res(final String resourcePath) throws IOException
+	@Test
+	public void grammar_operatorPrecedence() throws Exception
 	{
-		try (InputStream inputStream = SyntaxResourceTest.class.getResourceAsStream(resourcePath))
-		{
-			return IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-		}
-	}
-
-	private void assertSyntaxTree(final Information result, final String treeText)
-	{
-		result.assertString("It returned an object " + treeText);
+		act.createResource(SYNTAX, SYNTAX_ID);
+		act.syntax().createSingleCharacterMatcher(SYNTAX_ID, "num", ImmutableList.of("digit"), ImmutableList.of());
+		act.syntax().createLiteralToken(SYNTAX_ID, "+");
+		act.syntax().createLiteralToken(SYNTAX_ID, "*");
+		act.syntax().createChoiceNode(SYNTAX_ID, "expr", ImmutableList.of("num"));
+		act.syntax().createInfixlOperator(SYNTAX_ID, "+", 3, "expr");
+		act.syntax().createInfixlOperator(SYNTAX_ID, "*", 4, "expr");
+		act.syntax().setDocRoot(SYNTAX_ID, "expr");
+		final Information result = act.syntax().tryOutSyntax(SYNTAX_ID, "1*2+3*4");
+		assertSyntaxTree(result, "+{*{num{1} num{2}} *{num{3} num{4}}}");
 	}
 }

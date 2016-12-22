@@ -1,3 +1,4 @@
+'use strict';
 var create = {
 
 	button: function(text,fn,data) {
@@ -5,7 +6,7 @@ var create = {
 		btn.attr('type','button');
 		btn.attr('value',text);
 		btn.click(fn);
-		for (key in data)
+		for (var key in data)
 		{
 			btn.attr('data-' + key, data[key]);
 		}
@@ -34,7 +35,7 @@ var create = {
 	table: function(headings) {
 		var table = $('<table>');
 		table.append(create.thead(headings));
-		tbody = $('<tbody>');
+		var tbody = $('<tbody>');
 		table.append(tbody);
 		
 		table.addRow = list => tbody.append(create.tr(list));

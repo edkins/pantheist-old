@@ -1,4 +1,5 @@
-resourcePanel = {
+'use strict';
+var resourcePanel = {
 	showFailureMessage: function()
 	{
 		$('#resourcePanel #failureMessage').text('Failed.');
@@ -51,16 +52,29 @@ resourcePanel = {
 				return 'Occurrences of this node consist of zero or more occurrences of:';
 			case 'syntax-node-glued_one_or_more':
 			case 'syntax-node-one_or_more':
-				return 'Occurrences of this node consist of one or more occurrences of:';
+				return 'Occurwindow.rences of this node consist of one or more occurrences of:';
 			case 'syntax-node-glued_sequence':
 			case 'syntax-node-sequence':
 				return 'Enter a space-separated sequence of nodes that will be matched in order:';
 			case 'syntax-node-choice':
 				return 'Enter a space-separated sequence of nodes to choose from:';
-			case 'syntax-doc':
-				return 'Enter root or whitespace node list:';
+			case 'syntax-operator-infixl':
+				return 'Level (higher is tighter, e.g. *) (lower is looser, e.g. +)';
 			default:
 				throw ('Unrecognized type: '+creatorId);
+		}
+	},
+
+	furtherDetailHelpMessage(creatorId)
+	{
+		switch(creatorId)
+		{
+			case 'syntax-node-single_character':
+				return 'Exceptions:';
+			case 'syntax-operator-infixl':
+				return 'Contained in nodeId:';
+			default:
+				return undefined;
 		}
 	},
 	
@@ -75,14 +89,15 @@ resourcePanel = {
 		}
 	},
 	
-	exceptionsBoxVisibility(creatorId)
+	furtherDetailVisibility(creatorId)
 	{
-		switch(creatorId)
+		if (resourcePanel.furtherDetailHelpMessage(creatorId) === undefined)
 		{
-			case 'syntax-node-single_character':
-				return 'visible';
-			default:
-				return 'hidden';
+			return 'hidden';
+		}
+		else
+		{
+			return 'visible';
 		}
 	},
 	
@@ -93,8 +108,9 @@ resourcePanel = {
 		$('#resourcePanel #createComponentHelpMessage').text(resourcePanel.messageForCreate(creatorId));
 		$('#resourcePanel #createComponentDetail').val('');
 		$('#resourcePanel #createComponentDetail').css('visibility',resourcePanel.detailBoxVisibility(creatorId));
-		$('#resourcePanel #createComponentExceptions').val('');
-		$('#resourcePanel #createComponentExceptionsSection').css('visibility',resourcePanel.exceptionsBoxVisibility(creatorId));
+		$('#resourcePanel #createComponentDetail2').val('');
+		$('#resourcePanel #createComponentFurtherDetailSection').css('visibility',resourcePanel.furtherDetailVisibility(creatorId));
+		$('#resourcePAnel #createComponentFurtherDetailHelpMessage').text(resourcePanel.furtherDetailHelpMessage(creatorId));
 	},
 	
 	showCreateFailureMessage: function()
@@ -115,7 +131,7 @@ resourcePanel = {
 	{
 		var creatorId = $('#resourcePanel #createComponentType').val();
 		var splitDetail = resourcePanel.split($('#resourcePanel #createComponentDetail').val());
-		var splitExceptions = resourcePanel.split($('#resourcePanel #createComponentExceptions').val());
+		var splitDetail2 = resourcePanel.split($('#resourcePanel #createComponentDetail2').val());
 		var lastPart = creatorId.substring(creatorId.lastIndexOf('-')+1);
 		switch( creatorId )
 		{
@@ -133,7 +149,7 @@ resourcePanel = {
 				request: {
 					type: lastPart,
 					children: splitDetail,
-					exceptions: splitExceptions
+					exceptions: splitDetail2
 				}
 			};
 		case 'syntax-node-glued_zero_or_more':
@@ -150,11 +166,14 @@ resourcePanel = {
 					children: splitDetail
 				}
 			};
-		case 'syntax-doc':
+		case 'syntax-operator-infixl':
 			return {
-				componentType: 'doc',
+				componentType: 'operator',
 				request: {
-					children: splitDetail
+					type: lastPart,
+					operator: componentId,
+					level: parseInt(splitDetail[0]),
+					containedIn: splitDetail2[0]
 				}
 			};
 		default:
@@ -198,6 +217,8 @@ resourcePanel = {
 		{
 		case 'node':
 			return ['','id','type','value','children','exceptions','root','delim'];
+		case 'operator':
+			return ['','id','operator','type','level','containedIn'];
 		case 'doc':
 			return undefined;
 		default:
@@ -218,6 +239,14 @@ resourcePanel = {
 			create.maybe_json(x.data.exceptions),
 			create.radio('root', x.id, globalStuff.root, resourcePanel.clickRoot),
 			create.radio('delim', x.id, globalStuff.delim, resourcePanel.clickDelim)
+			];
+		case 'operator': return [
+			create.button('Del', resourcePanel.clickDeleteComponent, {'component-type':componentType,'component-id':x.id}),
+			x.id,
+			x.data.operator,
+			x.data.type,
+			''+x.data.level,
+			x.data.containedIn
 			];
 		default:
 			console.log('bad componentType ' + componentType);
@@ -255,7 +284,7 @@ resourcePanel = {
 					.at('data')
 					.at('children')
 					.singleOrNull(),
-			whitespace:
+			delim:
 				doc.find('id','whitespace')
 					.at('data')
 					.at('children')
@@ -290,7 +319,7 @@ resourcePanel = {
 			for (var j = 0; j < obj.components.length; j++)
 			{
 				var obj2 = obj.components[j];
-				items = resourcePanel.componentTableItems(obj.componentType,obj2,globalStuff);
+				var items = resourcePanel.componentTableItems(obj.componentType,obj2,globalStuff);
 				table.addRow(items);
 			}
 			panel.append(table);

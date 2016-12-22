@@ -7,16 +7,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.codehaus.jparsec.OperatorTable;
 import org.codehaus.jparsec.Parser;
 import org.codehaus.jparsec.Parser.Reference;
 import org.codehaus.jparsec.Parsers;
 import org.codehaus.jparsec.Scanners;
 import org.codehaus.jparsec.Token;
 import org.codehaus.jparsec.TokenMap;
+import org.codehaus.jparsec.functors.Map2;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableList;
@@ -26,6 +30,7 @@ import pantheist.api.syntax.model.SingleCharMatchers;
 import pantheist.api.syntax.model.Syntax;
 import pantheist.api.syntax.model.SyntaxDocProperty;
 import pantheist.api.syntax.model.SyntaxNode;
+import pantheist.api.syntax.model.SyntaxOperator;
 import pantheist.common.except.OtherPreconditions;
 import pantheist.common.util.Make;
 
@@ -102,7 +107,14 @@ final class ParserEngineImpl implements ParserEngine
 		String rootNodeId()
 		{
 			final SyntaxDocProperty root = checkNotNull(syntax.doc().root());
-			return OtherPreconditions.singletonValue(root.children());
+			if (root.children().size() == 1)
+			{
+				return OtherPreconditions.singletonValue(root.children());
+			}
+			else
+			{
+				throw new BadGrammarException("Requires uniquely defined root node");
+			}
 		}
 
 		Optional<List<String>> whitespaceNodeIds()
@@ -113,6 +125,15 @@ final class ParserEngineImpl implements ParserEngine
 				return Optional.empty();
 			}
 			return Optional.of(ws.children());
+		}
+
+		List<Entry<String, SyntaxOperator>> operators(final String nodeId)
+		{
+			return syntax.operator()
+					.entrySet()
+					.stream()
+					.filter(o -> o.getValue().containedIn().equals(nodeId))
+					.collect(Collectors.toList());
 		}
 
 		private Parser<Artifact> recurse(final String nodeId, final ParseLevel level)
@@ -168,8 +189,22 @@ final class ParserEngineImpl implements ParserEngine
 				parser = seq(nodeId, childParsers(level, sn));
 				break;
 			case choice:
+			{
 				parser = Parsers.or(childParsers(level, sn));
+				final List<Entry<String, SyntaxOperator>> opers = operators(nodeId);
+				if (!opers.isEmpty())
+				{
+					checkParserLevel(level);
+					for (final Entry<String, SyntaxOperator> entry : opers)
+					{
+						listOfTokenParsers
+								.add(Scanners.string(entry.getValue().operator())
+										.retn(TokenArtifact.of(entry.getValue().operator())));
+					}
+					parser = wrapWithOperators(level, parser, opers);
+				}
 				break;
+			}
 			default:
 				throw new UnsupportedOperationException("Unsupported syntax node type: " + sn.type());
 			}
@@ -196,11 +231,37 @@ final class ParserEngineImpl implements ParserEngine
 			return parser;
 		}
 
+		private Parser<Artifact> wrapWithOperators(
+				final ParseLevel level,
+				final Parser<Artifact> parser,
+				final List<Entry<String, SyntaxOperator>> operators)
+		{
+			final OperatorTable<Artifact> operatorTable = new OperatorTable<>();
+			for (final Entry<String, SyntaxOperator> entry : operators)
+			{
+				applyOperator(level, operatorTable, entry.getKey(), entry.getValue());
+			}
+			return operatorTable.build(parser);
+		}
+
+		private void applyOperator(final ParseLevel level,
+				final OperatorTable<Artifact> operatorTable,
+				final String operatorId,
+				final SyntaxOperator operator)
+		{
+			switch (operator.type()) {
+			case infixl:
+				operatorTable.infixl(
+						recurse(operator.operator(), level).map(OperatorArtifact.rejig(operatorId)),
+						operator.level());
+			}
+		}
+
 		private void checkParserLevel(final ParseLevel level)
 		{
 			if (!level.equals(ParseLevel.TOKEN))
 			{
-				throw new IllegalStateException("Separated sequence cannot be contained inside glued sequence");
+				throw new BadGrammarException("Separated sequence cannot be contained inside glued sequence");
 			}
 		}
 
@@ -238,7 +299,7 @@ final class ParserEngineImpl implements ParserEngine
 			final SyntaxNode result = syntax.node().get(nodeId);
 			if (result == null)
 			{
-				throw new IllegalStateException("Node not found: " + nodeId);
+				throw new BadGrammarException("Node not found: " + nodeId);
 			}
 			return result;
 		}
@@ -275,6 +336,44 @@ final class ParserEngineImpl implements ParserEngine
 	private static interface Artifact
 	{
 		public String nodeId();
+	}
+
+	private static class OperatorArtifact implements Artifact
+	{
+		private final String operatorId;
+		private final String tokenId;
+		private final Artifact a;
+		private final Artifact b;
+
+		private OperatorArtifact(final String operatorId, final String tokenId, final Artifact a, final Artifact b)
+		{
+			this.operatorId = checkNotNullOrEmpty(operatorId);
+			this.tokenId = checkNotNullOrEmpty(tokenId);
+			this.a = checkNotNull(a);
+			this.b = checkNotNull(b);
+		}
+
+		/**
+		 * A big curried mess.
+		 */
+		public static org.codehaus.jparsec.functors.Map<Artifact, Map2<Artifact, Artifact, Artifact>> rejig(
+				final String operatorId)
+		{
+			return tokenArtifact -> (a, b) -> new OperatorArtifact(operatorId, tokenArtifact.nodeId(), a, b);
+		}
+
+		@Override
+		public String nodeId()
+		{
+			return tokenId;
+		}
+
+		@Override
+		public String toString()
+		{
+			return tokenId + "{" + a + " " + b + "}";
+		}
+
 	}
 
 	private static class SingleCharacterArtifact implements Artifact

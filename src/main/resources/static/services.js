@@ -1,4 +1,5 @@
-services = {
+'use strict';
+var services = {
 	get: function(path)
 	{
 		return Promise.resolve($.ajax(path));
@@ -23,7 +24,7 @@ services = {
 	{
 		switch(type)
 		{
-		case 'syntax': return ['node','doc'];
+		case 'syntax': return ['node','doc','operator'];
 		default:
 			console.log('bad type ' + type);
 		}

@@ -228,6 +228,7 @@ public final class SyntaxResourceImpl implements SyntaxResource
 		{
 			LOGGER.info("POST /syntax/{}/try {}", syntaxId, text);
 			final TryOutTextReport report = syntaxBackend.tryOutText(syntaxId, text);
+			LOGGER.info("What happened: {}", report.whatHappened());
 			return httpHelper.jsonResponse(report);
 		}
 		catch (final NotFoundException e)

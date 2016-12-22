@@ -24,6 +24,8 @@ public interface SyntaxActions
 
 	void createChoiceNode(String syntaxId, String nodeId, List<String> children);
 
+	void createInfixlOperator(String syntaxId, String operator, int level, String containedIn);
+
 	void setDocRoot(String syntaxId, String nodeId);
 
 	void setDocDelim(String syntaxId, String nodeId);

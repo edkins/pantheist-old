@@ -13,6 +13,9 @@ public interface Syntax extends OpenResource
 	@JsonProperty("node")
 	SortedMap<String, SyntaxNode> node();
 
+	@JsonProperty("operator")
+	SortedMap<String, SyntaxOperator> operator();
+
 	@JsonProperty("doc")
 	SyntaxDocProperties doc();
 }

@@ -50,6 +50,7 @@ final class GenericBackendImpl implements GenericBackend
 				.append(Escapers.url(resourceId))
 				.append("/")
 				.append(componentType)
+				.append("/")
 				.append(Escapers.url(componentId))
 				.toString();
 	}

@@ -335,4 +335,20 @@ public class PantheistActionsApi implements PantheistActions, SyntaxActions
 		expectNoContent(response);
 	}
 
+	@Override
+	public void createInfixlOperator(final String syntaxId,
+			final String operator,
+			final int level,
+			final String containedIn)
+	{
+		final Entity<String> json = jb()
+				.with("type", "infixl")
+				.with("operator", operator)
+				.with("level", level)
+				.with("containedIn", containedIn)
+				.toEntity();
+		final Response response = target("syntax", syntaxId, "operator", operator).request().put(json);
+		expectNoContent(response);
+	}
+
 }

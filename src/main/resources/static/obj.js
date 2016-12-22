@@ -1,3 +1,4 @@
+'use strict';
 var obj = {
 	map: function(data)
 	{

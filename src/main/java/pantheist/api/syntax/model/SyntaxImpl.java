@@ -13,12 +13,15 @@ import pantheist.common.except.OtherPreconditions;
 final class SyntaxImpl implements Syntax
 {
 	private final SortedMap<String, SyntaxNode> node;
+	private final SortedMap<String, SyntaxOperator> operator;
 	private final MutableSyntaxDocProperties doc;
 
 	SyntaxImpl(@JsonProperty("node") final SortedMap<String, SyntaxNode> node,
+			@JsonProperty("operator") final SortedMap<String, SyntaxOperator> operator,
 			@JsonProperty("doc") final MutableSyntaxDocProperties doc)
 	{
 		this.node = OtherPreconditions.nullable(node);
+		this.operator = OtherPreconditions.nullable(operator);
 		this.doc = MutableSyntaxDocPropertiesImpl.ofNullable(doc);
 	}
 
@@ -28,6 +31,8 @@ final class SyntaxImpl implements Syntax
 		switch (componentType) {
 		case "node":
 			return TypedMapImpl.of(node, SyntaxNode.class);
+		case "operator":
+			return TypedMapImpl.of(operator, SyntaxOperator.class);
 		case "doc":
 			return TypedMapBuilder.wrap(doc)
 					.with("root", SyntaxDocProperty.class, SyntaxDocProperties::root,
@@ -50,6 +55,12 @@ final class SyntaxImpl implements Syntax
 	public SyntaxDocProperties doc()
 	{
 		return doc;
+	}
+
+	@Override
+	public SortedMap<String, SyntaxOperator> operator()
+	{
+		return operator;
 	}
 
 }

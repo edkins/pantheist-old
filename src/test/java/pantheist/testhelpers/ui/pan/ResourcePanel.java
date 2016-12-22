@@ -24,7 +24,7 @@ public interface ResourcePanel
 
 	TextEntry syntaxCreateDetail();
 
-	TextEntry syntaxCreateExceptions();
+	TextEntry syntaxCreateFurtherDetail();
 
 	TextEntry trySyntaxText();
 

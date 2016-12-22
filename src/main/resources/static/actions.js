@@ -1,4 +1,5 @@
-actions = {
+'use strict';
+var actions = {
 	createEmptyResource: function (type,id)
 	{
 		return services.putEmpty(type,id).then( actions.refreshResources );
